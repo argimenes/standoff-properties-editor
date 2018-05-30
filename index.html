@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editor</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN PLUGIN CSS -->
+    <link href="/css/plugins/bootstrapv3/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/plugins/bootstrapv3/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/plugins/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <!-- END PLUGIN CSS -->
+    <!-- BEGIN CORE CSS FRAMEWORK -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- END CORE CSS FRAMEWORK -->    
+    <link href="/css/app/editor.css" rel="stylesheet" type="text/css" />
+</head>
+<body style="background-color: #efefef;">    
+<section id="main-template">
+    <div class="container" style="margin-top: 40px;">
+        <div class="row">
+            <div class="col-md-12">                
+                <div style="margin-top: 20px;">
+                    <div style="display: inline-block; margin-right: 20px;">
+                        <label>
+                            Styles
+                        </label>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Bold" data-bind="click: $data.boldClicked"><span class="fa fa-bold"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Italics" data-bind="click: $data.italicsClicked"><span class="fa fa-italic"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Strike-through" data-bind="click: $data.strikeClicked"><span class="fa fa-strikethrough"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Underline" data-bind="click: $data.underlineClicked"><span class="fa fa-underline"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Superscript" data-bind="click: $data.superscriptClicked"><span class="fa fa-superscript"></span></button>
+                    </div>
+                    <div style="display: inline-block; margin-right: 20px;">
+                        <label>
+                            Layout
+                        </label>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Line" data-bind="click: $data.lineClicked"><span class="fa fa-arrows-h"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Paragraph" data-bind="click: $data.paragraphClicked"><span class="fa fa-paragraph"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Page" data-bind="click: $data.pageClicked"><span style="font-weight: 600;">P</span></button>
+                    </div>
+                    <div style="display: inline-block; margin-right: 20px;">
+                        <label>
+                            Annotations
+                        </label>
+                        <button style="border-bottom: 3px solid red;" data-toggle="tooltip" data-original-title="Agents" class="btn btn-default tip" data-bind="click: $data.agentClicked"><span class="fa fa-user"></span></button>
+                        <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Events" class="btn btn-default tip" data-bind="click: $data.claimClicked"><span class="fa fa-calendar"></span></button>
+                        <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concepts" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
+                        <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Texts" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
+                        <button style="border-bottom: 3px solid purple;" data-toggle="tooltip" data-original-title="Data Points" class="btn btn-default tip" data-bind="click: $data.dataPointClicked"><span class="fa fa-database"></span></button>
+                        <button style="border-bottom: 3px solid orange;" data-toggle="tooltip" data-original-title="Meta-Relations" class="btn btn-default tip" data-bind="click: $data.metaRelationClicked"><span class="fa fa-exchange"></span></button>
+                        <button style="border-bottom: 3px solid cyan;" data-toggle="tooltip" data-original-title="Times" class="btn btn-default tip" data-bind="click: $data.timeClicked"><span class="fa fa-clock-o"></span></button>
+                        <button style="border-bottom: 3px solid pink;" data-toggle="tooltip" data-original-title="Lexemes" class="btn btn-default tip" data-bind="click: $data.lexemeClicked"><span style="font-weight: 600;">L</span></button>
+                        <button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Subjects" class="btn btn-default tip" data-bind="click: $data.subjectClicked"><span style="font-weight: 600;">S</span></button>
+                    </div>
+                    <div style="display: inline-block;">
+                        <label>
+                            Layers
+                        </label>
+                        <div data-bind="foreach: $data.layers">
+                            <div class="checkbox check-primary inline">
+                                <input type="checkbox" data-bind="checked: $data.selected, attr: { id: $data.name }, click: $parent.layerClicked.bind($parent)" />
+                                <label data-bind="attr: { for: $data.name }, text: $data.name"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <div data-role="editor" contenteditable="true" class="editor"></div>
+                        <div data-role="monitor" class="form-control monitor"></div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <button class="btn btn-default" data-bind="click: $data.cancelClicked">Cancel</button> <button class="btn btn-primary" data-bind="click: $data.saveClicked">Save</button>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn btn-primary" data-bind="click: $data.unbindClicked">Unbind</button> <button class="btn btn-primary" data-bind="click: $data.bindClicked">Bind</button>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <textarea class="form-control" rows="5" data-bind="value: $data.viewer"></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+    <script src="/scripts/require.js"></script>
+    <script src="/scripts/app/app.require.config.js"></script>    
+	<script>
+        var editor;
+        require(["app/modules/standoff-properties-editor", "knockout"], function (Editor, ko) {
+			var Model = (function(){
+				function Model(cons){
+                    this.viewer = ko.observable();
+					this.editor = new Editor({
+						container: cons.template.querySelectorAll("[data-role='editor']")[0],
+						monitor: cons.template.querySelectorAll("[data-role='monitor']")[0],
+						commentManager: function (prop) {
+							// Handle the adding of a user comment to any standoff property.
+						},
+						monitorButton: {
+							link: '<button data-toggle="tooltip" data-original-title="Edit" class="btn btn-sm"><span class="fa fa-link"></span></button>',
+							layer: '<button data-toggle="tooltip" data-original-title="Layer" class="btn btn-sm"><span class="fa fa-cog"></span></button>',
+							remove: '<button data-toggle="tooltip" data-original-title="Delete" class="btn btn-sm"><span class="fa fa-trash"></span></button>',
+							comment: '<button data-toggle="tooltip" data-original-title="Comment" class="btn btn-sm"><span class="fa fa-comment"></span></button>'
+						},
+						 propertyType: {
+                    bold: {
+                        format: "style",
+                        shortcut: "b",
+                        className: "bold",
+                        labelRenderer: function () {
+                            return "<b>bold</b>";
+                        }
+                    },
+                    italics: {
+                        format: "style",
+                        shortcut: "i",
+                        className: "italic",
+                        labelRenderer: function () {
+                            return "<em>italics</em>";
+                        }
+                    },
+                    strike: {
+                        format: "style",
+                        className: "line-through"
+                    },
+                    underline: {
+                        format: "style",
+                        shortcut: "u",
+                        className: "underline"
+                    },
+                    superscript: {
+                        format: "style",
+                        className: "superscript"
+                    },
+                    line: {
+                        format: "style",
+                        className: "line"
+                    },
+                    page: {
+                        format: "style",
+                        className: "page",
+                        labelRenderer: function (prop) {
+                            return "page " + prop.value;
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var num = prompt("Page number?", prop.value || "");
+                            process(num);
+                        }
+                    },
+                    paragraph: {
+                        format: "style",
+                        className: "paragraph"
+                    },
+                    agent: {
+                        format: "entity",
+                        shortcut: "a",
+                        className: "agent",
+                        labelRenderer: function (prop) {
+                            return prop.name ? "agent (" + prop.name +")" : "agent";
+                        },
+                        propertyValueSelector: function (prop, process) {
+                           
+                        },
+                    },
+                    claim: {
+                        format: "entity",
+                        className: "claim",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        },
+                    },
+                    dataPoint: {
+                        format: "entity",
+                        className: "dataPoint",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    },
+                    text: {
+                        format: "entity",
+                        shortcut: "t",
+                        className: "text",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    },
+                    metaRelation: {
+                        format: "entity",
+                        className: "metaRelation",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    },
+                    time: {
+                        format: "entity",
+                        className: "time",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    },
+                    subject: {
+                        format: "entity",
+                        className: "subject",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    },
+                    concept: {
+                        format: "entity",
+                        className: "concept",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    },
+                    lexeme: {
+                        format: "entity",
+                        shortcut: "l",
+                        className: "lexeme",
+                        propertyValueSelector: function (prop, process) {
+                            
+                        }
+                    }
+                    }
+					});
+					this.editor.bind({
+						text: cons.editor.text || "",
+						properties: cons.editor.properties || []
+					});
+				}
+                Model.prototype.layerClicked = function (layer) {
+            var selected = layer.selected();
+            this.editor.setLayerVisibility(layer.name, selected);
+            return true;
+        };
+        Model.prototype.pageClicked = function () {
+            this.editor.modeClicked("page");
+        };
+        Model.prototype.boldClicked = function () {
+            this.editor.modeClicked("bold");
+        };
+        Model.prototype.italicsClicked = function () {
+            this.editor.modeClicked("italics");
+        };
+        Model.prototype.strikeClicked = function () {
+            this.editor.modeClicked("strike");
+        };
+        Model.prototype.superscriptClicked = function () {
+            this.editor.modeClicked("superscript");
+        };
+        Model.prototype.underlineClicked = function () {
+            this.editor.modeClicked("underline");
+        };
+        Model.prototype.lineClicked = function () {
+            this.editor.modeClicked("line");
+        };
+        Model.prototype.paragraphClicked = function () {
+            this.editor.modeClicked("paragraph");
+        };
+        Model.prototype.agentClicked = function () {
+            this.editor.modeClicked("agent");
+        };
+        Model.prototype.lexemeClicked = function () {
+            this.editor.modeClicked("lexeme");
+        };
+        Model.prototype.textClicked = function () {
+            this.editor.modeClicked("text");
+        };
+        Model.prototype.claimClicked = function () {
+            this.editor.modeClicked("claim");
+        };
+        Model.prototype.metaRelationClicked = function () {
+            this.editor.modeClicked("metaRelation");
+        };
+        Model.prototype.timeClicked = function () {
+            this.editor.modeClicked("time");
+        };
+        Model.prototype.dataPointClicked = function () {
+            this.editor.modeClicked("dataPoint");
+        };
+        Model.prototype.subjectClicked = function () {
+            this.editor.modeClicked("subject");
+        };
+        Model.prototype.conceptClicked = function () {
+            this.editor.modeClicked("concept");
+        };
+        Model.prototype.unbindClicked = function(){
+            var data = this.editor.unbind();
+            this.viewer(JSON.stringify(data));
+        };
+				return Model;
+			})();
+			var template = document.getElementById("main-template");
+			var model = new Model({
+				template: template,
+				editor: { }
+            });
+			ko.applyBindings(model, template);
+        });
+    </script>
+</body>
+</html>

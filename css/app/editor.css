@@ -1,0 +1,242 @@
+#modal-nav {
+    z-index: 9999;
+    height: 40px;
+    color: white;
+    font-size: 1.25em;
+    position: fixed;
+    background-color: #000;
+    width: 100%;
+    padding: 10px;
+    bottom: 0;
+}
+
+.ellipsis {
+    white-space: nowrap;
+    width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ellipsis-date {
+    white-space: nowrap;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor {
+    background: #fff;
+    padding: 10px 20px;
+    line-height: 2em;
+    height: 500px;
+    font-size: 1.5em;
+    overflow-y: scroll;
+}
+
+.monitor {
+    min-height: 40px;
+    height: auto;
+    margin-top: 10px 0;
+    font-size: 1.25rem;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.line-through {
+    text-decoration: line-through;
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+.claim {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid blue;
+    left: 0px;
+    bottom: -1px;
+}
+
+.agent {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid red;
+    left: 0px;
+    bottom: -4px;
+}
+
+.concept {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid green;
+    left: 0px;
+    bottom: -6px;
+}
+
+.text {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid yellow;
+    left: 0px;
+    bottom: -7px;
+}
+
+.metaRelation {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid orange;
+    left: 0px;
+    bottom: -8px;
+}
+
+.dataPoint {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid purple;
+    left: 0px;
+    bottom: 0px;
+}
+
+.time {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid cyan;
+    left: 0px;
+    bottom: -10px;
+}
+
+.lexeme {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid pink;
+    left: 0px;
+    bottom: -12px;
+}
+
+.subject {
+    position: absolute;
+    display: inline;
+    width: 100%;
+    border-bottom: 3px solid lightgreen;
+    left: 0px;
+    bottom: -6px;
+}
+
+.line-break {
+    display: block;
+    padding-top: 1em;
+}
+
+.tab {
+    padding-right: 5px;
+}
+
+.superscript {
+    vertical-align: super;
+    font-size: 0.7rem;
+}
+
+.overlaid {
+}
+
+.output-agent {
+    border-bottom: 3px solid red;
+    padding-bottom: 3px;
+}
+
+.output-claim {
+    border-bottom: 3px solid blue;
+    padding-bottom: 1px;
+}
+
+.output-concept {
+    border-bottom: 3px solid green;
+    padding-bottom: 5px;
+}
+
+.output-subject {
+    border-bottom: 3px solid lightgreen;
+    padding-bottom: 5px;
+}
+
+.output-text {
+    border-bottom: 3px solid yellow;
+    bottom: -7px;
+}
+
+.output-dataPoint {
+    border-bottom: 3px solid purple;
+    bottom: 0px;
+}
+
+.output-metaRelation {
+    border-bottom: 3px solid orange;
+    bottom: 0px;
+}
+
+.output-time {
+    border-bottom: 3px solid cyan;
+    bottom: 10px;
+}
+
+.output-lexeme {
+    border-bottom: 3px solid pink;
+    bottom: 12px;
+}
+
+/**
+    Overrides Bootstrap modal CSS to ensure dynamic vertical positioning.
+*/
+.modal {
+    text-align: center;
+    padding: 0 !important;
+}
+
+.modal:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -4px; /* Adjusts for spacing */
+}
+
+.modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.modal-heading {
+    background-color: #333;
+    padding: 5px 20px;
+    font-size: 2em;
+    border-top-left-radius: 10px;
+    color: #fff;
+    border-top-right-radius: 10px;
+}
+
+.modal-close {
+    color: #fff;
+}
+
+.modal-text {
+    padding: 10px 20px;
+    background-color: #fff;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
