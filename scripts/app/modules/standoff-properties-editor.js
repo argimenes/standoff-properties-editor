@@ -539,9 +539,10 @@
             var isFirst = !this.container.children.length;
             var current = this.getCurrent();
             var key = evt.which || evt.keyCode;
-            if (key == BACKSPACE) {
-                var range = this.getSelectionNodes();
-                if (range.start != range.end) {
+            var range = this.getSelectionNodes();
+            var hasSelection = (range.start != range.end);
+            if (key == BACKSPACE) {                
+                if (hasSelection) {
                     this.deleteRange(range);
                 }
                 else {
@@ -551,8 +552,7 @@
                 evt.preventDefault();
                 return;
             } else if (key == DELETE) {
-                var range = this.getSelectionNodes();
-                if (range.start != range.end) {
+                if (hasSelection) {
                     this.deleteRange(range);
                 }
                 else {
@@ -593,6 +593,11 @@
             //    this.updateCurrentRanges();
             //    return;
             //}
+
+            if (hasSelection) {
+                // Overwrite selected range by first deleting it.
+                this.deleteRange(range);
+            }
 
             evt.preventDefault();
             var span = this.newSpan();
