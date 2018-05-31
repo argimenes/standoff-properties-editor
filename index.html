@@ -299,12 +299,23 @@
             var data = this.editor.unbind();
             this.viewer(JSON.stringify(data));
         };
+        Model.prototype.bindClicked = function () {
+            var data = JSON.parse(this.viewer() || '{}');
+            this.editor.bind({
+                text: data.text,
+                properties: data.properties
+            });
+        }
 				return Model;
 			})();
 			var template = document.getElementById("main-template");
 			var model = new Model({
 				template: template,
-				editor: { }
+				editor: {
+                        text: "This is a test ...",
+                        properties: []
+
+                 }
             });
 			ko.applyBindings(model, template);
         });

@@ -540,7 +540,7 @@
             var current = this.getCurrent();
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
-            var hasSelection = (range.start != range.end);
+            var hasSelection = (range && range.start != range.end);
             if (key == BACKSPACE) {                
                 if (hasSelection) {
                     this.deleteRange(range);
@@ -646,6 +646,9 @@
         };
         Editor.prototype.getSelectionNodes = function () {
             var range = window.getSelection().getRangeAt(0);
+            if (range.startOffset == 0 && range.endOffset == 0) {
+                return null;
+            }
             var endContainer = range.endContainer;
             var startSpan = this.getParentSpan(range.startContainer);
             var endSpan = this.getParentSpan(range.endContainer);
