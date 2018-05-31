@@ -171,21 +171,24 @@
                             return prop.name ? "agent (" + prop.name +")" : "agent";
                         },
                         propertyValueSelector: function (prop, process) {
-                           
+                           var uuid = prompt("Agent UUID?", prop.value || "");
+                            process(uuid);
                         },
                     },
                     claim: {
                         format: "entity",
                         className: "claim",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Claim UUID?", prop.value || "");
+                            process(uuid);
                         },
                     },
                     dataPoint: {
                         format: "entity",
                         className: "dataPoint",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Data Point UUID?", prop.value || "");
+                            process(uuid);
                         }
                     },
                     text: {
@@ -193,35 +196,40 @@
                         shortcut: "t",
                         className: "text",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Text UUID?", prop.value || "");
+                            process(uuid);
                         }
                     },
                     metaRelation: {
                         format: "entity",
                         className: "metaRelation",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Meta-Relation UUID?", prop.value || "");
+                            process(uuid);
                         }
                     },
                     time: {
                         format: "entity",
                         className: "time",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Date/Time", prop.value || "");
+                            process(uuid);
                         }
                     },
                     subject: {
                         format: "entity",
                         className: "subject",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Subject UUID?", prop.value || "");
+                            process(uuid);
                         }
                     },
                     concept: {
                         format: "entity",
                         className: "concept",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Concept UUID?", prop.value || "");
+                            process(uuid);
                         }
                     },
                     lexeme: {
@@ -229,7 +237,8 @@
                         shortcut: "l",
                         className: "lexeme",
                         propertyValueSelector: function (prop, process) {
-                            
+                            var uuid = prompt("Lexeme UUID?", prop.value || "");
+                            process(uuid);
                         }
                     }
                     }
