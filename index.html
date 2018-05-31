@@ -107,6 +107,8 @@
 						monitor: cons.template.querySelectorAll("[data-role='monitor']")[0],
 						commentManager: function (prop) {
 							// Handle the adding of a user comment to any standoff property.
+                            var value = prompt("Comment", prop.value || "");
+                            process(value);
 						},
 						monitorButton: {
 							link: '<button data-toggle="tooltip" data-original-title="Edit" class="btn btn-sm"><span class="fa fa-link"></span></button>',
