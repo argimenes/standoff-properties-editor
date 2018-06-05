@@ -1,7 +1,7 @@
 ﻿(function () {
     require.config({
         urlArgs: "v=1",
-        baseUrl: "/scripts",
+        baseUrl: "scripts",
         paths: {
             "app/utils": "app/app.utils.pkgd",            
             "app/modules/standoff-properties-editor": "app/modules/standoff-properties-editor",            
