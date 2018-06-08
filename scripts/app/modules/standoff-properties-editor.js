@@ -15,7 +15,7 @@
     };
 
     var BACKSPACE = 8,
-        DELETE = 46,
+        DELETE = 46, HOME = 36, END = 35,
         LEFT_ARROW = 37, RIGHT_ARROW = 39, UP_ARROW = 38, DOWN_ARROW = 40, SPACE = 32,
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
         RIGHT_WINDOW_KEY = 92, F1 = 112;
@@ -541,7 +541,7 @@
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
             var hasSelection = (range && range.start != range.end);
-            if (key == BACKSPACE) {                
+            if (key == BACKSPACE) {
                 if (hasSelection) {
                     this.deleteRange(range);
                 }
@@ -561,6 +561,9 @@
                 this.updateCurrentRanges();
                 evt.preventDefault();
                 return;
+            } else if (key == HOME || key == END) {
+                this.updateCurrentRanges();
+                return true;
             } else if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
                 this.updateCurrentRanges();
                 return true;
@@ -646,7 +649,7 @@
         };
         Editor.prototype.getSelectionNodes = function () {
             var range = window.getSelection().getRangeAt(0);
-            if (range.startOffset == 0 && range.endOffset == 0) {
+            if (range.collapsed) {
                 return null;
             }
             var endContainer = range.endContainer;
