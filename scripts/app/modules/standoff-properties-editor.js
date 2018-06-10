@@ -459,7 +459,11 @@
             var clipboardData = e.clipboardData || window.clipboardData;
             var text = clipboardData.getData('text');
             var frag = this.textToDocumentFragment(text);
-            this.container.insertBefore(frag, e.target.nextElementSibling);
+            if (this.container.children.length){
+                this.container.insertBefore(frag, e.target.nextElementSibling);
+            } else {
+                this.container.appendChild(frag);
+            }
             this.setCarotByNode(e.target);
             this.updateCurrentRanges();
         };
@@ -646,7 +650,7 @@
         };
         Editor.prototype.getSelectionNodes = function () {
             var range = window.getSelection().getRangeAt(0);
-            if (range.startOffset == 0 && range.endOffset == 0) {
+            if (range.collapsed) {
                 return null;
             }
             var endContainer = range.endContainer;
