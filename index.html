@@ -98,7 +98,7 @@
     <script src="scripts/app/app.require.config.js"></script>    
 	<script>
         var editor;
-        require(["app/modules/standoff-properties-editor", "knockout"], function (Editor, ko) {
+        require(["app/modules/standoff-properties-editor", "knockout", "jquery"], function (Editor, ko, $) {
 			var Model = (function(){
 				function Model(cons){
                     this.viewer = ko.observable();
@@ -319,16 +319,16 @@
         }
 				return Model;
 			})();
-			var template = document.getElementById("main-template");
-			var model = new Model({
+            var template = document.getElementById("main-template");
+            $.get("ReggF3-H19-316.json", function(json){
+                
+                var model = new Model({
 				template: template,
-				editor: {
-                        text: "This is a test ...",
-                        properties: []
-
-                 }
+				editor: json
             });
 			ko.applyBindings(model, template);
+            });
+			
         });
     </script>
 </body>
