@@ -56,7 +56,7 @@
     text-decoration: underline;
 }
 
-.claim {
+.event {
     position: absolute;
     display: inline;
     width: 100%;
@@ -65,7 +65,7 @@
     bottom: -1px;
 }
 
-.agent {
+.person {
     position: absolute;
     display: inline;
     width: 100%;
@@ -92,25 +92,7 @@
     bottom: -7px;
 }
 
-.metaRelation {
-    position: absolute;
-    display: inline;
-    width: 100%;
-    border-bottom: 3px solid orange;
-    left: 0px;
-    bottom: -8px;
-}
-
-.dataPoint {
-    position: absolute;
-    display: inline;
-    width: 100%;
-    border-bottom: 3px solid purple;
-    left: 0px;
-    bottom: 0px;
-}
-
-.time {
+.date {
     position: absolute;
     display: inline;
     width: 100%;
@@ -119,7 +101,7 @@
     bottom: -10px;
 }
 
-.lexeme {
+.place {
     position: absolute;
     display: inline;
     width: 100%;
