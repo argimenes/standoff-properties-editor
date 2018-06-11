@@ -51,15 +51,12 @@
                                 Annotations
                             </label>
                         </div>
-                        <button style="border-bottom: 3px solid red;" data-toggle="tooltip" data-original-title="Agents" class="btn btn-default tip" data-bind="click: $data.agentClicked"><span class="fa fa-user"></span></button>
-                        <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Events" class="btn btn-default tip" data-bind="click: $data.claimClicked"><span class="fa fa-calendar"></span></button>
-                        <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concepts" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
-                        <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Texts" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
-                        <button style="border-bottom: 3px solid purple;" data-toggle="tooltip" data-original-title="Data Points" class="btn btn-default tip" data-bind="click: $data.dataPointClicked"><span class="fa fa-database"></span></button>
-                        <button style="border-bottom: 3px solid orange;" data-toggle="tooltip" data-original-title="Meta-Relations" class="btn btn-default tip" data-bind="click: $data.metaRelationClicked"><span class="fa fa-exchange"></span></button>
-                        <button style="border-bottom: 3px solid cyan;" data-toggle="tooltip" data-original-title="Times" class="btn btn-default tip" data-bind="click: $data.timeClicked"><span class="fa fa-clock-o"></span></button>
-                        <button style="border-bottom: 3px solid pink;" data-toggle="tooltip" data-original-title="Lexemes" class="btn btn-default tip" data-bind="click: $data.lexemeClicked"><span style="font-weight: 600;">L</span></button>
-                        <button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Subjects" class="btn btn-default tip" data-bind="click: $data.subjectClicked"><span style="font-weight: 600;">S</span></button>
+                        <button style="border-bottom: 3px solid red;" data-toggle="tooltip" data-original-title="Person" class="btn btn-default tip" data-bind="click: $data.personClicked"><span class="fa fa-user"></span></button>
+			    <button style="border-bottom: 3px solid red;" data-toggle="tooltip" data-original-title="Place" class="btn btn-default tip" data-bind="click: $data.placeClicked"><span class="fa fa-user"></span></button>
+			    <button style="border-bottom: 3px solid cyan;" data-toggle="tooltip" data-original-title="Date" class="btn btn-default tip" data-bind="click: $data.dateClicked"><span class="fa fa-clock-o"></span></button>
+                        <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Event" class="btn btn-default tip" data-bind="click: $data.eventClicked"><span class="fa fa-calendar"></span></button>
+                        <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concept" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
+			<button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Text" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
                     </div>                    
                 </div> 
                 <div class="row" style="margin-top: 10px;">
@@ -168,34 +165,26 @@
                         format: "style",
                         className: "paragraph"
                     },
-                    agent: {
+                    person: {
                         format: "entity",
-                        shortcut: "a",
-                        className: "agent",
+                        shortcut: "p",
+                        className: "person",
                         labelRenderer: function (prop) {
-                            return prop.name ? "agent (" + prop.name +")" : "agent";
+                            return prop.name ? "person (" + prop.name +")" : "person";
                         },
                         propertyValueSelector: function (prop, process) {
-                           var uuid = prompt("Agent UUID?", prop.value || "");
+                           var uuid = prompt("Person UUID?", prop.value || "");
                             process(uuid);
                         },
                     },
-                    claim: {
+                    "event": {
                         format: "entity",
-                        className: "claim",
+                        className: "event",
                         propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Claim UUID?", prop.value || "");
+                            var uuid = prompt("Event UUID?", prop.value || "");
                             process(uuid);
                         },
-                    },
-                    dataPoint: {
-                        format: "entity",
-                        className: "dataPoint",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Data Point UUID?", prop.value || "");
-                            process(uuid);
-                        }
-                    },
+                    },                    
                     text: {
                         format: "entity",
                         shortcut: "t",
@@ -205,30 +194,22 @@
                             process(uuid);
                         }
                     },
-                    metaRelation: {
+		    place: {
                         format: "entity",
-                        className: "metaRelation",
+                        className: "place",
                         propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Meta-Relation UUID?", prop.value || "");
+                            var uuid = prompt("Place", prop.value || "");
                             process(uuid);
                         }
-                    },
-                    time: {
+                    },   
+                    date: {
                         format: "entity",
-                        className: "time",
+                        className: "date",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Date/Time", prop.value || "");
                             process(uuid);
                         }
-                    },
-                    subject: {
-                        format: "entity",
-                        className: "subject",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Subject UUID?", prop.value || "");
-                            process(uuid);
-                        }
-                    },
+                    },                    
                     concept: {
                         format: "entity",
                         className: "concept",
@@ -236,16 +217,7 @@
                             var uuid = prompt("Concept UUID?", prop.value || "");
                             process(uuid);
                         }
-                    },
-                    lexeme: {
-                        format: "entity",
-                        shortcut: "l",
-                        className: "lexeme",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Lexeme UUID?", prop.value || "");
-                            process(uuid);
-                        }
-                    }
+                    },                    
                     }
 					});
 					this.editor.bind({
@@ -282,29 +254,20 @@
         Model.prototype.paragraphClicked = function () {
             this.editor.modeClicked("paragraph");
         };
-        Model.prototype.agentClicked = function () {
-            this.editor.modeClicked("agent");
-        };
-        Model.prototype.lexemeClicked = function () {
-            this.editor.modeClicked("lexeme");
+        Model.prototype.personClicked = function () {
+            this.editor.modeClicked("person");
         };
         Model.prototype.textClicked = function () {
             this.editor.modeClicked("text");
         };
-        Model.prototype.claimClicked = function () {
-            this.editor.modeClicked("claim");
+        Model.prototype.eventClicked = function () {
+            this.editor.modeClicked("event");
         };
-        Model.prototype.metaRelationClicked = function () {
-            this.editor.modeClicked("metaRelation");
-        };
-        Model.prototype.timeClicked = function () {
-            this.editor.modeClicked("time");
-        };
-        Model.prototype.dataPointClicked = function () {
-            this.editor.modeClicked("dataPoint");
-        };
-        Model.prototype.subjectClicked = function () {
-            this.editor.modeClicked("subject");
+        Model.prototype.placeClicked = function () {
+            this.editor.modeClicked("place");
+        }; 
+        Model.prototype.dateClicked = function () {
+            this.editor.modeClicked("date");
         };
         Model.prototype.conceptClicked = function () {
             this.editor.modeClicked("concept");
