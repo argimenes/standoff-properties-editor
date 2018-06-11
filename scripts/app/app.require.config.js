@@ -10,7 +10,8 @@
             "jquery": "jquery-3.1.1.min",                        
         },
         shim: {
-            "app/utils": ["jquery", "knockout"]
+            "app/utils": ["jquery", "knockout"],
+            "bootstrap": ["jquery"]
         },
         waitSeconds: 0
     });

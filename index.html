@@ -22,11 +22,13 @@
     <div class="container" style="margin-top: 40px;">
         <div class="row">
             <div class="col-md-12">                
-                <div style="margin-top: 20px;">
+                <div style="margin-top: 20px;">                    
                     <div style="display: inline-block; margin-right: 20px;">
-                        <label>
-                            Styles
-                        </label>
+                        <div>
+                            <label>
+                                Styles
+                            </label>
+                        </div>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Bold" data-bind="click: $data.boldClicked"><span class="fa fa-bold"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Italics" data-bind="click: $data.italicsClicked"><span class="fa fa-italic"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Strike-through" data-bind="click: $data.strikeClicked"><span class="fa fa-strikethrough"></span></button>
@@ -34,17 +36,21 @@
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Superscript" data-bind="click: $data.superscriptClicked"><span class="fa fa-superscript"></span></button>
                     </div>
                     <div style="display: inline-block; margin-right: 20px;">
-                        <label>
-                            Layout
-                        </label>
+                        <div>
+                            <label>
+                                Layout
+                            </label>
+                        </div>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Line" data-bind="click: $data.lineClicked"><span class="fa fa-arrows-h"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Paragraph" data-bind="click: $data.paragraphClicked"><span class="fa fa-paragraph"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Page" data-bind="click: $data.pageClicked"><span style="font-weight: 600;">P</span></button>
                     </div>
                     <div style="display: inline-block; margin-right: 20px;">
-                        <label>
-                            Annotations
-                        </label>
+                        <div>
+                            <label>
+                                Annotations
+                            </label>
+                        </div>
                         <button style="border-bottom: 3px solid red;" data-toggle="tooltip" data-original-title="Agents" class="btn btn-default tip" data-bind="click: $data.agentClicked"><span class="fa fa-user"></span></button>
                         <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Events" class="btn btn-default tip" data-bind="click: $data.claimClicked"><span class="fa fa-calendar"></span></button>
                         <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concepts" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
@@ -54,18 +60,7 @@
                         <button style="border-bottom: 3px solid cyan;" data-toggle="tooltip" data-original-title="Times" class="btn btn-default tip" data-bind="click: $data.timeClicked"><span class="fa fa-clock-o"></span></button>
                         <button style="border-bottom: 3px solid pink;" data-toggle="tooltip" data-original-title="Lexemes" class="btn btn-default tip" data-bind="click: $data.lexemeClicked"><span style="font-weight: 600;">L</span></button>
                         <button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Subjects" class="btn btn-default tip" data-bind="click: $data.subjectClicked"><span style="font-weight: 600;">S</span></button>
-                    </div>
-                    <div style="display: inline-block;">
-                        <label>
-                            Layers
-                        </label>
-                        <div data-bind="foreach: $data.layers">
-                            <div class="checkbox check-primary inline">
-                                <input type="checkbox" data-bind="checked: $data.selected, attr: { id: $data.name }, click: $parent.layerClicked.bind($parent)" />
-                                <label data-bind="attr: { for: $data.name }, text: $data.name"></label>
-                            </div>
-                        </div>
-                    </div>
+                    </div>                    
                 </div> 
                 <div class="row" style="margin-top: 10px;">
                     <div class="col-md-12">
@@ -98,7 +93,15 @@
     <script src="scripts/app/app.require.config.js"></script>    
 	<script>
         var editor;
-        require(["app/modules/standoff-properties-editor", "knockout", "jquery"], function (Editor, ko, $) {
+        require(["app/modules/standoff-properties-editor", "knockout", "jquery", "bootstrap"], function (Editor, ko, $) {
+
+            //
+            // This ensures that tooltips are applied to all targets, whether or not they are dynamically created.
+            //
+            $("body").tooltip({
+                selector: '[data-toggle="tooltip"]'
+            });
+
 			var Model = (function(){
 				function Model(cons){
                     this.viewer = ko.observable();
