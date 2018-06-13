@@ -57,6 +57,8 @@
                         <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Event" class="btn btn-default tip" data-bind="click: $data.eventClicked"><span class="fa fa-calendar"></span></button>
                         <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concept" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
 			<button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Text" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
+			<button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Web Link" class="btn btn-default tip" data-bind="click: $data.webLinkClicked"><span class="fa fa-link"></span></button>
+            
                     </div>                    
                 </div> 
                 <div class="row" style="margin-top: 10px;">
@@ -194,14 +196,22 @@
                             process(uuid);
                         }
                     },
-		    place: {
+		            place: {
                         format: "entity",
                         className: "place",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Place", prop.value || "");
                             process(uuid);
                         }
-                    },   
+                    }, 
+                    webLink: {
+                        format: "entity",
+                        className: "web-link",
+                        propertyValueSelector: function (prop, process) {
+                            var uuid = prompt("Web Link", prop.value || "");
+                            process(uuid);
+                        }
+                    }, 
                     date: {
                         format: "entity",
                         className: "date",
@@ -259,6 +269,9 @@
         };
         Model.prototype.textClicked = function () {
             this.editor.modeClicked("text");
+        };
+        Model.prototype.webLinkClicked = function () {
+            this.editor.modeClicked("webLink");
         };
         Model.prototype.eventClicked = function () {
             this.editor.modeClicked("event");
