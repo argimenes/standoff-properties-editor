@@ -34,6 +34,7 @@
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Strike-through" data-bind="click: $data.strikeClicked"><span class="fa fa-strikethrough"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Underline" data-bind="click: $data.underlineClicked"><span class="fa fa-underline"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Superscript" data-bind="click: $data.superscriptClicked"><span class="fa fa-superscript"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Space" data-bind="click: $data.spaceClicked"><span class="fa fa-space-shuttle"></span></button>
                     </div>
                     <div style="display: inline-block; margin-right: 20px;">
                         <div>
@@ -148,6 +149,10 @@
                         format: "style",
                         className: "superscript"
                     },
+                    space: {
+                        format: "style",
+                        className: "space"
+                    },
                     line: {
                         format: "style",
                         className: "line"
@@ -239,6 +244,9 @@
             var selected = layer.selected();
             this.editor.setLayerVisibility(layer.name, selected);
             return true;
+        };
+        Model.prototype.spaceClicked = function () {
+            this.editor.modeClicked("space");
         };
         Model.prototype.pageClicked = function () {
             this.editor.modeClicked("page");
