@@ -9,6 +9,11 @@ A standoff property is a property that 'stands off' from the text it refers to, 
 ## Solving the overlap problem
 The fundamental limitation of XML and HTML is that semantics are encoded in a tree structure. While descriptive XML schemas have been developed to encode digital humanities texts, XML does not cope well with [overlapping annotations](https://en.wikipedia.org/wiki/Overlapping_markup). This is because the tree structure of XML mandates that an overlapping annotation (two or more annotations that overlap the same text sequence) cross one or more branches of that tree structure. The result can be complex and ambiguous XML. By representing annotations as discrete, unstructured properties that refer to text with character indexes, annotations can freely overlap as they do not have to conform to a tree structure. An attempt to reconcile the two approaches lead to the creation of the _standoff markup_ format, which encodes annotations as XML elements that define the annotation as the joining of branches in the XML tree. However, such markup generates even less readable XML annotations and could run into problems when the source text changes. These problems disappear, however, if the text and its annotation properties are kept entirely separate. The text, then, is stored in a raw or unformatted state, annotated by a collection of discrete standoff properties.
 
+## Enter the editor
+The technical challenge posed by standoff properties is that they require indexes to link annotations to the words in the text, which suggests that the text cannot be changed without breaking the annotations. However, by using a linked list-style structure composed of SPANs it is possible to create properties that reference characters by pointers, allowing text to be freely inserted or deleted without breaking the annotations. Indexes are only calculated at the end of the session, when the annotated text is to be exported (and presumably saved). Some special handling is required for handling deletions at property boundaries, but everything is basically managed through DOM pointers.
+
+Currently the main speed limitation is the browser's rendering phase when loading very large texts (e.g., hundreds of pages), but there are options for dealing with this.
+
 ## Configuration
 
 - container: HTMLElement;
