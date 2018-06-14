@@ -44,11 +44,11 @@
         var found = false;
         var loop = true;
         var temp = node;
-        while (loop) {
+        while (loop && temp) {
             if (start == temp) {
                 loop = false;
                 found = true;
-            }
+            }            
             temp = temp.previousElementSibling;
             if (temp == null) {
                 loop = false;
@@ -61,7 +61,7 @@
         var found = false;
         var loop = true;
         var temp = node;
-        while (loop) {
+        while (loop && temp) {
             if (start == temp) {
                 loop = false;
                 found = true;
@@ -89,7 +89,7 @@
 
     function childNodeIndex(node) {
         var i = 0;
-        while ((node = node.previousElementSibling) != null) i++;
+        while (node && ((node = node.previousElementSibling) != null)) i++;
         return i;
     }
 
@@ -465,36 +465,38 @@
             this.updateCurrentRanges();
         };
         Editor.prototype.handleBackspace = function (current, updateCarot) {
-            var _ = this;
+            var _ = this;            
             var previous = current.previousElementSibling;
-            var next = current.nextElementSibling;
-            if (current.startProperties.length) {
-                current.startProperties.each(function (prop) {
-                    prop.startNode = next;
-                    if (next) {
-                        next.startProperties.push(prop);
-                    }
-                });
-                current.startProperties.length = 0;
+            var next = current.nextElementSibling;            
+            if (current) {
+                if (current.startProperties.length) {
+                    current.startProperties.each(function (prop) {
+                        prop.startNode = next;
+                        if (next) {
+                            next.startProperties.push(prop);
+                        }
+                    });
+                    current.startProperties.length = 0;
+                }
+                if (current.endProperties.length) {                    
+                    current.endProperties.each(function (prop) {
+                        prop.endNode = previous;
+                        if (previous) {
+                            previous.endProperties.push(prop);
+                        }
+                    });
+                    current.endProperties.length = 0;
+                }
             }
-            if (current.endProperties.length) {
-                var beforePrevious = previous.previousElementSibling;
-                console.log("beforePrevious", beforePrevious);
-                current.endProperties.each(function (prop) {
-                    prop.endNode = previous;
-                    if (previous) {
-                        previous.endProperties.push(prop);
-                    }
-                });
-                current.endProperties.length = 0;
-            }
-            if (previous.endProperties.length) {
-                previous.endProperties
-                    .where(function (ep) { return ep.startNode == next && ep.endNode == previous; })
-                    .each(function (single) { remove(_.data.properties, single); });
-            }
+            if (previous) {
+                if (previous.endProperties.length) {
+                    previous.endProperties
+                        .where(function (ep) { return ep.startNode == next && ep.endNode == previous; })
+                        .each(function (single) { remove(_.data.properties, single); });
+                }
+            }            
             current.remove();
-            if (updateCarot) {
+            if (updateCarot && previous) {
                 this.setCarotByNode(previous);
             }
         };
@@ -542,7 +544,7 @@
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
             var isFirst = !this.container.children.length;
-            var current = this.getCurrent();
+            var current = this.getCurrent();            
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
             var hasSelection = (range && range.start != range.end);
@@ -574,7 +576,9 @@
                 return true;
             }
             else if (evt.ctrlKey) {
-                if (evt.key == "b") {
+                if (evt.key == "a") {
+                    return;
+                } else if (evt.key == "b") {
                     evt.preventDefault();
                     this.modeClicked("bold");
                 } else if (evt.key == "i") {
@@ -619,9 +623,11 @@
                 this.setCarotByNode(span);
             }
             else {
-                this.container.insertBefore(span, current.nextElementSibling);
+                var atFirst = !current;                
+                var next = atFirst ? this.container.firstChild : current.nextElementSibling;
+                this.container.insertBefore(span, next);                              
                 this.paint(span);
-                this.setCarotByNode(current.nextElementSibling);
+                this.setCarotByNode(atFirst ? current : span);
             }
             this.updateCurrentRanges();
         };
@@ -639,6 +645,9 @@
             }
         };
         Editor.prototype.setCarotByNode = function (node) {
+            if (!node)  {
+                return;
+            }
             var selection = window.getSelection();
             var range = document.createRange();
             range.setStart(node.firstChild, 1); // The first child in this case is the TEXT NODE of the span; must set it to this.
