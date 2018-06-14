@@ -25,7 +25,7 @@
         while (loop) {
             if (func(s)) {
                 return s;
-            }            
+            }
             s = s.parentElement;
         }
         return null;
@@ -160,7 +160,6 @@
         function Property(cons) {
             this.editor = cons.editor;
             this.guid = cons.guid;
-            this.userGuid = cons.userGuid;
             this.index = cons.index;
             this.type = cons.type;
             this.value = cons.value;
@@ -239,10 +238,9 @@
             this.unsetSpanRange();
             this.editor.updateCurrentRanges(this.endNode);
             this.editor.monitor.textContent = "";
-            this.editor.propertyChanged({
-                state: "removed",
-                data: this
-            });
+            if (this.editor.onPropertyDeleted) {
+                this.editor.onPropertyDeleted(this);
+            }
         };
         Property.prototype.toNode = function () {
             var __ = this;
@@ -254,10 +252,9 @@
                 var statementText = this.editor.container.textContent;
                 text = statementText.substr(si, len);
             }
-            return {
+            var data = {
                 index: this.index,
                 guid: this.guid || null,
-                userGuid: this.userGuid || null,
                 type: this.type,
                 layer: this.layer,
                 text: text,
@@ -266,6 +263,10 @@
                 endIndex: ei,
                 isDeleted: this.isDeleted || false
             };
+            if (this.editor.onPropertyUnbound) {
+                this.editor.onPropertyUnbound(data, this);
+            }
+            return data;
         };
         return Property;
     })();
@@ -274,13 +275,15 @@
         function Editor(cons) {
             this.container = (cons.container instanceof HTMLElement) ? cons.container : document.getElementById(cons.container);
             this.monitor = (cons.monitor instanceof HTMLElement) ? cons.monitor : document.getElementById(cons.monitor);
-            this.userGuid = cons.userGuid;
+            this.onPropertyCreated = cons.onPropertyCreated;
+            this.onPropertyChanged = cons.onPropertyChanged;
+            this.onPropertyDeleted = cons.onPropertyDeleted;
+            this.onPropertyUnbound = cons.onPropertyUnbound;
             this.data = {
                 text: null,
                 properties: []
             };
             this.publisher = {
-                propertyChanged: [],
                 layerAdded: []
             };
             this.propertyType = cons.propertyType;
@@ -312,19 +315,6 @@
                 }
             });
         };
-        Editor.prototype.onPropertyChanged = function (handler) {
-            this.publisher.propertyChanged.push(handler);
-        };
-        Editor.prototype.propertyChanged = function (e) {
-            each(this.publisher.propertyChanged, function (handler) {
-                try {
-                    handler(e);
-                }
-                catch (ex) {
-                    console.log(ex);
-                }
-            });
-        };
         Editor.prototype.setupEventHandlers = function () {
             this.container.addEventListener("dblclick", this.handleDoubleClickEvent.bind(this));
             this.container.addEventListener("keydown", this.handleKeyDownEvent.bind(this));
@@ -332,6 +322,7 @@
             this.container.addEventListener("paste", this.handleOnPasteEvent.bind(this));
         };
         Editor.prototype.handleDoubleClickEvent = function (e) {
+            var _this = this;
             var props = this.data.properties.where(function (prop) {
                 var propertyType = prop.getPropertyType();
                 return propertyType.propertyValueSelector && isWithin(prop.startNode, prop.endNode, e.target);
@@ -351,6 +342,9 @@
                 if (guid) {
                     nearest.value = guid;
                     nearest.name = name;
+                    if (_this.onPropertyChanged) {
+                        _this.onPropertyChanged(nearest);
+                    }
                 }
             });
         };
@@ -392,8 +386,11 @@
                         _.propertyType[p.type].propertyValueSelector(p, function (guid, name) {
                             if (guid) {
                                 p.value = guid;
-                                p.name = name;
+                                p.name = name;                                
                                 _.updateCurrentRanges(p.startNode);
+                                if (_.onPropertyChanged) {
+                                    _.onPropertyChanged(p);
+                                }
                             }
                         });
                         _.updateCurrentRanges(p.startNode);
@@ -459,7 +456,7 @@
             var clipboardData = e.clipboardData || window.clipboardData;
             var text = clipboardData.getData('text');
             var frag = this.textToDocumentFragment(text);
-            if (this.container.children.length){
+            if (this.container.children.length) {
                 this.container.insertBefore(frag, e.target.nextElementSibling);
             } else {
                 this.container.appendChild(frag);
@@ -565,10 +562,10 @@
                 this.updateCurrentRanges();
                 evt.preventDefault();
                 return;
-            } else if (key == HOME || key == END) {
+            } else if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
                 this.updateCurrentRanges();
                 return true;
-            } else if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
+            } else if (key == HOME || key == END) {
                 this.updateCurrentRanges();
                 return true;
             }
@@ -681,10 +678,9 @@
                 range.end.endProperties.push(p);
                 _this.data.properties.push(p);
                 p.setSpanRange();
-                _this.propertyChanged({
-                    state: "added",
-                    data: p
-                });
+                if (_this.onPropertyCreated) {
+                    _this.onPropertyCreated(p);
+                }
             }
             var propertyType = find(this.propertyType, function (item, key) {
                 return key == m && item.propertyValueSelector;
@@ -760,7 +756,6 @@
                     editor: this,
                     layer: p.layer,
                     guid: p.guid,
-                    userGuid: p.userGuid,
                     index: p.index,
                     type: p.type,
                     value: p.value,
@@ -768,6 +763,9 @@
                     endNode: endNode,
                     isDeleted: p.isDeleted
                 });
+                if (this.onPropertyCreated) {
+                    this.onPropertyCreated(prop, p);
+                }
                 startNode.startProperties.push(prop);
                 endNode.endProperties.push(prop);
                 prop.setSpanRange();

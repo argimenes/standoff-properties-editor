@@ -104,10 +104,39 @@
 
 			var Model = (function(){
 				function Model(cons){
+                    var _ = this;
+                    this.userGuid = "testGUID";
                     this.viewer = ko.observable();
 					this.editor = new Editor({
 						container: cons.template.querySelectorAll("[data-role='editor']")[0],
 						monitor: cons.template.querySelectorAll("[data-role='monitor']")[0],
+                        onPropertyCreated: function (prop, data) {
+                            // Copy the custom fields across from the JSON data to the Property.
+                            if (!data) {
+                                return;
+                            }
+                            prop.userGuid = data.userGuid;
+                            prop.deletedByUserGuid = data.deletedByUserGuid;
+                            prop.modifiedByUserGuid = data.modifiedByUserGuid;
+                        },
+                        onPropertyChanged: function (prop) {
+                            if (!_.userGuid) {
+                                return;
+                            }
+                            prop.modifiedByUserGuid = _.userGuid;
+                        },
+                        onPropertyDeleted: function (prop) {
+                            if (!_.userGuid) {
+                                return;
+                            }
+                            prop.deletedByUserGuid = _.userGuid;
+                        },
+                        onPropertyUnbound: function (data, prop) {
+                            // Copy the custom fields across from the Property to the JSON data.
+                            data.userGuid = prop.userGuid;
+                            data.deletedByUserGuid = prop.deletedByUserGuid;
+                            data.modifiedByUserGuid = prop.modifiedByUserGuid;
+                        },
 						commentManager: function (prop) {
 							// Handle the adding of a user comment to any standoff property.
                             var value = prompt("Comment", prop.value || "");
@@ -119,59 +148,59 @@
 							remove: '<button data-toggle="tooltip" data-original-title="Delete" class="btn btn-sm"><span class="fa fa-trash"></span></button>',
 							comment: '<button data-toggle="tooltip" data-original-title="Comment" class="btn btn-sm"><span class="fa fa-comment"></span></button>'
 						},
-						 propertyType: {
-                    bold: {
-                        format: "style",
-                        shortcut: "b",
-                        className: "bold",
-                        labelRenderer: function () {
-                            return "<b>bold</b>";
-                        }
-                    },
-                    italics: {
-                        format: "style",
-                        shortcut: "i",
-                        className: "italic",
-                        labelRenderer: function () {
-                            return "<em>italics</em>";
-                        }
-                    },
-                    strike: {
-                        format: "style",
-                        className: "line-through"
-                    },
-                    underline: {
-                        format: "style",
-                        shortcut: "u",
-                        className: "underline"
-                    },
-                    superscript: {
-                        format: "style",
-                        className: "superscript"
-                    },
-                    space: {
-                        format: "style",
-                        className: "space"
-                    },
-                    line: {
-                        format: "style",
-                        className: "line"
-                    },
-                    page: {
-                        format: "style",
-                        className: "page",
-                        labelRenderer: function (prop) {
-                            return "page " + prop.value;
-                        },
-                        propertyValueSelector: function (prop, process) {
-                            var num = prompt("Page number?", prop.value || "");
-                            process(num);
-                        }
-                    },
-                    paragraph: {
-                        format: "style",
-                        className: "paragraph"
-                    },
+						propertyType: {
+                            bold: {
+                                format: "style",
+                                shortcut: "b",
+                                className: "bold",
+                                labelRenderer: function () {
+                                    return "<b>bold</b>";
+                                }
+                            },
+                            italics: {
+                                format: "style",
+                                shortcut: "i",
+                                className: "italic",
+                                labelRenderer: function () {
+                                    return "<em>italics</em>";
+                                }
+                            },
+                            strike: {
+                                format: "style",
+                                className: "line-through"
+                            },
+                            underline: {
+                                format: "style",
+                                shortcut: "u",
+                                className: "underline"
+                            },
+                            superscript: {
+                                format: "style",
+                                className: "superscript"
+                            },
+                            space: {
+                                format: "style",
+                                className: "space"
+                            },
+                            line: {
+                                format: "style",
+                                className: "line"
+                            },
+                            page: {
+                                format: "style",
+                                className: "page",
+                                labelRenderer: function (prop) {
+                                    return "page " + prop.value;
+                                },
+                                propertyValueSelector: function (prop, process) {
+                                    var num = prompt("Page number?", prop.value || "");
+                                    process(num);
+                                }
+                            },
+                            paragraph: {
+                                format: "style",
+                                className: "paragraph"
+                            },
                     person: {
                         format: "entity",
                         shortcut: "p",
