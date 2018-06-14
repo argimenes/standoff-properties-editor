@@ -105,7 +105,7 @@
 			var Model = (function(){
 				function Model(cons){
                     var _ = this;
-                    this.userGuid = "testGUID";
+                    this.userGuid = "abcd-efgh-ijkl-mnop";
                     this.viewer = ko.observable();
 					this.editor = new Editor({
 						container: cons.template.querySelectorAll("[data-role='editor']")[0],
@@ -113,6 +113,7 @@
                         onPropertyCreated: function (prop, data) {
                             // Copy the custom fields across from the JSON data to the Property.
                             if (!data) {
+                                prop.userGuid = _.userGuid;
                                 return;
                             }
                             prop.userGuid = data.userGuid;

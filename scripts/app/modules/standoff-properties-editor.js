@@ -471,7 +471,9 @@
             if (current.startProperties.length) {
                 current.startProperties.each(function (prop) {
                     prop.startNode = next;
-                    next.startProperties.push(prop);
+                    if (next) {
+                        next.startProperties.push(prop);
+                    }
                 });
                 current.startProperties.length = 0;
             }
@@ -480,7 +482,9 @@
                 console.log("beforePrevious", beforePrevious);
                 current.endProperties.each(function (prop) {
                     prop.endNode = previous;
-                    previous.endProperties.push(prop);
+                    if (previous) {
+                        previous.endProperties.push(prop);
+                    }
                 });
                 current.endProperties.length = 0;
             }
