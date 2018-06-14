@@ -29,7 +29,7 @@ Currently the main speed limitation is the browser's rendering phase when loadin
   - format: string;
   - shortcut: string: 
   - className: string;
-  - propertyValueSelector: function (prop: Property, process: function);
+  - propertyValueSelector: function (prop: Property, process: function (guid: string; name: string;));
   - labelRenderer: function() => string;
   
 ## Hooks
