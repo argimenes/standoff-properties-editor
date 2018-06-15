@@ -137,6 +137,11 @@
     font-size: 0.7rem;
 }
 
+.subscript {
+    vertical-align: sub;
+    font-size: 0.7rem;
+}
+
 .overlaid {
 }
 
