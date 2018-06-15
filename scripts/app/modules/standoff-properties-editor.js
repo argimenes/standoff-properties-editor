@@ -249,6 +249,7 @@
             var ei = this.endIndex();
             var len = ei - si + 1;
             if (len > 0) {
+                len = this.editor.unbinding.maxTextLength || len;
                 var statementText = this.editor.container.textContent;
                 text = statementText.substr(si, len);
             }
@@ -279,6 +280,7 @@
             this.onPropertyChanged = cons.onPropertyChanged;
             this.onPropertyDeleted = cons.onPropertyDeleted;
             this.onPropertyUnbound = cons.onPropertyUnbound;
+            this.unbinding = cons.unbinding || {};
             this.data = {
                 text: null,
                 properties: []
