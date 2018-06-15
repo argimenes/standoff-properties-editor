@@ -47,6 +47,7 @@
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Strike-through" data-bind="click: $data.strikeClicked"><span class="fa fa-strikethrough"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Underline" data-bind="click: $data.underlineClicked"><span class="fa fa-underline"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Superscript" data-bind="click: $data.superscriptClicked"><span class="fa fa-superscript"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Subscript" data-bind="click: $data.subscriptClicked"><span class="fa fa-subscript"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Space" data-bind="click: $data.spaceClicked"><span class="fa fa-space-shuttle"></span></button>
                     </div>
                     <div style="display: inline-block; margin-right: 20px;">
@@ -168,6 +169,65 @@
 							remove: '<button data-toggle="tooltip" data-original-title="Delete" class="btn btn-sm"><span class="fa fa-trash"></span></button>',
 							comment: '<button data-toggle="tooltip" data-original-title="Comment" class="btn btn-sm"><span class="fa fa-comment"></span></button>'
 						},
+<<<<<<< HEAD
+						 propertyType: {
+                    bold: {
+                        format: "style",
+                        shortcut: "b",
+                        className: "bold",
+                        labelRenderer: function () {
+                            return "<b>bold</b>";
+                        }
+                    },
+                    italics: {
+                        format: "style",
+                        shortcut: "i",
+                        className: "italic",
+                        labelRenderer: function () {
+                            return "<em>italics</em>";
+                        }
+                    },
+                    strike: {
+                        format: "style",
+                        className: "line-through"
+                    },
+                    underline: {
+                        format: "style",
+                        shortcut: "u",
+                        className: "underline"
+                    },
+                    superscript: {
+                        format: "style",
+                        className: "superscript"
+                    },
+                    subscript: {
+                        format: "style",
+                        className: "subscript"
+                    },
+                    space: {
+                        format: "style",
+                        className: "space"
+                    },
+                    line: {
+                        format: "style",
+                        className: "line"
+                    },
+                    page: {
+                        format: "style",
+                        className: "page",
+                        labelRenderer: function (prop) {
+                            return "page " + prop.value;
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var num = prompt("Page number?", prop.value || "");
+                            process(num);
+                        }
+                    },
+                    paragraph: {
+                        format: "style",
+                        className: "paragraph"
+                    },
+=======
 						propertyType: {
                             bold: {
                                 format: "style",
@@ -221,6 +281,7 @@
                                 format: "style",
                                 className: "paragraph"
                             },
+>>>>>>> 70653588f7e711e7e650ecc0b8d116ecaedfc13b
                     person: {
                         format: "entity",
                         shortcut: "p",
@@ -311,6 +372,9 @@
         };
         Model.prototype.superscriptClicked = function () {
             this.editor.modeClicked("superscript");
+        };
+        Model.prototype.subscriptClicked = function () {
+            this.editor.modeClicked("subscript");
         };
         Model.prototype.underlineClicked = function () {
             this.editor.modeClicked("underline");
