@@ -21,6 +21,19 @@
 <section id="main-template">
     <div class="container" style="margin-top: 40px;">
         <div class="row">
+            <div class="col-md-6">
+                <label>
+                    File
+                </label>
+                <div class="input-group">
+                    <select class="form-control" data-bind="value: $data.file, options: $data.files"></select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" data-bind="click: $data.loadClicked">Load</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-12">                
                 <div style="margin-top: 20px;">                    
                     <div style="display: inline-block; margin-right: 20px;">
@@ -59,11 +72,13 @@
                         <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Event" class="btn btn-default tip" data-bind="click: $data.eventClicked"><span class="fa fa-calendar"></span></button>
                         <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concept" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
 			<button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Text" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
+			<button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Web Link" class="btn btn-default tip" data-bind="click: $data.webLinkClicked"><span class="fa fa-link"></span></button>
+            
                     </div>                    
                 </div> 
                 <div class="row" style="margin-top: 10px;">
                     <div class="col-md-12">
-                        <div data-role="editor" contenteditable="true" class="editor"></div>
+                        <div data-role="editor" spellcheck="false" contenteditable="true" class="editor"></div>
                         <div data-role="monitor" class="form-control monitor"></div>
                     </div>
                 </div>
@@ -103,10 +118,46 @@
 
 			var Model = (function(){
 				function Model(cons){
+                    var _ = this;
+                    this.file = ko.observable("ReggF3-H19-316.json");
+                    this.files = ko.observableArray([
+                        "ReggF3-H19-316.json",
+                        "ReggF3-H19-316-no-annotations.json",
+                        "adam-liszt.json"
+                        ]);
+                    this.userGuid = "abcd-efgh-ijkl-mnop";
                     this.viewer = ko.observable();
 					this.editor = new Editor({
 						container: cons.template.querySelectorAll("[data-role='editor']")[0],
 						monitor: cons.template.querySelectorAll("[data-role='monitor']")[0],
+                        onPropertyCreated: function (prop, data) {
+                            // Copy the custom fields across from the JSON data to the Property.
+                            if (!data) {
+                                prop.userGuid = _.userGuid;
+                                return;
+                            }
+                            prop.userGuid = data.userGuid;
+                            prop.deletedByUserGuid = data.deletedByUserGuid;
+                            prop.modifiedByUserGuid = data.modifiedByUserGuid;
+                        },
+                        onPropertyChanged: function (prop) {
+                            if (!_.userGuid) {
+                                return;
+                            }
+                            prop.modifiedByUserGuid = _.userGuid;
+                        },
+                        onPropertyDeleted: function (prop) {
+                            if (!_.userGuid) {
+                                return;
+                            }
+                            prop.deletedByUserGuid = _.userGuid;
+                        },
+                        onPropertyUnbound: function (data, prop) {
+                            // Copy the custom fields across from the Property to the JSON data.
+                            data.userGuid = prop.userGuid;
+                            data.deletedByUserGuid = prop.deletedByUserGuid;
+                            data.modifiedByUserGuid = prop.modifiedByUserGuid;
+                        },
 						commentManager: function (prop) {
 							// Handle the adding of a user comment to any standoff property.
                             var value = prompt("Comment", prop.value || "");
@@ -204,14 +255,22 @@
                             process(uuid);
                         }
                     },
-		    place: {
+		            place: {
                         format: "entity",
                         className: "place",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Place", prop.value || "");
                             process(uuid);
                         }
-                    },   
+                    }, 
+                    webLink: {
+                        format: "entity",
+                        className: "web-link",
+                        propertyValueSelector: function (prop, process) {
+                            var uuid = prompt("Web Link", prop.value || "");
+                            process(uuid);
+                        }
+                    }, 
                     date: {
                         format: "entity",
                         className: "date",
@@ -276,6 +335,9 @@
         Model.prototype.textClicked = function () {
             this.editor.modeClicked("text");
         };
+        Model.prototype.webLinkClicked = function () {
+            this.editor.modeClicked("webLink");
+        };
         Model.prototype.eventClicked = function () {
             this.editor.modeClicked("event");
         };
@@ -292,6 +354,14 @@
             var data = this.editor.unbind();
             this.viewer(JSON.stringify(data));
         };
+        Model.prototype.loadClicked = function(){
+            var _this = this;
+            var file = this.file();
+            $.get(file, function(json){
+                _this.editor.bind(json);
+                _this.viewer(null);
+            });
+        };
         Model.prototype.bindClicked = function () {
             var data = JSON.parse(this.viewer() || '{}');
             this.editor.bind({
@@ -299,17 +369,17 @@
                 properties: data.properties
             });
         }
-				return Model;
-			})();
-            var template = document.getElementById("main-template");
-            $.get("ReggF3-H19-316.json", function(json){
-                
-                var model = new Model({
-				template: template,
-				editor: json
+        return Model;
+    })();
+
+        var template = document.getElementById("main-template");
+        $.get("ReggF3-H19-316.json", function(json){        
+            var model = new Model({
+                template: template,
+                editor: json
             });
-			ko.applyBindings(model, template);
-            });
+            ko.applyBindings(model, template);
+        });
 			
         });
     </script>
