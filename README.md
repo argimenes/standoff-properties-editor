@@ -14,6 +14,31 @@ The technical challenge posed by standoff properties is that they require indexe
 
 Currently the main speed limitation is the browser's rendering phase when loading very large texts (e.g., hundreds of pages), but there are options for dealing with this.
 
+## Layers
+As there is no defined limit on the number or types of annotations that can be added to a text, there is the chance that texts may become visually cluttered with annotations. To address this, there is an option to assign a user-defined 'layer' to an annotation for the purpose of grouping them. Layers can be shown and hidden at will, thus reducing clutter. This is particularly helpful when it comes to computer-generated annotations, such as syntactic or semantic annotations created by an NLP library or other text analysis tools.
+
+## Annotate the world
+As suggested above, there is no reason annotations should be limited to those manually entered by users. Algorithms and libraries could also generate annotations automatically, such as the following:
+
+- Lemma
+- Syntax trees
+- Entity name recognition
+- Textual variants (versioning)
+- Translations (inter-text standoff properties)
+
+Anything that can be mined or derived from a text can be stored as a standoff property.
+
+## Text as a graph
+While standoff properties can be stored in any format storing them as LOD entities in a graph database vastly increases their potential. For example, if you were searching for all references to a person you would not only find the texts but the exact character positions in the text. If you expanded your query from a person like Leonardo da Vinci, say, to all artists you could see every instance an artist is mentioned in any text. Queries could also be combined across annotation types. For example, if you had the syntax tree of a text you could find every occurence of a term within a given syntactical unit. The more annotation types you record, the more greater the number of text minining options become available.
+
+## The editor
+The demo editor contains four sections. The only mandatory one is the editor panel.
+
+- Annotation buttons -- used to apply an annotation to the selected text
+- Editor panel -- where the text and annotations are entered 
+- Monitor -- lists the annotations at the cursor position, along with tools for managing them
+- Bind/unbind panel -- the input/output section for the JSON data
+
 ## Configuration
 
 - container: HTMLElement;
