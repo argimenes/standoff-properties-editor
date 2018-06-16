@@ -29,7 +29,24 @@ As suggested above, there is no reason annotations should be limited to those ma
 Anything that can be mined or derived from a text can be stored as a standoff property.
 
 ## Text as a graph
-While standoff properties can be stored in any format storing them as LOD entities in a graph database vastly increases their potential. For example, if you were searching for all references to a person you would not only find the texts but the exact character positions in the text. If you expanded your query from a person like Leonardo da Vinci, say, to all artists you could see every instance an artist is mentioned in any text. Queries could also be combined across annotation types. For example, if you had the syntax tree of a text you could find every occurence of a term within a given syntactical unit. The more annotation types you record, the more greater the number of text minining options become available.
+While standoff properties can be stored in any format storing them as LOD entities in a graph database vastly increases their potential. For example, if you were searching for all references to a person you would not only find the texts but the exact character positions in the text. If you expanded your query from a person like Leonardo da Vinci, say, to all artists you could see every instance an artist is mentioned in any text. Queries could also be combined across annotation types. For example, if you had the syntax tree of a text you could find every occurence of a term within a given syntactical unit. The more annotation types you record, the greater the number of text minining options become available.
+
+## Features
+I use the term Standoff Property Text (SPT) to refer to the combination of the raw text and its standoff properties.
+
+- Separation of annotations from text source
+- Text is dynamically editable without corrupting annotations
+- Annotations can be overlaid freely
+- SPTs are exported and imported as JSON
+- Annotations can be grouped into layers, to manage visual complexity
+- The standoff property data model can easily be extended by the user in their application code through various event hooks, to store as much as or as little data as they need
+- The editor makes no assumption about where LOD data is stored, and can be easily extended to query any data source
+
+In addition:
+
+- Annotations are annotatable with SPTs
+- SPTs can be annotated with other SPTs (e.g., footnotes, margin notes)
+- As suggested above, the SPT can be considered a 'first class citizen' capable of infinite recursion
 
 ## The editor
 The demo editor contains four sections. The only mandatory one is the editor panel.
