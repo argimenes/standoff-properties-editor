@@ -367,6 +367,16 @@
                 this.setMonitor(props || []);
             }.bind(this), 1);
         };
+        Editor.prototype.deleteAnnotation = function(type) {
+            var current = this.getCurrent();
+            var enclosing = where(this.data.properties, function (prop) {
+                return !prop.isDeleted && prop.type == type && isWithin(prop.startNode, prop.endNode, current);
+            });
+            if (enclosing.length != 1) {
+                return;
+            }
+            enclosing[0].remove();
+        };
         Editor.prototype.setMonitor = function (props) {
             this.monitor.textContent = "";
             if (!props || !props.length) {

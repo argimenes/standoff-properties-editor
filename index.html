@@ -313,29 +313,37 @@
             return modes.indexOf(mode) >= 0;
         };
         Model.prototype.spaceClicked = function () {
-            this.editor.modeClicked("space");
+            this.toggleAnnotation("space");
         };
         Model.prototype.pageClicked = function () {
             this.editor.modeClicked("page");
         };
+        Model.prototype.toggleAnnotation = function (type) {
+            if (this.isActiveMode(type)) {
+                this.editor.deleteAnnotation(type);
+                this.currentModes.pop(type);
+            } else {
+                this.editor.modeClicked(type);
+            }           
+        };
         Model.prototype.boldClicked = function () {
-            this.editor.modeClicked("bold");
+            this.toggleAnnotation("bold");
         };
         Model.prototype.italicsClicked = function () {
-            this.editor.modeClicked("italics");
+            this.toggleAnnotation("italics");  
         };
         Model.prototype.strikeClicked = function () {
-            this.editor.modeClicked("strike");
+            this.toggleAnnotation("strike");
         };
         Model.prototype.superscriptClicked = function () {
-            this.editor.modeClicked("superscript");
+            this.toggleAnnotation("superscript");
         };
         Model.prototype.subscriptClicked = function () {
-            this.editor.modeClicked("subscript");
+            this.toggleAnnotation("subscript");
         };
         Model.prototype.underlineClicked = function () {
-            this.editor.modeClicked("underline");
-        };
+            this.toggleAnnotation("underline");
+        };       
         Model.prototype.lineClicked = function () {
             this.editor.modeClicked("line");
         };
