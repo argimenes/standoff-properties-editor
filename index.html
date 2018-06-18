@@ -42,12 +42,12 @@
                                 Styles
                             </label>
                         </div>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Bold" data-bind="click: $data.boldClicked"><span class="fa fa-bold"></span></button>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Italics" data-bind="click: $data.italicsClicked"><span class="fa fa-italic"></span></button>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Strike-through" data-bind="click: $data.strikeClicked"><span class="fa fa-strikethrough"></span></button>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Underline" data-bind="click: $data.underlineClicked"><span class="fa fa-underline"></span></button>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Superscript" data-bind="click: $data.superscriptClicked"><span class="fa fa-superscript"></span></button>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Space" data-bind="click: $data.spaceClicked"><span class="fa fa-space-shuttle"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Bold" data-bind="click: $data.boldClicked, css: { 'active': $data.isActiveMode('bold') }"><span class="fa fa-bold"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Italics" data-bind="click: $data.italicsClicked, css: { 'active': $data.isActiveMode('italics') }"><span class="fa fa-italic"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Strike-through" data-bind="click: $data.strikeClicked, css: { 'active': $data.isActiveMode('strike') }"><span class="fa fa-strikethrough"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Underline" data-bind="click: $data.underlineClicked, css: { 'active': $data.isActiveMode('underline') }"><span class="fa fa-underline"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Superscript" data-bind="click: $data.superscriptClicked, css: { 'active': $data.isActiveMode('superscript') }"><span class="fa fa-superscript"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Space" data-bind="click: $data.spaceClicked, css: { 'active': $data.isActiveMode('space') }"><span class="fa fa-space-shuttle"></span></button>
                     </div>
                     <div style="display: inline-block; margin-right: 20px;">
                         <div>
@@ -123,7 +123,8 @@
                         "ReggF3-H19-316.json",
                         "ReggF3-H19-316-no-annotations.json",
                         "adam-liszt.json"
-                        ]);
+                        ]);                        
+                    this.currentModes = ko.observableArray([]);
                     this.userGuid = "abcd-efgh-ijkl-mnop";
                     this.viewer = ko.observable();
 					this.editor = new Editor({
@@ -156,6 +157,11 @@
                             data.userGuid = prop.userGuid;
                             data.deletedByUserGuid = prop.deletedByUserGuid;
                             data.modifiedByUserGuid = prop.modifiedByUserGuid;
+                        },
+                        onMonitorUpdated: function(types) {
+                            _.currentModes([]);
+                            var modes = types.filter(function(x){ return x.format == "style"; }).map(function(x) { return x.type; });
+                            _.currentModes(modes);
                         },
 						commentManager: function (prop) {
 							// Handle the adding of a user comment to any standoff property.
@@ -221,59 +227,59 @@
                                 format: "style",
                                 className: "paragraph"
                             },
-                    person: {
-                        format: "entity",
-                        shortcut: "p",
-                        className: "person",
-                        labelRenderer: function (prop) {
-                            return prop.name ? "person (" + prop.name +")" : "person";
-                        },
-                        propertyValueSelector: function (prop, process) {
-                           var uuid = prompt("Person UUID?", prop.value || "");
-                            process(uuid);
-                        },
-                    },
-                    "event": {
-                        format: "entity",
-                        className: "event",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Event UUID?", prop.value || "");
-                            process(uuid);
-                        },
-                    },                    
-                    text: {
-                        format: "entity",
-                        shortcut: "t",
-                        className: "text",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Text UUID?", prop.value || "");
-                            process(uuid);
-                        }
-                    },
-		            place: {
-                        format: "entity",
-                        className: "place",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Place", prop.value || "");
-                            process(uuid);
-                        }
-                    }, 
-                    webLink: {
-                        format: "entity",
-                        className: "web-link",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Web Link", prop.value || "");
-                            process(uuid);
-                        }
-                    }, 
-                    date: {
-                        format: "entity",
-                        className: "date",
-                        propertyValueSelector: function (prop, process) {
-                            var uuid = prompt("Date/Time", prop.value || "");
-                            process(uuid);
-                        }
-                    },                    
+                            person: {
+                                format: "entity",
+                                shortcut: "p",
+                                className: "person",
+                                labelRenderer: function (prop) {
+                                    return prop.name ? "person (" + prop.name +")" : "person";
+                                },
+                                propertyValueSelector: function (prop, process) {
+                                    var uuid = prompt("Person UUID?", prop.value || "");
+                                    process(uuid);
+                                },
+                            },
+                            "event": {
+                                format: "entity",
+                                className: "event",
+                                propertyValueSelector: function (prop, process) {
+                                    var uuid = prompt("Event UUID?", prop.value || "");
+                                    process(uuid);
+                                },
+                            },                    
+                            text: {
+                                format: "entity",
+                                shortcut: "t",
+                                className: "text",
+                                propertyValueSelector: function (prop, process) {
+                                    var uuid = prompt("Text UUID?", prop.value || "");
+                                    process(uuid);
+                                }
+                            },
+                            place: {
+                                format: "entity",
+                                className: "place",
+                                propertyValueSelector: function (prop, process) {
+                                    var uuid = prompt("Place", prop.value || "");
+                                    process(uuid);
+                                }
+                            }, 
+                            webLink: {
+                                format: "entity",
+                                className: "web-link",
+                                propertyValueSelector: function (prop, process) {
+                                    var uuid = prompt("Web Link", prop.value || "");
+                                    process(uuid);
+                                }
+                            }, 
+                            date: {
+                                format: "entity",
+                                className: "date",
+                                propertyValueSelector: function (prop, process) {
+                                    var uuid = prompt("Date/Time", prop.value || "");
+                                    process(uuid);
+                                }
+                            },                    
                     concept: {
                         format: "entity",
                         className: "concept",
@@ -293,6 +299,10 @@
             var selected = layer.selected();
             this.editor.setLayerVisibility(layer.name, selected);
             return true;
+        };
+        Model.prototype.isActiveMode = function(mode) {
+            var modes = this.currentModes();
+            return modes.indexOf(mode) >= 0;
         };
         Model.prototype.spaceClicked = function () {
             this.editor.modeClicked("space");

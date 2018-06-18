@@ -279,6 +279,7 @@
             this.onPropertyChanged = cons.onPropertyChanged;
             this.onPropertyDeleted = cons.onPropertyDeleted;
             this.onPropertyUnbound = cons.onPropertyUnbound;
+            this.onMonitorUpdated = cons.onMonitorUpdated;
             this.data = {
                 text: null,
                 properties: []
@@ -330,15 +331,19 @@
             if (!props.length) {
                 return;
             }
-            var si = childNodeIndex(e.target);
+            var i = childNodeIndex(e.target);
             var nearest = props.sort(function (a, b) {
                 var propa = a.toNode();
                 var propb = b.toNode();
-                var da = si - propa.startIndex;
-                var db = si - propb.startIndex;
+                var da = i - propa.startIndex;
+                var db = i - propb.startIndex;
                 return da > db ? 1 : da == db ? 0 : -1;
             })[0];
-            this.propertyType[nearest.type].propertyValueSelector(nearest, function (guid, name) {
+            if (!nearest) {
+                return;
+            }
+            var property = this.propertyType[nearest.type];
+            property.propertyValueSelector(nearest, function (guid, name) {
                 if (guid) {
                     nearest.value = guid;
                     nearest.name = name;
@@ -363,6 +368,9 @@
         Editor.prototype.setMonitor = function (props) {
             this.monitor.textContent = "";
             if (!props || !props.length) {
+                if (this.onMonitorUpdated) {
+                    this.onMonitorUpdated([]);
+                }
                 return;
             }
             var _ = this;
@@ -441,6 +449,9 @@
                 range.appendChild(comment);
                 range.appendChild(del);
                 this.monitor.appendChild(range);
+                if (this.onMonitorUpdated) {
+                    this.onMonitorUpdated(select(props, function(p){ return { type: p.type, format: _.propertyType[p.type].format }; }));
+                }
             }
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
