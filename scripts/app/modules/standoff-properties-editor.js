@@ -280,11 +280,8 @@
             this.onPropertyChanged = cons.onPropertyChanged;
             this.onPropertyDeleted = cons.onPropertyDeleted;
             this.onPropertyUnbound = cons.onPropertyUnbound;
-<<<<<<< HEAD
             this.onMonitorUpdated = cons.onMonitorUpdated;
-=======
             this.unbinding = cons.unbinding || {};
->>>>>>> 6c3d9fbb98abc0d5973bff860a20e79269dc6dc9
             this.data = {
                 text: null,
                 properties: []
