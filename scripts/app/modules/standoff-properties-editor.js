@@ -20,6 +20,17 @@
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
         RIGHT_WINDOW_KEY = 92, F1 = 112;
 
+    function getRangeText(range) {
+        if (!range) {
+            return null;
+        }
+        var text = "";
+        whileNext(range.start, range.end, function (node) {
+            text += node.textContent;
+        });
+        return text;
+    }
+
     function getParent(startNode, func) {
         var s = startNode, loop = true;
         while (loop) {
@@ -48,7 +59,7 @@
             if (start == temp) {
                 loop = false;
                 found = true;
-            }            
+            }
             temp = temp.previousElementSibling;
             if (temp == null) {
                 loop = false;
@@ -367,7 +378,7 @@
                 this.setMonitor(props || []);
             }.bind(this), 1);
         };
-        Editor.prototype.deleteAnnotation = function(type) {
+        Editor.prototype.deleteAnnotation = function (type) {
             var current = this.getCurrent();
             var enclosing = where(this.data.properties, function (prop) {
                 return !prop.isDeleted && prop.type == type && isWithin(prop.startNode, prop.endNode, current);
@@ -406,7 +417,7 @@
                         _.propertyType[p.type].propertyValueSelector(p, function (guid, name) {
                             if (guid) {
                                 p.value = guid;
-                                p.name = name;                                
+                                p.name = name;
                                 _.updateCurrentRanges(p.startNode);
                                 if (_.onPropertyChanged) {
                                     _.onPropertyChanged(p);
@@ -462,7 +473,7 @@
                 range.appendChild(del);
                 this.monitor.appendChild(range);
                 if (this.onMonitorUpdated) {
-                    this.onMonitorUpdated(select(props, function(p){ return { type: p.type, format: _.propertyType[p.type].format }; }));
+                    this.onMonitorUpdated(select(props, function (p) { return { type: p.type, format: _.propertyType[p.type].format }; }));
                 }
             }
         };
@@ -488,9 +499,9 @@
             this.updateCurrentRanges();
         };
         Editor.prototype.handleBackspace = function (current, updateCarot) {
-            var _ = this;            
+            var _ = this;
             var previous = current.previousElementSibling;
-            var next = current.nextElementSibling;            
+            var next = current.nextElementSibling;
             if (current) {
                 if (current.startProperties.length) {
                     current.startProperties.each(function (prop) {
@@ -501,7 +512,7 @@
                     });
                     current.startProperties.length = 0;
                 }
-                if (current.endProperties.length) {                    
+                if (current.endProperties.length) {
                     current.endProperties.each(function (prop) {
                         prop.endNode = previous;
                         if (previous) {
@@ -517,7 +528,7 @@
                         .where(function (ep) { return ep.startNode == next && ep.endNode == previous; })
                         .each(function (single) { remove(_.data.properties, single); });
                 }
-            }            
+            }
             current.remove();
             if (updateCarot && previous) {
                 this.setCarotByNode(previous);
@@ -567,7 +578,7 @@
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
             var isFirst = !this.container.children.length;
-            var current = this.getCurrent();            
+            var current = this.getCurrent();
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
             var hasSelection = (range && range.start != range.end);
@@ -646,9 +657,9 @@
                 this.setCarotByNode(span);
             }
             else {
-                var atFirst = !current;                
+                var atFirst = !current;
                 var next = atFirst ? this.container.firstChild : current.nextElementSibling;
-                this.container.insertBefore(span, next);                              
+                this.container.insertBefore(span, next);
                 this.paint(span);
                 this.setCarotByNode(atFirst ? current : span);
             }
@@ -668,7 +679,7 @@
             }
         };
         Editor.prototype.setCarotByNode = function (node) {
-            if (!node)  {
+            if (!node) {
                 return;
             }
             var selection = window.getSelection();
@@ -709,6 +720,7 @@
                 startNode: range.start,
                 endNode: range.end
             });
+            prop.text = getRangeText(range);
             var process = function (p) {
                 range.start.startProperties.push(p);
                 range.end.endProperties.push(p);
