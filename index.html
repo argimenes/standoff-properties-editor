@@ -56,6 +56,39 @@
                             </span>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <label>
+                        Font family
+                    </label>
+                    <div class="input-group">
+                            <input type="text" class="form-control" data-bind="value: $data.fontFamily">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" data-bind="click: $data.changeFontFamilyClicked">Change</button>
+                            </span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label>
+                        Text colour
+                    </label>
+                    <div class="input-group">
+                            <input type="text" class="form-control" data-bind="value: $data.textColour">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" data-bind="click: $data.changeTextColourClicked">Change</button>
+                            </span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label>
+                        Background colour
+                    </label>
+                    <div class="input-group">
+                            <input type="text" class="form-control" data-bind="value: $data.backgroundColour">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" data-bind="click: $data.changeBackgroundColourClicked">Change</button>
+                            </span>
+                    </div>
+                </div>
         </div>
         <div class="row">
             <div class="col-md-12">                
@@ -189,6 +222,9 @@
                         ]);            
                     this.lineHeight = ko.observable("2em");           
                     this.fontSize = ko.observable("1.5em"); 
+                    this.fontFamily = ko.observable("monospace"); 
+                    this.textColour = ko.observable("#000"); 
+                    this.backgroundColour = ko.observable("#FFF"); 
                     this.currentModes = ko.observableArray([]);
                     this.userGuid = "abcd-efgh-ijkl-mnop";
                     this.viewer = ko.observable();
@@ -395,6 +431,15 @@
         };
         Model.prototype.changeFontSizeClicked = function(){
             changeCss(".editor", "font-size", this.fontSize());
+        };
+        Model.prototype.changeFontFamilyClicked = function(){
+            changeCss(".editor", "font-family", this.fontFamily());
+        };
+        Model.prototype.changeTextColourClicked = function(){
+            changeCss(".editor", "color", this.textColour());
+        };
+        Model.prototype.changeBackgroundColourClicked = function(){
+            changeCss(".editor", "background-color", this.backgroundColour());
         };
         Model.prototype.boldClicked = function () {
             this.toggleAnnotation("bold");
