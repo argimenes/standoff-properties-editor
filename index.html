@@ -34,6 +34,30 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-2">
+                <label>
+                    Line height
+                </label>
+                <div class="input-group">
+                        <input type="text" class="form-control" data-bind="value: $data.lineHeight">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" data-bind="click: $data.changeLineHeightClicked">Change</button>
+                        </span>
+                </div>
+            </div>
+            <div class="col-md-2">
+                    <label>
+                        Font size
+                    </label>
+                    <div class="input-group">
+                            <input type="text" class="form-control" data-bind="value: $data.fontSize">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" data-bind="click: $data.changeFontSizeClicked">Change</button>
+                            </span>
+                    </div>
+                </div>
+        </div>
+        <div class="row">
             <div class="col-md-12">                
                 <div style="margin-top: 20px;">                    
                     <div style="display: inline-block; margin-right: 20px;">
@@ -116,6 +140,44 @@
                 selector: '[data-toggle="tooltip"]'
             });
 
+            // useful for HtmlCollection, NodeList, String types (array-like types)
+            function forEach(array, callback, scope){
+                for (var i=0,n=array.length; i<n; i++) {
+                    callback.call(scope, array[i], i, array);
+                }
+            } // passes back stuff we need
+
+            function changeCss(selectorText, tgtAttribName, newValue)
+            {
+                var styleSheets = document.styleSheets;
+                forEach(styleSheets, styleSheetFunc);
+
+                function styleSheetFunc(sheet)
+                {
+                    try{
+                        forEach(sheet.cssRules, cssRuleFunc);
+                    } catch(ex) {
+                         
+                    }
+                }
+
+                function cssRuleFunc(rule)
+                {
+                    if (selectorText.indexOf(rule.selectorText) != -1){
+                        forEach(rule.style, cssRuleAttributeFunc);
+                    }
+
+                    function cssRuleAttributeFunc(attribName)
+                    {
+                        if (attribName == tgtAttribName)
+                        {
+                            rule.style[attribName] = newValue;
+                            console.log('attribute replaced');
+                        }
+                    }
+                }
+            }
+
 			var Model = (function(){
 				function Model(cons){
                     var _ = this;
@@ -124,7 +186,9 @@
                         "ReggF3-H19-316.json",
                         "ReggF3-H19-316-no-annotations.json",
                         "adam-liszt.json"
-                        ]);                        
+                        ]);            
+                    this.lineHeight = ko.observable("2em");           
+                    this.fontSize = ko.observable("1.5em"); 
                     this.currentModes = ko.observableArray([]);
                     this.userGuid = "abcd-efgh-ijkl-mnop";
                     this.viewer = ko.observable();
@@ -325,6 +389,12 @@
             } else {
                 this.editor.modeClicked(type);
             }           
+        };
+        Model.prototype.changeLineHeightClicked = function(){
+            changeCss(".editor", "line-height", this.lineHeight());
+        };
+        Model.prototype.changeFontSizeClicked = function(){
+            changeCss(".editor", "font-size", this.fontSize());
         };
         Model.prototype.boldClicked = function () {
             this.toggleAnnotation("bold");
