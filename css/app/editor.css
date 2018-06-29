@@ -27,6 +27,7 @@
 .editor {
     background: #fff;
     padding: 10px 20px;
+    font-family: monospace;
     line-height: 2em;
     height: 500px;
     font-size: 1.5em;
