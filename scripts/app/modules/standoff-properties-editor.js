@@ -17,7 +17,7 @@
     var BACKSPACE = 8,
         DELETE = 46, HOME = 36, END = 35,
         LEFT_ARROW = 37, RIGHT_ARROW = 39, UP_ARROW = 38, DOWN_ARROW = 40, SPACE = 32,
-        SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
+        SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, LINE_FEED = 10, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
         RIGHT_WINDOW_KEY = 92, F1 = 112;
 
     function getRangeText(range) {
@@ -40,6 +40,14 @@
             s = s.parentElement;
         }
         return null;
+    }
+
+    function allNodesBetween(startNode, endNode) {
+        var nodes = [];
+        whileNext(startNode, endNode, function (node) {
+            nodes.push(node);
+        });
+        return nodes;
     }
 
     function whileNext(startNode, endNode, func) {
@@ -100,7 +108,11 @@
 
     function childNodeIndex(node) {
         var i = 0;
-        while (node && ((node = node.previousElementSibling) != null)) i++;
+        while (node && ((node = node.previousElementSibling) != null)) {
+            if (!node.isZeroPoint) {
+                i++;
+            }
+        }
         return i;
     }
 
@@ -172,6 +184,7 @@
             this.editor = cons.editor;
             this.guid = cons.guid;
             this.index = cons.index;
+            this.className = cons.className;
             this.type = cons.type;
             this.value = cons.value;
             this.layer = cons.layer;
@@ -183,13 +196,18 @@
             return childNodeIndex(this.startNode);
         };
         Property.prototype.endIndex = function () {
+            if (this.endNode.isZeroPoint) {
+                return null;
+            }
             return childNodeIndex(this.endNode);
         };
         Property.prototype.hideSpanRange = function () {
+            var _this = this;
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
+                var className = _this.className || propertyType.className;
                 if (propertyType.format == "style") {
-                    s.classList.remove(propertyType.className);
+                    s.classList.remove(className);
                 } else if (propertyType.format == "entity") {
                     hideLayer(s, this.layer);
                 }
@@ -202,38 +220,45 @@
             });
         };
         Property.prototype.unsetSpanRange = function () {
+            var _this = this;
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
+                var className = _this.className || propertyType.className;
                 if (propertyType.format == "style") {
-                    s.classList.remove(propertyType.className);
+                    s.classList.remove(className);
                 } else if (propertyType.format == "entity") {
-                    unsetSpanRange(s, propertyType.className);
+                    unsetSpanRange(s, className);
                 }
             }.bind(this));
         };
         Property.prototype.showSpanRange = function () {
+            var _this = this;
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
+                var className = _this.className || propertyType.className;
                 if (propertyType.format == "style") {
-                    s.classList.add(propertyType.className);
+                    s.classList.add(className);
                 } else if (propertyType.format == "entity") {
                     showLayer(s, this.layer);
                 }
             }.bind(this));
         };
         Property.prototype.setSpanRange = function () {
+            var _this = this;
             if (this.isDeleted) {
                 return;
             }
             var propertyType = this.getPropertyType();
+            var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
-                if (propertyType.format == "style") {
-                    s.classList.add(propertyType.className);
-                } else if (propertyType.format == "entity") {
+                var className = _this.className || propertyType.className;
+                if (format == "style" || format == "zero-point") {
+                    s.classList.add(className);
+                } else if (format == "entity") {
                     var inner = document.createElement("DIV");
                     inner.setAttribute("data-layer", this.layer);
                     inner.classList.add("overlaid");
-                    inner.classList.add(propertyType.className);
+                    inner.classList.add(className);
                     s.appendChild(inner);
                 }
             }.bind(this));
@@ -253,6 +278,23 @@
                 this.editor.onPropertyDeleted(this);
             }
         };
+        Property.prototype.clone = function () {
+            var clone = new Property(this);
+            clone.text = this.text;
+            clone.startNode = this.startNode;
+            clone.endNode = this.endNode;
+            clone.className = this.className;
+            clone.guid = this.guid;
+            clone.type = this.type;
+            clone.layer = this.layer;
+            clone.value = this.value;
+            clone.isDeleted = this.isDeleted;
+            clone.index = this.index;
+            if (this.editor.onPropertyCloned) {
+                this.editor.onPropertyCloned(clone, this);
+            }
+            return clone;
+        };
         Property.prototype.toNode = function () {
             var __ = this;
             var text = null;
@@ -267,6 +309,7 @@
             var data = {
                 index: this.index,
                 guid: this.guid || null,
+                className: this.className,
                 type: this.type,
                 layer: this.layer,
                 text: text,
@@ -291,8 +334,11 @@
             this.onPropertyChanged = cons.onPropertyChanged;
             this.onPropertyDeleted = cons.onPropertyDeleted;
             this.onPropertyUnbound = cons.onPropertyUnbound;
+            this.onPropertyCloned = cons.onPropertyCloned;
             this.onMonitorUpdated = cons.onMonitorUpdated;
             this.unbinding = cons.unbinding || {};
+            this.lockText = cons.lockText;
+            this.lockProperties = cons.lockProperties;
             this.data = {
                 text: null,
                 properties: []
@@ -360,6 +406,7 @@
                 if (guid) {
                     nearest.value = guid;
                     nearest.name = name;
+                    nearest.setSpanRange();
                     if (_this.onPropertyChanged) {
                         _this.onPropertyChanged(nearest);
                     }
@@ -498,11 +545,73 @@
             this.setCarotByNode(e.target);
             this.updateCurrentRanges();
         };
+        Editor.prototype.erase = function () {
+            var _this = this;
+            var range = this.getSelectionNodes();
+            if (range == null) {
+                return;
+            }
+            var sn = range.start;
+            var en = range.end;
+
+            // NB: assume the simple case of erasing INSIDE property ranges; other cases to follow later.
+
+            var properties = this.getPropertiesTraversingRange(sn, en);
+            properties.forEach(function (p) {
+                var p1 = p.clone();
+                var p2 = p.clone();
+
+                p1.guid = null; // a split property is really two new properties
+                p1.endNode = sn.previousElementSibling;
+                p1.endNode.endProperties = p1.endNode.endProperties || [];
+                p1.endNode.endProperties.push(p1);
+
+                p2.guid = null; // a split property is really two new properties
+                p2.startNode = en.nextElementSibling;
+                p2.startNode.startProperties = p2.startNode.startProperties || [];
+                p2.startNode.startProperties.push(p2);
+
+                p.remove();
+
+                _this.data.properties.push(p1);
+                _this.data.properties.push(p2);
+
+                whileNext(p1.startNode, p1.endNode, function (span) {
+                    _this.paint(span);
+                });
+                whileNext(p2.startNode, p2.endNode, function (span) {
+                    _this.paint(span);
+                });
+            });
+        };
+        Editor.prototype.getPropertiesTraversingRange = function (startNode, endNode) {
+            var traversing = [];
+            var nodes = allNodesBetween(startNode, endNode);
+            this.data.properties.forEach(function (prop) {
+                nodes.forEach(function (node) {
+                    if (isWithin(prop.startNode, prop.endNode, node)) {
+                        if (traversing.indexOf(prop) < 0) {
+                            traversing.push(prop);
+                        }
+                    }
+                });
+            });
+            return traversing;
+        };
         Editor.prototype.handleBackspace = function (current, updateCarot) {
             var _ = this;
             var previous = current.previousElementSibling;
             var next = current.nextElementSibling;
-            if (current) {
+            var isZeroPoint = current.isZeroPoint;
+            if (isZeroPoint) {
+                current.startProperties[0].remove();
+                current.style.display = "none";
+                if (updateCarot && previous) {
+                    this.setCarotByNode(previous);
+                }
+                return;
+            }
+            if (current && false == isZeroPoint) {
                 if (current.startProperties.length) {
                     current.startProperties.each(function (prop) {
                         prop.startNode = next;
@@ -522,7 +631,7 @@
                     current.endProperties.length = 0;
                 }
             }
-            if (previous) {
+            if (previous && false == isZeroPoint) {
                 if (previous.endProperties.length) {
                     previous.endProperties
                         .where(function (ep) { return ep.startNode == next && ep.endNode == previous; })
@@ -537,6 +646,15 @@
         Editor.prototype.handleDelete = function (current) {
             var next = current.nextElementSibling;
             var previous = current.previousElementSibling;
+            var isZeroPoint = next.isZeroPoint;
+            if (isZeroPoint) {
+                next.startProperties[0].remove();
+                next.style.display = "none";
+                if (current) {
+                    this.setCarotByNode(current);
+                }
+                return;
+            }
             if (next.startProperties.length) {
                 var forward = next.nextElementSibling;
                 next.startProperties.each(function (prop) {
@@ -708,8 +826,71 @@
                 end: endSpan
             };
         };
+        Editor.prototype.addProperties = function (props) {
+            var _this = this;
+            each(props, function (prop) {
+                _this.addProperty(prop);
+            });
+        };
+        Editor.prototype.addProperty = function (p) {
+            var nodes = this.container.children;
+            var sn = nodes[p.startIndex];
+            var en = nodes[p.endIndex];
+            var prop = new Property({
+                editor: this,
+                guid: null,
+                layer: null,
+                index: propCounter++,
+                value: p.value,
+                type: p.type,
+                startNode: sn,
+                endNode: en
+            });
+            prop.text = p.text;
+            sn.startProperties.push(prop);
+            en.endProperties.push(prop);
+            prop.setSpanRange();
+            this.data.properties.push(prop);
+            if (this.onPropertyCreated) {
+                this.onPropertyCreated(prop);
+            }
+        };
+        Editor.prototype.addZeroPoint = function (type, content, position) {
+            var span = newSpan(content);
+            span.isZeroPoint = true;
+            var property = new Property({
+                editor: this,
+                guid: null,
+                layer: null,
+                index: propCounter++,
+                type: type,
+                startNode: span,
+                endNode: span
+            });
+            this.container.insertBefore(span, position.nextElementSibling);
+            span.startProperties.push(property);
+            span.endProperties.push(property);
+            this.data.properties.push(property);
+            property.setSpanRange();
+            return property;
+        };
         Editor.prototype.modeClicked = function (m) {
             var _this = this;
+            if (m == "erase") {
+                this.erase();
+                return;
+            }
+            var pt = find(this.propertyType, function (__, key) {
+                return key == m;
+            });
+            if (!pt) {
+                // No annotation type found.
+                return;
+            }
+            if (pt.format == "zero-point") {
+                this.addZeroPoint(m, pt.content, this.getCurrent());
+                return;
+            }
             var range = this.getSelectionNodes();
             var prop = new Property({
                 editor: this,
@@ -772,9 +953,21 @@
         };
         Editor.prototype.unbind = function () {
             return {
-                text: this.container.textContent,
+                text: this.unbindText(),
                 properties: this.toPropertyNodes()
             };
+        };
+        Editor.prototype.unbindText = function () {
+            var result = "";
+            var node = this.container.firstChild;
+            while (node != null) {
+                if (!node.isZeroPoint) {
+                    result += node.textContent;
+                }
+                node = node.nextElementSibling;
+            }
+            return result;
+            //return this.container.textContent;
         };
         Editor.prototype.toPropertyNodes = function () {
             var list = [];
@@ -795,11 +988,38 @@
                 return;
             }
             this.data.properties = [];
-            var properties = model.properties.sort(function (a, b) { return a.index > b.index ? 1 : a.index < b.index ? -1 : 0; });
-            for (var i = 0; i < properties.length; i++) {
+            var len = this.data.text.length;
+            console.log("Text length", len);
+            var properties = model.properties.filter(function (item) {
+                // Exclude zero-length annotations.
+                return item.endIndex != null;
+            }).sort(function (a, b) { return a.index > b.index ? 1 : a.index < b.index ? -1 : 0; });
+            var propertiesLength = properties.length;
+            for (var i = 0; i < propertiesLength; i++) {
                 var p = properties[i];
+                console.log("Property", p);
+                if (!this.propertyType[p.type]) {
+                    console.warn("Property type not found.", p);
+                    continue;
+                }
+                if (p.startIndex < 0) {
+                    console.warn("StartIndex less than zero.", p);
+                    continue;
+                }
+                if (p.endIndex > len - 1) {
+                    console.warn("EndIndex out of bounds.", p);
+                    continue;
+                }
                 var startNode = this.container.children[p.startIndex];
+                if (!startNode){
+                    console.warn("Start node not found.", p);
+                    continue;
+                }
                 var endNode = this.container.children[p.endIndex];
+                if (!endNode){
+                    console.warn("End node not found.", p);
+                    continue;
+                }
                 var prop = new Property({
                     editor: this,
                     layer: p.layer,
@@ -813,12 +1033,55 @@
                 });
                 if (this.onPropertyCreated) {
                     this.onPropertyCreated(prop, p);
-                }
+                }                
                 startNode.startProperties.push(prop);
                 endNode.endProperties.push(prop);
                 prop.setSpanRange();
                 this.data.properties.push(prop);
                 propCounter = this.data.properties.length;
+            }
+            this.bindZeroLengthAnnotations(model);
+        };
+        Editor.prototype.bindZeroLengthAnnotations = function (model) {
+            var len = model.text.length;
+            var zeroProperties = model.properties.filter(function (item) {
+                return item.endIndex == null;
+            }).sort(function (a, b) { return a.startIndex < b.startIndex ? 1 : a.startIndex < b.startIndex ? -1 : 0; });
+            var zeroPropertiesLength = zeroProperties.length;
+            // Work backwards through the list of zero properties so we don't fetch a SPAN that hasn't been offset from a previous insertion.
+            for (var i = 0; i < zeroPropertiesLength; i++) {
+                var p = zeroProperties[i];
+                console.log("Zero-point property", p);
+                var pt = this.propertyType[p.type];
+                if (!pt) {
+                    console.warn("Property type not found.", p);
+                    continue;
+                }
+                if (p.startIndex < 0) {
+                    console.warn("StartIndex less than zero.", p);
+                    continue;
+                }
+                if (p.endIndex > len - 1) {
+                    console.warn("EndIndex out of bounds.", p);
+                    continue;
+                }
+                var node = this.container.children[p.startIndex - 1];
+                if (!node){
+                    console.warn("ZPA node not found.", p);
+                    continue;
+                }
+                var prop = this.addZeroPoint(p.type, pt.content, node);
+                prop.guid = p.guid;
+                prop.layer = p.layer;
+                prop.index = p.index;
+                prop.value = p.value;
+                prop.isDeleted = p.isDeleted;
+                if (prop.isDeleted) {
+                    prop.startNode.style.display = "none";
+                }
+                if (this.onPropertyCreated) {
+                    this.onPropertyCreated(prop, p);
+                }
             }
         };
         Editor.prototype.emptyContainer = function () {
@@ -836,10 +1099,14 @@
         };
         Editor.prototype.textToDocumentFragment = function (text) {
             var len = text.length;
+            var skip = [LINE_FEED];
             var frag = document.createDocumentFragment();
             for (var i = 0; i < len; i++) {
                 var c = text.substr(i, 1);
                 var code = c.charCodeAt();
+                if (skip.indexOf(code) >= 0) {
+                    continue;
+                }
                 var span = this.newSpan();
                 span.textContent = c;
                 this.handleSpecialChars(span, code);

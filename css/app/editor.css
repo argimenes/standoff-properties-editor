@@ -116,6 +116,10 @@
     opacity: 0.3;
 }
 
+.hyphen {
+    color: red;
+}
+
 .place {
     position: absolute;
     display: inline;
