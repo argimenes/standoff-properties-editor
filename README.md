@@ -37,6 +37,7 @@ I use the term Standoff Property Text (SPT) to refer to the combination of the r
 - Separation of annotations from text source
 - Text is dynamically editable without corrupting annotations
 - Annotations can be overlaid freely
+- Supports zero-point annotations (ZPA), like word-breaking hyphens that need to be marked up from a manuscript but which shouldn't be stored in the text itself
 - SPTs are exported and imported as JSON
 - Annotations can be grouped into layers, to manage visual complexity
 - The standoff property data model can easily be extended by the user in their application code through various event hooks, to store as much as or as little data as they need
