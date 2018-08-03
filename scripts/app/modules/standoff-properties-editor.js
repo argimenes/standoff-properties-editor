@@ -26,6 +26,9 @@
         }
         var text = "";
         whileNext(range.start, range.end, function (node) {
+            if (node.isZeroPoint) {
+                return;
+            }
             text += node.textContent;
         });
         return text;
@@ -151,7 +154,9 @@
     function unsetSpanRange(span, className) {
         var nodelist = span.children;
         var div = first(nodelist, function (x) { return x.classList.contains(className); });
-        span.removeChild(div);
+        if (div) {
+            span.removeChild(div);
+        }
     }
 
     function setLayer(span, className, layer) {
@@ -190,6 +195,7 @@
             this.layer = cons.layer;
             this.startNode = cons.startNode;
             this.endNode = cons.endNode;
+            this.isZeroPoint = cons.isZeroPoint || false;
             this.isDeleted = cons.isDeleted;
         }
         Property.prototype.startIndex = function () {
@@ -213,6 +219,42 @@
                 }
             }.bind(this));
         };
+        Property.prototype.shiftStartProperties = function (from, to) {
+            remove(from.startProperties, this);
+            to.startProperties.push(this);
+        };
+        Property.prototype.shiftEndProperties = function (from, to) {
+            remove(from.endProperties, this);
+            to.endProperties.push(this);
+        };
+        Property.prototype.shiftLeft = function () {
+            this.unsetSpanRange();
+            this.shiftStartProperties(this.startNode, this.startNode.previousElementSibling);
+            this.shiftEndProperties(this.endNode, this.endNode.previousElementSibling);
+            this.startNode = this.startNode.previousElementSibling;
+            this.endNode = this.endNode.previousElementSibling;
+            this.setSpanRange();
+        };
+        Property.prototype.shiftRight = function () {
+            this.unsetSpanRange();
+            this.shiftStartProperties(this.startNode, this.startNode.nextElementSibling);
+            this.shiftEndProperties(this.endNode, this.endNode.nextElementSibling);
+            this.startNode = this.startNode.nextElementSibling;
+            this.endNode = this.endNode.nextElementSibling;
+            this.setSpanRange();
+        };
+        Property.prototype.expand = function () {
+            this.unsetSpanRange();
+            this.shiftEndProperties(this.endNode, this.endNode.nextElementSibling);
+            this.endNode = this.endNode.nextElementSibling;
+            this.setSpanRange();
+        };
+        Property.prototype.contract = function () {
+            this.unsetSpanRange();
+            this.shiftEndProperties(this.endNode, this.endNode.previousElementSibling);
+            this.endNode = this.endNode.previousElementSibling;
+            this.setSpanRange();
+        };
         Property.prototype.getPropertyType = function () {
             var _ = this;
             return find(this.editor.propertyType, function (item, key) {
@@ -223,13 +265,16 @@
             var _this = this;
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
-                var className = _this.className || propertyType.className;
+                var className = _this.className || propertyType.className || propertyType.zeroPointClassName;
                 if (propertyType.format == "style") {
                     s.classList.remove(className);
                 } else if (propertyType.format == "entity") {
                     unsetSpanRange(s, className);
                 }
             }.bind(this));
+            if (propertyType.unstyleRenderer) {
+                propertyType.unstyleRenderer(allNodesBetween(this.startNode, this.endNode), this);
+            }
         };
         Property.prototype.showSpanRange = function () {
             var _this = this;
@@ -251,10 +296,10 @@
             var propertyType = this.getPropertyType();
             var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
-                var className = _this.className || propertyType.className;
-                if (format == "style" || format == "zero-point") {
+                var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPointClassName : propertyType.className);
+                if (format == "style" || _this.isZeroPoint) {
                     s.classList.add(className);
-                } else if (format == "entity") {
+                } else if (format == "entity" && !_this.isZeroPoint) {
                     var inner = document.createElement("DIV");
                     inner.setAttribute("data-layer", this.layer);
                     inner.classList.add("overlaid");
@@ -262,6 +307,9 @@
                     s.appendChild(inner);
                 }
             }.bind(this));
+            if (propertyType.styleRenderer) {
+                propertyType.styleRenderer(allNodesBetween(this.startNode, this.endNode), this);
+            }
         };
         Property.prototype.setLayer = function (layer) {
             this.layer = layer;
@@ -277,6 +325,12 @@
             if (this.editor.onPropertyDeleted) {
                 this.editor.onPropertyDeleted(this);
             }
+            if (this.isZeroPoint) {
+                this.startNode.remove();
+            }
+            if (!this.guid) {
+                remove(this.editor.data.properties, this);
+            }
         };
         Property.prototype.clone = function () {
             var clone = new Property(this);
@@ -290,6 +344,7 @@
             clone.value = this.value;
             clone.isDeleted = this.isDeleted;
             clone.index = this.index;
+            clone.isZeroPoint = this.isZeroPoint;
             if (this.editor.onPropertyCloned) {
                 this.editor.onPropertyCloned(clone, this);
             }
@@ -299,12 +354,17 @@
             var __ = this;
             var text = null;
             var si = this.startIndex();
-            var ei = this.endIndex();
-            var len = ei - si + 1;
-            if (len > 0) {
-                len = this.editor.unbinding.maxTextLength || len;
-                var statementText = this.editor.container.textContent;
-                text = statementText.substr(si, len);
+            var ei = this.isZeroPoint ? null : this.endIndex();
+            if (this.isZeroPoint) {
+                text = this.startNode.textContent;
+            }
+            else {
+                var len = ei - si + 1;
+                if (len > 0) {
+                    len = this.editor.unbinding.maxTextLength || len;
+                    var statementText = this.editor.unbindText();
+                    text = statementText.substr(si, len);
+                }
             }
             var data = {
                 index: this.index,
@@ -316,6 +376,7 @@
                 value: this.value,
                 startIndex: si,
                 endIndex: ei,
+                isZeroPoint: !!this.isZeroPoint,
                 isDeleted: this.isDeleted || false
             };
             if (this.editor.onPropertyUnbound) {
@@ -452,7 +513,7 @@
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
                 var type = newSpan(label);
                 if (!!prop.value) {
-                    var link = newSpan(this.monitorButton.link);
+                    var link = newSpan(this.monitorButton.link || "[O-O]");
                     link.property = prop;
                     link.style.marginLeft = "5px";
                     link.addEventListener("click", function (e) {
@@ -474,7 +535,7 @@
                         _.updateCurrentRanges(p.startNode);
                     });
                 }
-                var layer = newSpan(this.monitorButton.layer);
+                var layer = newSpan(this.monitorButton.layer || "[=]");
                 layer.property = prop;
                 layer.style.marginLeft = "5px";
                 layer.addEventListener("click", function (e) {
@@ -489,7 +550,7 @@
                         _.layerAdded({ state: "added", data: name });
                     }
                 });
-                var del = newSpan(this.monitorButton.remove);
+                var del = newSpan(this.monitorButton.remove || "[x]");
                 del.property = prop;
                 del.style.marginLeft = "5px";
                 del.addEventListener("click", function (e) {
@@ -500,7 +561,7 @@
                     var p = span.property;
                     p.remove();
                 });
-                var comment = newSpan(this.monitorButton.comment);
+                var comment = newSpan(this.monitorButton.comment || "[.oO]");
                 comment.property = prop;
                 comment.style.marginLeft = "5px";
                 comment.addEventListener("click", function (e) {
@@ -511,12 +572,60 @@
                     var p = span.property;
                     _.commentManager(p);
                 });
+                var shiftLeft = newSpan(this.monitorButton.shiftLeft || "<-");
+                shiftLeft.property = prop;
+                shiftLeft.style.marginLeft = "5px";
+                shiftLeft.addEventListener("click", function (e) {
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.shiftLeft();
+                });
+                var shiftRight = newSpan(this.monitorButton.shiftRight || "->");
+                shiftRight.property = prop;
+                shiftRight.style.marginLeft = "5px";
+                shiftRight.addEventListener("click", function (e) {
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.shiftRight();
+                });
+                var expand = newSpan(this.monitorButton.expand || "[+]");
+                expand.property = prop;
+                expand.style.marginLeft = "5px";
+                expand.addEventListener("click", function (e) {
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.expand();
+                });
+                var contract = newSpan(this.monitorButton.contract || "[-]");
+                contract.property = prop;
+                contract.style.marginLeft = "5px";
+                contract.addEventListener("click", function (e) {
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.contract();
+                });
                 range.appendChild(type);
                 if (link) {
                     range.appendChild(link);
                 }
                 range.appendChild(layer);
                 range.appendChild(comment);
+                range.appendChild(shiftLeft);
+                range.appendChild(shiftRight);
+                range.appendChild(expand);
+                range.appendChild(contract);
                 range.appendChild(del);
                 this.monitor.appendChild(range);
                 if (this.onMonitorUpdated) {
@@ -826,6 +935,14 @@
                 end: endSpan
             };
         };
+        Editor.prototype.createSelection = function (sn, en) {
+            var range = document.createRange();
+            range.setStart(sn, 0);
+            range.setEnd(en, 1);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        };
         Editor.prototype.addProperties = function (props) {
             var _this = this;
             each(props, function (prop) {
@@ -865,7 +982,8 @@
                 index: propCounter++,
                 type: type,
                 startNode: span,
-                endNode: span
+                endNode: span,
+                isZeroPoint: true
             });
             this.container.insertBefore(span, position.nextElementSibling);
             span.startProperties.push(property);
@@ -874,22 +992,39 @@
             property.setSpanRange();
             return property;
         };
-        Editor.prototype.modeClicked = function (m) {
+        Editor.prototype.zeroPointModeClicked = function (m, content) {
+            var _this = this;
+            var type = find(this.propertyType, function (__, key) { return key == m; });
+            if (!type) {
+                // No annotation type found.
+                return;
+            }
+            var prop = this.addZeroPoint(m, content, this.getCurrent());
+            if (type.propertyValueSelector) {
+                type.propertyValueSelector(prop, function (value, name) {
+                    if (value) {
+                        prop.value = value;
+                        prop.name = name;
+                    }
+                });
+            }
+        };
+        Editor.prototype.modeClicked = function (m, value) {
             var _this = this;
             if (m == "erase") {
                 this.erase();
                 return;
             }
-            var pt = find(this.propertyType, function (__, key) {
-                return key == m;
-            });
-            if (!pt) {
+            var type = find(this.propertyType, function (__, key) { return key == m; });
+            if (!type) {
                 // No annotation type found.
                 return;
             }
-            if (pt.format == "zero-point") {
-                this.addZeroPoint(m, pt.content, this.getCurrent());
-                return;
+            if (type.format == "zero-point") {
+                if (!type.propertyValueSelector) {
+                    this.addZeroPoint(m, type.content, this.getCurrent());
+                    return;
+                }
             }
             var range = this.getSelectionNodes();
             var prop = new Property({
@@ -902,22 +1037,22 @@
                 endNode: range.end
             });
             prop.text = getRangeText(range);
+            if (value) {
+                prop.value = value;
+            }
             var process = function (p) {
-                range.start.startProperties.push(p);
-                range.end.endProperties.push(p);
+                p.startNode.startProperties.push(p);
+                p.endNode.endProperties.push(p);
                 _this.data.properties.push(p);
                 p.setSpanRange();
                 if (_this.onPropertyCreated) {
                     _this.onPropertyCreated(p);
                 }
             }
-            var propertyType = find(this.propertyType, function (item, key) {
-                return key == m && item.propertyValueSelector;
-            });
-            if (propertyType) {
-                propertyType.propertyValueSelector(prop, function (guid, name) {
-                    if (guid) {
-                        prop.value = guid;
+            if (type.propertyValueSelector) {
+                type.propertyValueSelector(prop, function (value, name) {
+                    if (value) {
+                        prop.value = value;
                         prop.name = name;
                         process(prop);
                     }
@@ -950,6 +1085,9 @@
                 inner.classList.add(propertyType.className);
                 s.appendChild(inner);
             }
+            if (propertyType.styleRenderer) {
+                propertyType.styleRenderer([s], prop);
+            }
         };
         Editor.prototype.unbind = function () {
             return {
@@ -967,7 +1105,6 @@
                 node = node.nextElementSibling;
             }
             return result;
-            //return this.container.textContent;
         };
         Editor.prototype.toPropertyNodes = function () {
             var list = [];
@@ -991,14 +1128,14 @@
             var len = this.data.text.length;
             console.log("Text length", len);
             var properties = model.properties.filter(function (item) {
-                // Exclude zero-length annotations.
-                return item.endIndex != null;
+                return !item.isZeroPoint;
             }).sort(function (a, b) { return a.index > b.index ? 1 : a.index < b.index ? -1 : 0; });
             var propertiesLength = properties.length;
             for (var i = 0; i < propertiesLength; i++) {
                 var p = properties[i];
                 console.log("Property", p);
-                if (!this.propertyType[p.type]) {
+                var type = this.propertyType[p.type];
+                if (!type) {
                     console.warn("Property type not found.", p);
                     continue;
                 }
@@ -1011,12 +1148,12 @@
                     continue;
                 }
                 var startNode = this.container.children[p.startIndex];
-                if (!startNode){
+                if (!startNode) {
                     console.warn("Start node not found.", p);
                     continue;
                 }
                 var endNode = this.container.children[p.endIndex];
-                if (!endNode){
+                if (!endNode) {
                     console.warn("End node not found.", p);
                     continue;
                 }
@@ -1027,13 +1164,14 @@
                     index: p.index,
                     type: p.type,
                     value: p.value,
+                    text: p.text,
                     startNode: startNode,
                     endNode: endNode,
                     isDeleted: p.isDeleted
                 });
                 if (this.onPropertyCreated) {
                     this.onPropertyCreated(prop, p);
-                }                
+                }
                 startNode.startProperties.push(prop);
                 endNode.endProperties.push(prop);
                 prop.setSpanRange();
@@ -1045,7 +1183,7 @@
         Editor.prototype.bindZeroLengthAnnotations = function (model) {
             var len = model.text.length;
             var zeroProperties = model.properties.filter(function (item) {
-                return item.endIndex == null;
+                return item.isZeroPoint;
             }).sort(function (a, b) { return a.startIndex < b.startIndex ? 1 : a.startIndex < b.startIndex ? -1 : 0; });
             var zeroPropertiesLength = zeroProperties.length;
             // Work backwards through the list of zero properties so we don't fetch a SPAN that hasn't been offset from a previous insertion.
@@ -1066,16 +1204,17 @@
                     continue;
                 }
                 var node = this.container.children[p.startIndex - 1];
-                if (!node){
+                if (!node) {
                     console.warn("ZPA node not found.", p);
                     continue;
                 }
-                var prop = this.addZeroPoint(p.type, pt.content, node);
+                var prop = this.addZeroPoint(p.type, pt.content || p.text, node);
                 prop.guid = p.guid;
                 prop.layer = p.layer;
                 prop.index = p.index;
                 prop.value = p.value;
                 prop.isDeleted = p.isDeleted;
+                prop.setSpanRange();
                 if (prop.isDeleted) {
                     prop.startNode.style.display = "none";
                 }
