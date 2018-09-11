@@ -888,8 +888,8 @@
         };
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
-            var canEdit = (false == this.lockText);
-            var canAnnotate = (false == this.lockProperties);
+            var canEdit = !!!this.lockText;
+            var canAnnotate = !!!this.lockProperties;
             var isFirst = !this.container.children.length;
             var current = this.getCurrent();
             var key = evt.which || evt.keyCode;
