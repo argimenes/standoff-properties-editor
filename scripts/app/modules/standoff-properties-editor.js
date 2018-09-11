@@ -1,5 +1,5 @@
 ﻿(function (factory) {
-    define(["app/utils"], factory);
+    define("app/modules/standoff-properties-editor", ["app/utils"], factory);
 }(function (utils) {
 
     var where = utils.where;
@@ -207,6 +207,29 @@
             }
             return childNodeIndex(this.endNode);
         };
+        Property.prototype.convertToZeroPoint = function () {
+            var zero = this.clone();
+            var nextElement = this.endNode.nextElementSibling;
+            var range = { start: this.startNode, end: this.endNode };
+            var text = getRangeText(range);
+            this.editor.deleteRange(range);
+            var span = newSpan(text);
+            span.isZeroPoint = true;
+            zero.isZeroPoint = true;
+            zero.text = text;
+            zero.startNode = span;
+            zero.endNode = span;
+            this.editor.container.insertBefore(span, nextElement);
+            zero.startNode.startProperties.push(zero);
+            zero.setSpanRange();
+            remove(this.editor.data.properties, this);
+            this.editor.data.properties.push(zero);
+            this.editor.setMonitor();
+        };
+        Property.prototype.setZeroPointLabel = function (text) {
+            this.startNode.textContent = text;
+            this.text = text;
+        };
         Property.prototype.hideSpanRange = function () {
             var _this = this;
             var propertyType = this.getPropertyType();
@@ -310,6 +333,9 @@
             if (propertyType.styleRenderer) {
                 propertyType.styleRenderer(allNodesBetween(this.startNode, this.endNode), this);
             }
+        };
+        Property.prototype.getText = function () {
+            return getRangeText({ start: this.startNode, end: this.endNode });
         };
         Property.prototype.setLayer = function (layer) {
             this.layer = layer;
@@ -442,6 +468,26 @@
             this.container.addEventListener("mouseup", this.handleMouseUpEvent.bind(this));
             this.container.addEventListener("paste", this.handleOnPasteEvent.bind(this));
         };
+        Editor.prototype.getPropertyAtCursor = function () {
+            var _this = this;
+            var node = this.getCurrent();
+            var enclosing = this.data.properties.where(function (prop) {                
+                return isWithin(prop.startNode, prop.endNode, node);
+            });
+            if (!enclosing.length) {
+                return null;
+            }
+            var i = childNodeIndex(node);
+            var ordered = enclosing.sort(function (a, b) {
+                var propa = a.toNode();
+                var propb = b.toNode();
+                var da = i - propa.startIndex;
+                var db = i - propb.startIndex;
+                return da > db ? 1 : da == db ? 0 : -1;
+            });
+            var nearest = ordered[0];
+            return nearest;
+        };
         Editor.prototype.handleDoubleClickEvent = function (e) {
             var _this = this;
             var props = this.data.properties.where(function (prop) {
@@ -507,9 +553,10 @@
             var _ = this;
             for (var i = 0; i < props.length; i++) {
                 var prop = props[i];
+                var propertyType = this.propertyType[prop.type];
                 var range = newSpan();
                 range.style.marginRight = "10px";
-                var labelRenderer = this.propertyType[prop.type].labelRenderer;
+                var labelRenderer = propertyType.labelRenderer;
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
                 var type = newSpan(label);
                 if (!!prop.value) {
@@ -616,6 +663,37 @@
                     var p = span.property;
                     p.contract();
                 });
+                if (prop.isZeroPoint) {
+                    if (propertyType.zeroPointLabelSelector) {
+                        var zeroPointLabel = newSpan(this.monitorButton.zeroPointLabel || "[label]");
+                        zeroPointLabel.property = prop;
+                        zeroPointLabel.style.marginLeft = "5px";
+                        zeroPointLabel.addEventListener("click", function (e) {
+                            var span = getParent(e.target, function (x) { return !!x.property; });
+                            if (!span) {
+                                return;
+                            }
+                            var p = span.property;
+                            propertyType.zeroPointLabelSelector(p, function (label) {
+                                p.setZeroPointLabel(label);
+                            });
+                        });
+                    }
+                }
+                var showConvertToZeroPoint = propertyType.showConvertToZeroPoint && propertyType.showConvertToZeroPoint(prop);
+                if (showConvertToZeroPoint) {
+                    var toZeroPoint = newSpan(this.monitorButton.toZeroPoint || "[Z]");
+                    toZeroPoint.property = prop;
+                    toZeroPoint.style.marginLeft = "5px";
+                    toZeroPoint.addEventListener("click", function (e) {
+                        var span = getParent(e.target, function (x) { return !!x.property; });
+                        if (!span) {
+                            return;
+                        }
+                        var p = span.property;
+                        p.convertToZeroPoint();
+                    });
+                }
                 range.appendChild(type);
                 if (link) {
                     range.appendChild(link);
@@ -627,6 +705,12 @@
                 range.appendChild(expand);
                 range.appendChild(contract);
                 range.appendChild(del);
+                if (prop.isZeroPoint) {
+                    range.appendChild(zeroPointLabel);
+                }
+                if (showConvertToZeroPoint) {
+                    range.appendChild(toZeroPoint);
+                }
                 this.monitor.appendChild(range);
                 if (this.onMonitorUpdated) {
                     this.onMonitorUpdated(select(props, function (p) { return { type: p.type, format: _.propertyType[p.type].format }; }));
@@ -720,7 +804,7 @@
                 }
                 return;
             }
-            if (current && false == isZeroPoint) {
+            if (current) {
                 if (current.startProperties.length) {
                     current.startProperties.each(function (prop) {
                         prop.startNode = next;
@@ -740,7 +824,7 @@
                     current.endProperties.length = 0;
                 }
             }
-            if (previous && false == isZeroPoint) {
+            if (previous) {
                 if (previous.endProperties.length) {
                     previous.endProperties
                         .where(function (ep) { return ep.startNode == next && ep.endNode == previous; })
@@ -804,29 +888,35 @@
         };
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
+            var canEdit = (false == this.lockText);
+            var canAnnotate = (false == this.lockProperties);
             var isFirst = !this.container.children.length;
             var current = this.getCurrent();
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
             var hasSelection = (range && range.start != range.end);
             if (key == BACKSPACE) {
-                if (hasSelection) {
-                    this.deleteRange(range);
-                }
-                else {
-                    this.handleBackspace(current, true);
-                }
-                this.updateCurrentRanges();
+                if (canEdit) {
+                    if (hasSelection) {
+                        this.deleteRange(range);
+                    }
+                    else {
+                        this.handleBackspace(current, true);
+                    }
+                    this.updateCurrentRanges();                    
+                }   
                 evt.preventDefault();
                 return;
             } else if (key == DELETE) {
-                if (hasSelection) {
-                    this.deleteRange(range);
-                }
-                else {
-                    this.handleDelete(current);
-                }
-                this.updateCurrentRanges();
+                if (canEdit) {
+                    if (hasSelection) {
+                        this.deleteRange(range);
+                    }
+                    else {
+                        this.handleDelete(current);
+                    }
+                    this.updateCurrentRanges();
+                }   
                 evt.preventDefault();
                 return;
             } else if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
@@ -837,24 +927,27 @@
                 return true;
             }
             else if (evt.ctrlKey) {
-                if (evt.key == "a") {
-                    return;
-                } else if (evt.key == "b") {
-                    evt.preventDefault();
-                    this.modeClicked("bold");
-                } else if (evt.key == "i") {
-                    evt.preventDefault();
-                    this.modeClicked("italics");
-                } else if (evt.key == "u") {
-                    evt.preventDefault();
-                    this.modeClicked("delete");
-                } else if (evt.key == "a") {
-                    evt.preventDefault();
-                    this.modeClicked("agent");
-                } else if (evt.key == "u") {
-                    evt.preventDefault();
-                    this.modeClicked("superscript");
+                if (canAnnotate) {
+                    if (evt.key == "a") {
+                        return;
+                    } else if (evt.key == "b") {
+                        evt.preventDefault();
+                        this.modeClicked("bold");
+                    } else if (evt.key == "i") {
+                        evt.preventDefault();
+                        this.modeClicked("italics");
+                    } else if (evt.key == "u") {
+                        evt.preventDefault();
+                        this.modeClicked("delete");
+                    } else if (evt.key == "a") {
+                        evt.preventDefault();
+                        this.modeClicked("agent");
+                    } else if (evt.key == "u") {
+                        evt.preventDefault();
+                        this.modeClicked("superscript");
+                    }
                 }
+                evt.preventDefault();
                 return true;
             } else if (key == SHIFT || key == ALT) {
                 this.updateCurrentRanges();
@@ -873,6 +966,10 @@
             }
 
             evt.preventDefault();
+            if (false == canEdit) {
+                return;
+            }
+
             var span = this.newSpan();
             span.textContent = evt.key;
             this.handleSpecialChars(span, key);
@@ -949,10 +1046,20 @@
                 _this.addProperty(prop);
             });
         };
+        Editor.prototype.spanAtIndex = function (i) {
+            var node = this.container.firstChild;
+            while (node != null && i > 0) {
+                if (!node.isZeroPoint) {
+                    i--;
+                }
+                node = node.nextElementSibling;
+            }
+            return node;
+        };
         Editor.prototype.addProperty = function (p) {
             var nodes = this.container.children;
-            var sn = nodes[p.startIndex];
-            var en = nodes[p.endIndex];
+            var sn = this.spanAtIndex(p.startIndex);
+            var en = this.spanAtIndex(p.endIndex);
             var prop = new Property({
                 editor: this,
                 guid: null,
