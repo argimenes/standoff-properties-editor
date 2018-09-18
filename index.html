@@ -271,14 +271,16 @@
                             process(value);
 						},
 						monitorButton: {
-							link: '<button data-toggle="tooltip" data-original-title="Edit" class="btn btn-sm"><span class="fa fa-link"></span></button>',
-							layer: '<button data-toggle="tooltip" data-original-title="Layer" class="btn btn-sm"><span class="fa fa-cog"></span></button>',
-							remove: '<button data-toggle="tooltip" data-original-title="Delete" class="btn btn-sm"><span class="fa fa-trash"></span></button>',
+                            link: '<button data-toggle="tooltip" data-original-title="Edit" class="btn btn-sm"><span class="fa fa-link"></span></button>',
+                            layer: '<button data-toggle="tooltip" data-original-title="Layer" class="btn btn-sm"><span class="fa fa-cog"></span></button>',
+                            remove: '<button data-toggle="tooltip" data-original-title="Delete" class="btn btn-sm"><span class="fa fa-trash"></span></button>',
                             comment: '<button data-toggle="tooltip" data-original-title="Comment" class="btn btn-sm"><span class="fa fa-comment"></span></button>',
                             shiftLeft: '<button data-toggle="tooltip" data-original-title="Left" class="btn btn-sm"><span class="fa fa-arrow-circle-left"></span></button>',
                             shiftRight: '<button data-toggle="tooltip" data-original-title="Right" class="btn btn-sm"><span class="fa fa-arrow-circle-right"></span></button>',
                             expand: '<button data-toggle="tooltip" data-original-title="Expand" class="btn btn-sm"><span class="fa fa-plus-circle"></span></button>',
                             contract: '<button data-toggle="tooltip" data-original-title="Contract" class="btn btn-sm"><span class="fa fa-minus-circle"></span></button>',
+                            toZeroPoint: '<button data-toggle="tooltip" data-original-title="Convert to zero point" class="btn btn-sm"><span style="font-weight: 600;">Z</span></button>',
+                            zeroPointLabel: '<button data-toggle="tooltip" data-original-title="Label" class="btn btn-sm"><span class="fa fa-file-text-o"></span></button>',
                         },
                         unbinding: {
                             //maxTextLength: 20
@@ -369,6 +371,28 @@
                         format: "entity",
                         shortcut: "t",
                         className: "text",
+                        zeroPointClassName: "zero-text",
+                        attributes: {
+                            position: {
+                                renderer: function (prop) {
+                                    return "position [" + (prop.attributes.position || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var position = prompt("Position?", prop.attributes.position);
+                                    process(position);
+                                }
+                            }
+                        },
+                        showConvertToZeroPoint: function (prop) {
+                            return !prop.isZeroPoint;
+                        },
+                        labelRenderer: function (prop) {
+                            return prop.isZeroPoint ? "<span class='output-text'>footnote<span>" : "<span class='output-text'>text<span>";
+                        },
+                        zeroPointLabelSelector: function (prop, process) {
+                            var label = prompt("Label", prop.text);
+                            process(label);
+                        },
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Text UUID?", prop.value || "");
                             process(uuid);

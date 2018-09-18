@@ -20,6 +20,13 @@
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, LINE_FEED = 10, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
         RIGHT_WINDOW_KEY = 92, F1 = 112;
 
+    function hasProperties(obj) {
+        if (!obj) {
+            return false;
+        }
+        return Object.getOwnPropertyNames(obj).length;
+    }
+
     function getRangeText(range) {
         if (!range) {
             return null;
@@ -195,6 +202,7 @@
             this.layer = cons.layer;
             this.startNode = cons.startNode;
             this.endNode = cons.endNode;
+            this.attributes = cons.attributes || {};
             this.isZeroPoint = cons.isZeroPoint || false;
             this.isDeleted = cons.isDeleted;
         }
@@ -371,6 +379,7 @@
             clone.isDeleted = this.isDeleted;
             clone.index = this.index;
             clone.isZeroPoint = this.isZeroPoint;
+            clone.attributes = this.attributes;
             if (this.editor.onPropertyCloned) {
                 this.editor.onPropertyCloned(clone, this);
             }
@@ -402,6 +411,7 @@
                 value: this.value,
                 startIndex: si,
                 endIndex: ei,
+                attributes: this.attributes,
                 isZeroPoint: !!this.isZeroPoint,
                 isDeleted: this.isDeleted || false
             };
@@ -424,8 +434,8 @@
             this.onPropertyCloned = cons.onPropertyCloned;
             this.onMonitorUpdated = cons.onMonitorUpdated;
             this.unbinding = cons.unbinding || {};
-            this.lockText = cons.lockText;
-            this.lockProperties = cons.lockProperties;
+            this.lockText = cons.lockText || false;
+            this.lockProperties = cons.lockProperties || false;
             this.data = {
                 text: null,
                 properties: []
@@ -471,7 +481,7 @@
         Editor.prototype.getPropertyAtCursor = function () {
             var _this = this;
             var node = this.getCurrent();
-            var enclosing = this.data.properties.where(function (prop) {                
+            var enclosing = this.data.properties.where(function (prop) {
                 return isWithin(prop.startNode, prop.endNode, node);
             });
             if (!enclosing.length) {
@@ -711,6 +721,33 @@
                 if (showConvertToZeroPoint) {
                     range.appendChild(toZeroPoint);
                 }
+                if (hasProperties(propertyType.attributes)) {
+                    var attrs = [];
+                    for (var key in propertyType.attributes) {
+                        var attribute = propertyType.attributes[key];
+                        var label = attribute.renderer(prop);
+                        var attr = newSpan(label);
+                        attr.speedy = {};
+                        attr.speedy.property = prop;
+                        attr.speedy.attributeName = key;
+                        attr.style.marginLeft = "5px";
+                        attr.addEventListener("click", function (e) {
+                            var span = getParent(e.target, function (x) { return !!x.speedy && !!x.speedy.property; });
+                            if (!span) {
+                                return;
+                            }
+                            var p = span.speedy.property;
+                            var name = span.speedy.attributeName;
+                            _.propertyType[p.type].attributes[name].selector(p, function (value) {
+                                p.attributes[name] = value;
+                            });
+                        });
+                        attrs.push(attr);
+                    }
+                    attrs.forEach(function (attr) {
+                        range.appendChild(attr);
+                    });
+                }
                 this.monitor.appendChild(range);
                 if (this.onMonitorUpdated) {
                     this.onMonitorUpdated(select(props, function (p) { return { type: p.type, format: _.propertyType[p.type].format }; }));
@@ -903,8 +940,8 @@
                     else {
                         this.handleBackspace(current, true);
                     }
-                    this.updateCurrentRanges();                    
-                }   
+                    this.updateCurrentRanges();
+                }
                 evt.preventDefault();
                 return;
             } else if (key == DELETE) {
@@ -916,7 +953,7 @@
                         this.handleDelete(current);
                     }
                     this.updateCurrentRanges();
-                }   
+                }
                 evt.preventDefault();
                 return;
             } else if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
@@ -947,7 +984,9 @@
                         this.modeClicked("superscript");
                     }
                 }
-                evt.preventDefault();
+                else {
+                    evt.preventDefault();
+                }
                 return true;
             } else if (key == SHIFT || key == ALT) {
                 this.updateCurrentRanges();
@@ -1272,6 +1311,7 @@
                     type: p.type,
                     value: p.value,
                     text: p.text,
+                    attributes: p.attributes,
                     startNode: startNode,
                     endNode: endNode,
                     isDeleted: p.isDeleted
@@ -1318,6 +1358,7 @@
                 var prop = this.addZeroPoint(p.type, pt.content || p.text, node);
                 prop.guid = p.guid;
                 prop.layer = p.layer;
+                prop.attributes = p.attributes;
                 prop.index = p.index;
                 prop.value = p.value;
                 prop.isDeleted = p.isDeleted;

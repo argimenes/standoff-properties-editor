@@ -249,3 +249,11 @@
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
 }
+
+.zero-text {
+    vertical-align: super;
+    font-size: 0.7rem;
+    border-bottom: 3px solid yellow;
+    display: inline;
+    bottom: 0.7rem;
+}
