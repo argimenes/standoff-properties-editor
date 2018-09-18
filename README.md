@@ -64,6 +64,14 @@ The demo editor contains four sections. The only mandatory one is the editor pan
 
 ## Configuration
 
+All annotations are configured in a JSON object passed into the SPEEDy constructor; there are no default or built-in annotations. Along with the type of an annotation (its name), the editor requires annotations to have a *format* and a *topology*.
+
+### Format
+The format value ('decorate' or 'overlay') refers to how styles are to be applied to annotated text. The editor distinguishes between CSS styles that _decorate_ a HTMLElement and CSS styles that _overlay_ a HTMLElement. Because there is a limit of a single underline (border-bottom) per HTMLElement, multiple lines are rendered in the editor by stacking SPANs inside the character SPAN, allowing several lines to overlay a character.
+
+### Topology
+Topology refers to whether the annotation is _one-dimensional_ (a text range) or _zero-dimensional_ (a point). The usual concept of an annotation is that it applies to a range of text, but SPEEDy also handles annotations that are refer to a position in the text stream _between_ characters (a point). These _point annotations_ can be used to represent things like footnotes or margin notes which need to be located in the text but not represented in the text stream, or to represent characters in the original medium (such as hyphens in a manuscript) that are not required in the text stream.
+
 - container: HTMLElement;
 - monitor: HTMLElement;
 
