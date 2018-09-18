@@ -1,3 +1,8 @@
+## Browsers support
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
+| --------- | --------- | --------- | --------- |
+| IE11, Edge| last 2 versions| last 2 versions| last 2 versions
+
 # Introduction
 This project is a standoff property editor module built in JavaScript and HTML that can be dropped into any web application. It aims to provide the basic features of a standard text editor along with the ability to create user-defined annotations that can overlap freely. The editor can import or export data in a JSON format and makes no assumptions about the back-end data-store. All annotations are user-defined and passed in as a configuration object. Various event hooks are provided to enable your application code to manage things such as LOD lookups.
 
