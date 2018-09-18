@@ -296,7 +296,7 @@
             var _this = this;
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
-                var className = _this.className || propertyType.className || propertyType.zeroPointClassName;
+                var className = _this.className || propertyType.className || propertyType.zeroPoint.className;
                 if (propertyType.format == "style") {
                     s.classList.remove(className);
                 } else if (propertyType.format == "entity") {
@@ -327,7 +327,7 @@
             var propertyType = this.getPropertyType();
             var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
-                var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPointClassName : propertyType.className);
+                var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPoint.className : propertyType.className);
                 if (format == "style" || _this.isZeroPoint) {
                     s.classList.add(className);
                 } else if (format == "entity" && !_this.isZeroPoint) {
@@ -674,23 +674,25 @@
                     p.contract();
                 });
                 if (prop.isZeroPoint) {
-                    if (propertyType.zeroPointLabelSelector) {
-                        var zeroPointLabel = newSpan(this.monitorButton.zeroPointLabel || "[label]");
-                        zeroPointLabel.property = prop;
-                        zeroPointLabel.style.marginLeft = "5px";
-                        zeroPointLabel.addEventListener("click", function (e) {
-                            var span = getParent(e.target, function (x) { return !!x.property; });
-                            if (!span) {
-                                return;
-                            }
-                            var p = span.property;
-                            propertyType.zeroPointLabelSelector(p, function (label) {
-                                p.setZeroPointLabel(label);
+                    if (propertyType.zeroPoint) {
+                        if (propertyType.zeroPoint.selector) {
+                            var zeroPointLabel = newSpan(this.monitorButton.zeroPointLabel || "[label]");
+                            zeroPointLabel.property = prop;
+                            zeroPointLabel.style.marginLeft = "5px";
+                            zeroPointLabel.addEventListener("click", function (e) {
+                                var span = getParent(e.target, function (x) { return !!x.property; });
+                                if (!span) {
+                                    return;
+                                }
+                                var p = span.property;
+                                propertyType.zeroPoint.selector(p, function (label) {
+                                    p.setZeroPointLabel(label);
+                                });
                             });
-                        });
+                        }
                     }
                 }
-                var showConvertToZeroPoint = propertyType.showConvertToZeroPoint && propertyType.showConvertToZeroPoint(prop);
+                var showConvertToZeroPoint = (propertyType.zeroPoint && propertyType.zeroPoint.offerConversion && propertyType.zeroPoint.offerConversion(prop));
                 if (showConvertToZeroPoint) {
                     var toZeroPoint = newSpan(this.monitorButton.toZeroPoint || "[Z]");
                     toZeroPoint.property = prop;
@@ -965,24 +967,14 @@
             }
             else if (evt.ctrlKey) {
                 if (canAnnotate) {
-                    if (evt.key == "a") {
+                    if (evt.key == "a" || evt.key == "Control") {
                         return;
-                    } else if (evt.key == "b") {
-                        evt.preventDefault();
-                        this.modeClicked("bold");
-                    } else if (evt.key == "i") {
-                        evt.preventDefault();
-                        this.modeClicked("italics");
-                    } else if (evt.key == "u") {
-                        evt.preventDefault();
-                        this.modeClicked("delete");
-                    } else if (evt.key == "a") {
-                        evt.preventDefault();
-                        this.modeClicked("agent");
-                    } else if (evt.key == "u") {
-                        evt.preventDefault();
-                        this.modeClicked("superscript");
                     }
+                    var propertyTypeName = this.getPropertyTypeNameFromShortcutKey(evt.key);
+                    if (propertyTypeName) {
+                        evt.preventDefault();
+                        this.createProperty(propertyTypeName);
+                    }                    
                 }
                 else {
                     evt.preventDefault();
@@ -1027,6 +1019,15 @@
                 this.setCarotByNode(atFirst ? current : span);
             }
             this.updateCurrentRanges();
+        };
+        Editor.prototype.getPropertyTypeNameFromShortcutKey = function (key) {
+            for (var propertyTypeName in this.propertyType) {
+                var propertyType = this.propertyType[propertyTypeName];
+                if (propertyType.shortcut == key) {
+                    return propertyTypeName;
+                }
+            }
+            return null;
         };
         Editor.prototype.handleSpecialChars = function (span, charCode) {
             //if (charCode == SPACE) {
@@ -1138,14 +1139,14 @@
             property.setSpanRange();
             return property;
         };
-        Editor.prototype.zeroPointModeClicked = function (m, content) {
+        Editor.prototype.createZeroPointProperty = function (propertyTypeName, content) {
             var _this = this;
-            var type = find(this.propertyType, function (__, key) { return key == m; });
+            var type = find(this.propertyType, function (__, key) { return key == propertyTypeName; });
             if (!type) {
                 // No annotation type found.
                 return;
             }
-            var prop = this.addZeroPoint(m, content, this.getCurrent());
+            var prop = this.addZeroPoint(propertyTypeName, content, this.getCurrent());
             if (type.propertyValueSelector) {
                 type.propertyValueSelector(prop, function (value, name) {
                     if (value) {
@@ -1155,20 +1156,20 @@
                 });
             }
         };
-        Editor.prototype.modeClicked = function (m, value) {
+        Editor.prototype.createProperty = function (propertyTypeName, value) {
             var _this = this;
-            if (m == "erase") {
+            if (propertyTypeName == "erase") {
                 this.erase();
                 return;
             }
-            var type = find(this.propertyType, function (__, key) { return key == m; });
+            var type = find(this.propertyType, function (__, key) { return key == propertyTypeName; });
             if (!type) {
                 // No annotation type found.
                 return;
             }
             if (type.format == "zero-point") {
                 if (!type.propertyValueSelector) {
-                    this.addZeroPoint(m, type.content, this.getCurrent());
+                    this.addZeroPoint(propertyTypeName, type.content, this.getCurrent());
                     return;
                 }
             }
@@ -1178,7 +1179,7 @@
                 guid: null,
                 layer: null,
                 index: propCounter++,
-                type: m,
+                type: propertyTypeName,
                 startNode: range.start,
                 endNode: range.end
             });

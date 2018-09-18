@@ -125,13 +125,13 @@
                             </label>
                         </div>
                         <button style="border-bottom: 3px solid red;" data-toggle="tooltip" data-original-title="Person" class="btn btn-default tip" data-bind="click: $data.personClicked"><span class="fa fa-user"></span></button>
-			    <button style="border-bottom: 3px solid pink;" data-toggle="tooltip" data-original-title="Place" class="btn btn-default tip" data-bind="click: $data.placeClicked"><span class="fa fa-map"></span></button>
-			    <button style="border-bottom: 3px solid cyan;" data-toggle="tooltip" data-original-title="Date" class="btn btn-default tip" data-bind="click: $data.dateClicked"><span class="fa fa-clock-o"></span></button>
+                        <button style="border-bottom: 3px solid pink;" data-toggle="tooltip" data-original-title="Place" class="btn btn-default tip" data-bind="click: $data.placeClicked"><span class="fa fa-map"></span></button>
+                        <button style="border-bottom: 3px solid cyan;" data-toggle="tooltip" data-original-title="Date" class="btn btn-default tip" data-bind="click: $data.dateClicked"><span class="fa fa-clock-o"></span></button>
                         <button style="border-bottom: 3px solid blue;" data-toggle="tooltip" data-original-title="Event" class="btn btn-default tip" data-bind="click: $data.eventClicked"><span class="fa fa-calendar"></span></button>
                         <button style="border-bottom: 3px solid green;" data-toggle="tooltip" data-original-title="Concept" class="btn btn-default tip" data-bind="click: $data.conceptClicked"><span class="fa fa-lightbulb-o"></span></button>
-			<button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Text" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
-			<button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Web Link" class="btn btn-default tip" data-bind="click: $data.webLinkClicked"><span class="fa fa-link"></span></button>
-            
+                        <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Text" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
+                        <button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Web Link" class="btn btn-default tip" data-bind="click: $data.webLinkClicked"><span class="fa fa-link"></span></button>
+                        <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Footnotes" class="btn btn-default tip" data-bind="click: $data.footnoteClicked"><span style="font-weight: 600;">f</span></button>
                     </div>                    
                 </div> 
                 <div class="row" style="margin-top: 10px;">
@@ -369,9 +369,18 @@
                     },                    
                     text: {
                         format: "entity",
-                        shortcut: "t",
+                        shortcut: "t",                        
                         className: "text",
-                        zeroPointClassName: "zero-text",
+                        zeroPoint:{
+                            className: "zero-text",
+                            offerConversion: function (prop) {
+                                return !prop.isZeroPoint;
+                            },
+                            selector: function (prop, process) {
+                                var label = prompt("Label", prop.text);
+                                process(label);
+                            }
+                        },                        
                         attributes: {
                             position: {
                                 renderer: function (prop) {
@@ -382,17 +391,10 @@
                                     process(position);
                                 }
                             }
-                        },
-                        showConvertToZeroPoint: function (prop) {
-                            return !prop.isZeroPoint;
-                        },
+                        },                        
                         labelRenderer: function (prop) {
                             return prop.isZeroPoint ? "<span class='output-text'>footnote<span>" : "<span class='output-text'>text<span>";
-                        },
-                        zeroPointLabelSelector: function (prop, process) {
-                            var label = prompt("Label", prop.text);
-                            process(label);
-                        },
+                        },                        
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Text UUID?", prop.value || "");
                             process(uuid);
@@ -450,18 +452,18 @@
             this.toggleAnnotation("space");
         };
         Model.prototype.pageClicked = function () {
-            this.editor.modeClicked("page");
+            this.editor.createProperty("page");
         };
         Model.prototype.toggleAnnotation = function (type) {
             if (this.isActiveMode(type)) {
                 this.editor.deleteAnnotation(type);
                 this.currentModes.pop(type);
             } else {
-                this.editor.modeClicked(type);
+                this.editor.createProperty(type);
             }           
         };
         Model.prototype.hyphenClicked = function () {
-            this.editor.modeClicked("hyphen");
+            this.editor.createProperty("hyphen");
         };
         Model.prototype.changeLineHeightClicked = function(){
             changeCss(".editor", "line-height", this.lineHeight());
@@ -497,31 +499,35 @@
             this.toggleAnnotation("underline");
         };       
         Model.prototype.lineClicked = function () {
-            this.editor.modeClicked("line");
+            this.editor.createProperty("line");
         };
         Model.prototype.paragraphClicked = function () {
-            this.editor.modeClicked("paragraph");
+            this.editor.createProperty("paragraph");
         };
         Model.prototype.personClicked = function () {
-            this.editor.modeClicked("person");
+            this.editor.createProperty("person");
         };
         Model.prototype.textClicked = function () {
-            this.editor.modeClicked("text");
+            this.editor.createProperty("text");
         };
         Model.prototype.webLinkClicked = function () {
-            this.editor.modeClicked("webLink");
+            this.editor.createProperty("webLink");
         };
         Model.prototype.eventClicked = function () {
-            this.editor.modeClicked("event");
+            this.editor.createProperty("event");
         };
         Model.prototype.placeClicked = function () {
-            this.editor.modeClicked("place");
+            this.editor.createProperty("place");
         }; 
         Model.prototype.dateClicked = function () {
-            this.editor.modeClicked("date");
+            this.editor.createProperty("date");
         };
         Model.prototype.conceptClicked = function () {
-            this.editor.modeClicked("concept");
+            this.editor.createProperty("concept");
+        };
+        Model.prototype.footnoteClicked = function () {
+            var content = prompt("Footnote text");
+            this.editor.createZeroPointProperty("text", content);
         };
         Model.prototype.unbindClicked = function(){
             var data = this.editor.unbind();
