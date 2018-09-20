@@ -37,22 +37,22 @@ Anything that can be mined or derived from a text can be stored as a standoff pr
 While standoff properties can be stored in any format storing them as LOD entities in a graph database vastly increases their potential. For example, if you were searching for all references to a person you would not only find the texts but the exact character positions in the text. If you expanded your query from a person like Leonardo da Vinci, say, to all artists you could see every instance an artist is mentioned in any text. Queries could also be combined across annotation types. For example, if you had the syntax tree of a text you could find every occurence of a term within a given syntactical unit. The more annotation types you record, the greater the number of text minining options become available.
 
 ## Features
-I use the term Standoff Property Text (SPT) to refer to the combination of the raw text and its standoff properties.
+I use the term Standoff Property Document (SPD) to refer to the combination of the raw text and its standoff properties.
 
 - Separation of annotations from text source
 - Text is dynamically editable without corrupting annotations
 - Annotations can be overlaid freely
 - Supports zero-point annotations (ZPA), like word-breaking hyphens that need to be marked up from a manuscript but which shouldn't be stored in the text itself
-- SPTs are exported and imported as JSON
+- Documents are exported and imported as JSON
 - Annotations can be grouped into layers, to manage visual complexity
 - The standoff property data model can easily be extended by the user in their application code through various event hooks, to store as much as or as little data as they need
 - The editor makes no assumption about where LOD data is stored, and can be easily extended to query any data source
 
 In addition:
 
-- Annotations are annotatable with SPTs
-- SPTs can be annotated with other SPTs (e.g., footnotes, margin notes)
-- As suggested above, the SPT can be considered a 'first class citizen' capable of infinite recursion
+- Annotations are annotatable with SPDs
+- SPDs can be annotated with other SPDs (e.g., footnotes, margin notes)
+- As suggested above, the SPD can be considered a 'first class citizen' capable of infinite recursion
 
 ## The editor
 The demo editor contains four sections. The only mandatory one is the editor panel.
@@ -71,6 +71,30 @@ The format value ('decorate' or 'overlay') refers to how styles are to be applie
 
 ### Topology
 Topology refers to whether the annotation is _one-dimensional_ (a text range) or _zero-dimensional_ (a point). The usual concept of an annotation is that it applies to a range of text, but SPEEDy also handles annotations that are refer to a position in the text stream _between_ characters (a point). These _point annotations_ can be used to represent things like footnotes or margin notes which need to be located in the text but not represented in the text stream, or to represent characters in the original medium (such as hyphens in a manuscript) that are not required in the text stream.
+
+#### A simple style annotation
+```json
+{
+   type: "italics",
+   format: "style",
+   className: "italics"
+}
+```
+
+#### A simple agent annotation
+```json
+{
+   type: "agent",
+   format: "overlay",
+   className: "agent",
+   propertyValueSelected: function(property, process) {
+      // Values are retrieved through whatever mechanism is required -- whether through a simple dialog box
+      // or through an AJAX call to a database in a modal search window -- and passed to the process callback.
+      var value = prompt("Agent GUID", property.value);
+      process(value);
+   }
+}
+```
 
 - container: HTMLElement;
 - monitor: HTMLElement;
