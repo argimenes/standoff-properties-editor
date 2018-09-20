@@ -76,7 +76,7 @@ Topology refers to whether the annotation is _one-dimensional_ (a text range) or
 ```javascript
 {
    type: "italics",
-   format: "style",
+   format: "decorate",
    className: "italics"
 }
 ```
