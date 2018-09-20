@@ -200,12 +200,31 @@
             this.type = cons.type;
             this.value = cons.value;
             this.layer = cons.layer;
+            this.text = cons.text;
             this.startNode = cons.startNode;
             this.endNode = cons.endNode;
             this.attributes = cons.attributes || {};
             this.isZeroPoint = cons.isZeroPoint || false;
             this.isDeleted = cons.isDeleted;
         }
+        Property.prototype.overRange = function (func) {
+            whileNext(this.startNode, this.endNode, func);
+        };
+        Property.prototype.highlight = function () {
+            var _this = this;
+            if (this.isZeroPoint) {
+                return;
+            }
+            var css = this.editor.css.highlight || "text-highlight";
+            this.overRange(s => s.classList.add(css));
+        };
+        Property.prototype.unhighlight = function () {
+            if (this.isZeroPoint) {
+                return;
+            }
+            var css = this.editor.css.highlight || "text-highlight";
+            this.overRange(s => s.classList.remove(css));            
+        };
         Property.prototype.startIndex = function () {
             return childNodeIndex(this.startNode);
         };
@@ -436,6 +455,8 @@
             this.unbinding = cons.unbinding || {};
             this.lockText = cons.lockText || false;
             this.lockProperties = cons.lockProperties || false;
+            this.css = cons.css || {};
+            this.monitorOptions = cons.monitorOptions || {};
             this.data = {
                 text: null,
                 properties: []
@@ -569,6 +590,29 @@
                 var labelRenderer = propertyType.labelRenderer;
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
                 var type = newSpan(label);
+                type.property = prop;
+                if (_.monitorOptions.highlightProperties) {
+                    type.addEventListener("mouseover", function (e) {
+                        setTimeout(() => {
+                            var span = getParent(e.target, function (x) { return !!x.property; });
+                            if (!span) {
+                                return;
+                            }
+                            var p = span.property;
+                            p.highlight();
+                        }, 1);                        
+                    });
+                    type.addEventListener("mouseout", function (e) {
+                        setTimeout(() => {
+                            var span = getParent(e.target, function (x) { return !!x.property; });
+                            if (!span) {
+                                return;
+                            }
+                            var p = span.property;
+                            p.unhighlight();
+                        });
+                    }, 1);
+                }
                 if (!!prop.value) {
                     var link = newSpan(this.monitorButton.link || "[O-O]");
                     link.property = prop;
@@ -974,7 +1018,7 @@
                     if (propertyTypeName) {
                         evt.preventDefault();
                         this.createProperty(propertyTypeName);
-                    }                    
+                    }
                 }
                 else {
                     evt.preventDefault();

@@ -269,7 +269,13 @@
 							// Handle the adding of a user comment to any standoff property.
                             var value = prompt("Comment", prop.value || "");
                             process(value);
-						},
+                        },
+                        monitorOptions: {
+                            highlightProperties: true
+                        },
+                        css: {
+                            highlight: "text-highlight"
+                        },
 						monitorButton: {
                             link: '<button data-toggle="tooltip" data-original-title="Edit" class="btn btn-sm"><span class="fa fa-link"></span></button>',
                             layer: '<button data-toggle="tooltip" data-original-title="Layer" class="btn btn-sm"><span class="fa fa-cog"></span></button>',
