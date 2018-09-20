@@ -73,7 +73,7 @@ The format value ('decorate' or 'overlay') refers to how styles are to be applie
 Topology refers to whether the annotation is _one-dimensional_ (a text range) or _zero-dimensional_ (a point). The usual concept of an annotation is that it applies to a range of text, but SPEEDy also handles annotations that are refer to a position in the text stream _between_ characters (a point). These _point annotations_ can be used to represent things like footnotes or margin notes which need to be located in the text but not represented in the text stream, or to represent characters in the original medium (such as hyphens in a manuscript) that are not required in the text stream.
 
 #### A simple style annotation
-```json
+```javascript
 {
    type: "italics",
    format: "style",
@@ -82,12 +82,12 @@ Topology refers to whether the annotation is _one-dimensional_ (a text range) or
 ```
 
 #### A simple agent annotation
-```json
+```javascript
 {
    type: "agent",
    format: "overlay",
    className: "agent",
-   propertyValueSelected: function(property, process) {
+   propertyValueSelector: function(property, process) {
       // Values are retrieved through whatever mechanism is required -- whether through a simple dialog box
       // or through an AJAX call to a database in a modal search window -- and passed to the process callback.
       var value = prompt("Agent GUID", property.value);
