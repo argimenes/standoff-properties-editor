@@ -262,7 +262,7 @@
                         },
                         onMonitorUpdated: function(types) {
                             _.currentModes([]);
-                            var modes = types.filter(function(x){ return x.format == "style"; }).map(function(x) { return x.type; });
+                            var modes = types.filter(function(x){ return x.format == "decorate"; }).map(function(x) { return x.type; });
                             _.currentModes(modes);
                         },
 						commentManager: function (prop) {
@@ -293,7 +293,7 @@
                         },
 						 propertyType: {
                     bold: {
-                        format: "style",
+                        format: "decorate",
                         shortcut: "b",
                         className: "bold",
                         labelRenderer: function () {
@@ -301,7 +301,7 @@
                         }
                     },
                     italics: {
-                        format: "style",
+                        format: "decorate",
                         shortcut: "i",
                         className: "italic",
                         labelRenderer: function () {
@@ -314,32 +314,32 @@
                         content: "-"
                     },
                     strike: {
-                        format: "style",
+                        format: "decorate",
                         className: "line-through"
                     },
                     underline: {
-                        format: "style",
+                        format: "decorate",
                         shortcut: "u",
                         className: "underline"
                     },
                     superscript: {
-                        format: "style",
+                        format: "decorate",
                         className: "superscript"
                     },
                     subscript: {
-                        format: "style",
+                        format: "decorate",
                         className: "subscript"
                     },
                     space: {
-                        format: "style",
+                        format: "decorate",
                         className: "space"
                     },
                     line: {
-                        format: "style",
+                        format: "decorate",
                         className: "line"
                     },
                     page: {
-                        format: "style",
+                        format: "decorate",
                         className: "page",
                         labelRenderer: function (prop) {
                             return "page " + prop.value;
@@ -350,11 +350,11 @@
                         }
                     },
                     paragraph: {
-                        format: "style",
+                        format: "decorate",
                         className: "paragraph"
                     },
                     person: {
-                        format: "entity",
+                        format: "overlay",
                         shortcut: "p",
                         className: "person",
                         labelRenderer: function (prop) {
@@ -366,7 +366,7 @@
                         },
                     },
                     "event": {
-                        format: "entity",
+                        format: "overlay",
                         className: "event",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Event UUID?", prop.value || "");
@@ -374,7 +374,7 @@
                         },
                     },                    
                     text: {
-                        format: "entity",
+                        format: "overlay",
                         shortcut: "t",                        
                         className: "text",
                         zeroPoint:{
@@ -407,7 +407,7 @@
                         }
                     },
 		            place: {
-                        format: "entity",
+                        format: "overlay",
                         className: "place",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Place", prop.value || "");
@@ -415,7 +415,7 @@
                         }
                     }, 
                     webLink: {
-                        format: "entity",
+                        format: "overlay",
                         className: "web-link",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Web Link", prop.value || "");
@@ -423,7 +423,7 @@
                         }
                     }, 
                     date: {
-                        format: "entity",
+                        format: "overlay",
                         className: "date",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Date/Time", prop.value || "");
@@ -431,7 +431,7 @@
                         }
                     },                    
                     concept: {
-                        format: "entity",
+                        format: "overlay",
                         className: "concept",
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Concept UUID?", prop.value || "");

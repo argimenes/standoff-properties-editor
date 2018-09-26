@@ -223,7 +223,7 @@
                 return;
             }
             var css = this.editor.css.highlight || "text-highlight";
-            this.overRange(s => s.classList.remove(css));            
+            this.overRange(s => s.classList.remove(css));
         };
         Property.prototype.startIndex = function () {
             return childNodeIndex(this.startNode);
@@ -262,9 +262,9 @@
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
                 var className = _this.className || propertyType.className;
-                if (propertyType.format == "style") {
+                if (propertyType.format == "decorate") {
                     s.classList.remove(className);
-                } else if (propertyType.format == "entity") {
+                } else if (propertyType.format == "overlay") {
                     hideLayer(s, this.layer);
                 }
             }.bind(this));
@@ -316,9 +316,9 @@
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
                 var className = _this.className || propertyType.className || propertyType.zeroPoint.className;
-                if (propertyType.format == "style") {
+                if (propertyType.format == "decorate") {
                     s.classList.remove(className);
-                } else if (propertyType.format == "entity") {
+                } else if (propertyType.format == "overlay") {
                     unsetSpanRange(s, className);
                 }
             }.bind(this));
@@ -331,9 +331,9 @@
             var propertyType = this.getPropertyType();
             whileNext(this.startNode, this.endNode, function (s) {
                 var className = _this.className || propertyType.className;
-                if (propertyType.format == "style") {
+                if (propertyType.format == "decorate") {
                     s.classList.add(className);
-                } else if (propertyType.format == "entity") {
+                } else if (propertyType.format == "overlay") {
                     showLayer(s, this.layer);
                 }
             }.bind(this));
@@ -347,9 +347,9 @@
             var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
                 var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPoint.className : propertyType.className);
-                if (format == "style" || _this.isZeroPoint) {
+                if (format == "decorate" || _this.isZeroPoint) {
                     s.classList.add(className);
-                } else if (format == "entity" && !_this.isZeroPoint) {
+                } else if (format == "overlay" && !_this.isZeroPoint) {
                     var inner = document.createElement("DIV");
                     inner.setAttribute("data-layer", this.layer);
                     inner.classList.add("overlaid");
@@ -600,7 +600,7 @@
                             }
                             var p = span.property;
                             p.highlight();
-                        }, 1);                        
+                        }, 1);
                     });
                     type.addEventListener("mouseout", function (e) {
                         setTimeout(() => {
@@ -962,10 +962,12 @@
         };
         Editor.prototype.deleteRange = function (range) {
             var node = range.end;
-            while (node != range.start) {
-                var prev = node.previousElementSibling;
-                this.handleBackspace(node);
-                node = prev;
+            if (node != range.start) {
+                while (node != range.start) {
+                    var prev = node.previousElementSibling;
+                    this.handleBackspace(node);
+                    node = prev;
+                }
             }
             this.handleBackspace(range.start, true);
         };
@@ -977,7 +979,7 @@
             var current = this.getCurrent();
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
-            var hasSelection = (range && range.start != range.end);
+            var hasSelection = !!range;
             if (key == BACKSPACE) {
                 if (canEdit) {
                     if (hasSelection) {
@@ -1036,11 +1038,22 @@
             //}
 
             if (hasSelection) {
-                // Overwrite selected range by first deleting it.
-                this.deleteRange(range);
+                if (range.start == range.end) {
+                    range.start.textContent = evt.key;
+                    evt.preventDefault();
+                    this.paint(range.start);
+                    this.updateCurrentRanges();
+                    return;
+                }
+                else {
+                    // Overwrite selected range by first deleting it.
+                    current = range.start.previousElementSibling;
+                    this.deleteRange(range);
+                }
             }
 
             evt.preventDefault();
+
             if (false == canEdit) {
                 return;
             }
@@ -1108,9 +1121,15 @@
             if (range.collapsed) {
                 return null;
             }
-            var endContainer = range.endContainer;
-            var startSpan = this.getParentSpan(range.startContainer);
-            var endSpan = this.getParentSpan(range.endContainer);
+            var sn = range.startContainer;
+            var en = range.endContainer;
+            if (en instanceof HTMLSpanElement) {
+                if (range.endOffset == 0) {
+                    en = en.previousElementSibling;
+                }
+            }
+            var startSpan = this.getParentSpan(sn);
+            var endSpan = this.getParentSpan(en);
             return {
                 start: startSpan,
                 end: endSpan
@@ -1267,9 +1286,9 @@
         };
         Editor.prototype.paintSpanWithProperty = function (s, prop) {
             var propertyType = prop.getPropertyType();
-            if (propertyType.format == "style") {
+            if (propertyType.format == "decorate") {
                 s.classList.add(propertyType.className);
-            } else if (propertyType.format == "entity") {
+            } else if (propertyType.format == "overlay") {
                 var inner = document.createElement("DIV");
                 inner.setAttribute("data-layer", this.layer);
                 inner.classList.add("overlaid");
