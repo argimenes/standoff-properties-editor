@@ -72,45 +72,50 @@ The format value ('decorate' or 'overlay') refers to how styles are to be applie
 ### Topology
 Topology refers to whether the annotation is _one-dimensional_ (a text range) or _zero-dimensional_ (a point). The usual concept of an annotation is that it applies to a range of text, but SPEEDy also handles annotations that are refer to a position in the text stream _between_ characters (a point). These _point annotations_ can be used to represent things like footnotes or margin notes which need to be located in the text but not represented in the text stream, or to represent characters in the original medium (such as hyphens in a manuscript) that are not required in the text stream.
 
-#### A simple style annotation
-```javascript
-{
-   type: "italics",
-   format: "decorate",
-   className: "italics"
-}
-```
+## Getting Started
+The SPEEDy configuration object 
 
-#### A simple agent annotation
+### HTML
+```html
+<div class="speedy">
+   <div id="editor" class="editor"></div>
+   <div id="monitor" class="monitor"></div>
+</div>
+```
+### JSON
 ```javascript
 {
-   type: "agent",
-   format: "overlay",
-   className: "agent",
-   propertyValueSelector: function(property, process) {
-      // Values are retrieved through whatever mechanism is required -- whether through a simple dialog box
-      // or through an AJAX call to a database in a modal search window -- and passed to the process callback.
-      var value = prompt("Agent GUID", property.value);
-      process(value);
+   container: document.getElementById("editor"),
+   monitor: document.getElementById("monitor"),
+   propertyType: {
+      italics: {
+         type: "italics",
+         shortcut: "i",
+         format: "decorate",
+         className: "italics"
+      },
+      agent: {
+         type: "agent",
+         shortcut: "a",
+         format: "overlay",
+         className: "agent",
+         labelRenderer: function(property) {
+            var label = "agent";
+            if (property.text) {
+               label += " [ " + property.text + " ]";
+            }
+            return "<span class='agent'>" + label + "</span>";
+         },
+         propertyValueSelector: function(property, process) {
+            // Values are retrieved through whatever mechanism is required -- whether through a simple dialog box
+            // or through an AJAX call to a database in a modal search window -- and passed to the process callback.
+            var value = prompt("Agent GUID", property.value);
+            process(value);
+         }
+      }
    }
 }
 ```
-
-- container: HTMLElement;
-- monitor: HTMLElement;
-
-- monitorButton
-   - link: string;
-   - layer: string;
-   - remove: string;
-   - comment: string;
-   
-- propertyType
-  - format: string;
-  - shortcut: string: 
-  - className: string;
-  - propertyValueSelector: function (prop: Property, process: function (guid: string; name: string;));
-  - labelRenderer: function() => string;
   
 ## Hooks
 - onPropertyCreated: function (prop: Property, data: JSON);
