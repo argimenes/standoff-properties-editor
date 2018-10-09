@@ -600,6 +600,7 @@
                             }
                             var p = span.property;
                             p.highlight();
+                            span.classList.add(_.css.highlight);
                         }, 1);
                     });
                     type.addEventListener("mouseout", function (e) {
@@ -610,6 +611,7 @@
                             }
                             var p = span.property;
                             p.unhighlight();
+                            span.classList.remove(_.css.highlight);
                         });
                     }, 1);
                 }
@@ -1011,9 +1013,9 @@
                 this.updateCurrentRanges();
                 return true;
             }
-            else if (evt.ctrlKey) {
+            else if (evt.ctrlKey || evt.metaKey) {
                 if (canAnnotate) {
-                    if (evt.key == "a" || evt.key == "Control") {
+                    if (evt.key == "a" || evt.key == "Control" || evt.key == "Meta") {
                         return;
                     }
                     var propertyTypeName = this.getPropertyTypeNameFromShortcutKey(evt.key);
