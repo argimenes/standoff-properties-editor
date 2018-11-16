@@ -115,6 +115,7 @@
                         </div>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Hyphen" data-bind="click: $data.hyphenClicked"><span style="font-weight: 600;">-</span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Line" data-bind="click: $data.lineClicked"><span class="fa fa-arrows-h"></span></button>
+			<button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Column" data-bind="click: $data.columnClicked"><span>C</span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Paragraph" data-bind="click: $data.paragraphClicked"><span class="fa fa-paragraph"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Page" data-bind="click: $data.pageClicked"><span style="font-weight: 600;">P</span></button>
                     </div>
@@ -349,6 +350,17 @@
                             process(num);
                         }
                     },
+		    column: {
+                        format: "decorate",
+                        className: "column",
+                        labelRenderer: function (prop) {
+                            return "column #" + prop.value;
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var num = prompt("Column number?", prop.value || "");
+                            process(num);
+                        }
+                    },
                     paragraph: {
                         format: "decorate",
                         className: "paragraph"
@@ -527,6 +539,9 @@
         }; 
         Model.prototype.dateClicked = function () {
             this.editor.createProperty("date");
+        };
+	Model.prototype.columnClicked = function () {
+            this.editor.createProperty("column");
         };
         Model.prototype.conceptClicked = function () {
             this.editor.createProperty("concept");
