@@ -133,7 +133,23 @@
                         <button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Web Link" class="btn btn-default tip" data-bind="click: $data.webLinkClicked"><span class="fa fa-link"></span></button>
                         <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Footnotes" class="btn btn-default tip" data-bind="click: $data.footnoteClicked"><span style="font-weight: 600;">f</span></button>
                     </div>                    
+                    
                 </div> 
+                <div class="row">
+                    <div class="col-md-3">
+                        <div>
+                            <label>
+                                TEI
+                            </label>
+                            <div class="input-group">
+                                <select class="form-control" data-bind="value: $data.TEI, options: $data.list.TEI"></select>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" data-bind="click: $data.teiSelected">Apply</button>
+                                </span>
+                            </div>                        
+                        </div>
+                    </div>
+                </div>
                 <div class="row" style="margin-top: 10px;">
                     <div class="col-md-12">
                         <div data-role="editor" spellcheck="false" contenteditable="true" class="editor"></div>
@@ -220,7 +236,34 @@
                         "ReggF3-H19-316.json",
                         "ReggF3-H19-316-no-annotations.json",
                         "adam-liszt.json"
-                        ]);            
+                        ]);   
+                    this.TEI = ko.observable();  
+                    this.list = {
+                        TEI: ko.observableArray([                    
+                            "tei/core/date",
+                            "tei/core/item",
+                            "tei/core/label",
+                            "tei/core/list",                   
+                            "tei/core/name",
+                            "tei/core/num",
+                            "tei/core/quote",
+                            "tei/core/said",
+                            "tei/core/time",
+                            "tei/core/unclear",
+                            "tei/core/unit",
+                            "tei/textstructure/argument",
+                            "tei/textstructure/closer",
+                            "tei/textstructure/dateline",
+                            "tei/textstructure/opener",
+                            "tei/textstructure/postscript",
+                            "tei/textstructure/salute",
+                            "tei/textstructure/signed",
+                            "tei/verse/caesura",
+                            "tei/verse/metDecl",
+                            "tei/verse/metSym",
+                            "tei/verse/rhyme",
+                        ])
+                    };                            
                     this.lineHeight = ko.observable("2em");           
                     this.fontSize = ko.observable("1.5em"); 
                     this.fontFamily = ko.observable("monospace"); 
@@ -338,6 +381,282 @@
                         format: "decorate",
                         className: "line"
                     },
+                    "tei/core/label": {
+                        format: "decorate",
+                        className: "tei-core-label",
+                        attributes: {
+                            place: {
+                                renderer: function (prop) {
+                                    return "place [" + (prop.attributes.place || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var place = prompt("Place?", prop.attributes.place);
+                                    process(place);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/name": {
+                        format: "decorate",
+                        className: "tei-core-name",
+                        attributes: {
+                            type: {
+                                renderer: function (prop) {
+                                    return "type [" + (prop.attributes.type || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var type = prompt("Type?", prop.attributes.type);
+                                    process(type);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/date": {
+                        format: "decorate",
+                        className: "tei-core-date",
+                        attributes: {
+                            when: {
+                                renderer: function (prop) {
+                                    return "when [" + (prop.attributes.when || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var when = prompt("When?", prop.attributes.when);
+                                    process(when);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/item": {
+                        format: "decorate",
+                        className: "tei-core-item",
+                        attributes: {
+                            n: {
+                                renderer: function (prop) {
+                                    return "n [" + (prop.attributes.n || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var n = prompt("When?", prop.attributes.n);
+                                    process(n);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/list": {
+                        format: "decorate",
+                        className: "tei-core-list",
+                        attributes: {
+                            rend: {
+                                renderer: function (prop) {
+                                    return "rend [" + (prop.attributes.rend || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var rend = prompt("rend?", prop.attributes.rend);
+                                    process(rend);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/measure": {
+                        format: "decorate",
+                        className: "tei-core-measure",
+                        attributes: {
+                            type: {
+                                renderer: function (prop) {
+                                    return "type [" + (prop.attributes.type || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var type = prompt("Type?", prop.attributes.type);
+                                    process(type);
+                                }
+                            },
+                            quantity: {
+                                renderer: function (prop) {
+                                    return "quantity [" + (prop.attributes.quantity || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var quantity = prompt("Quantity?", prop.attributes.quantity);
+                                    process(quantity);
+                                }
+                            },
+                            unit: {
+                                renderer: function (prop) {
+                                    return "unit [" + (prop.attributes.unit || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var unit = prompt("Unit?", prop.attributes.unit);
+                                    process(unit);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/num": {
+                        format: "decorate",
+                        className: "tei-core-num",
+                        attributes: {
+                            type: {
+                                renderer: function (prop) {
+                                    return "type [" + (prop.attributes.type || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var type = prompt("type?", prop.attributes.type);
+                                    process(type);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/quote": {
+                        format: "decorate",
+                        className: "tei-core-quote",
+                        lang: {
+                            renderer: function (prop) {
+                                return "lang [" + (prop.attributes.lang || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                            },
+                            selector: function (prop, process) {
+                                var lang = prompt("Lang?", prop.attributes.lang);
+                                process(lang);
+                            }
+                        }
+                    },
+                    "tei/core/said": {
+                        format: "decorate",
+                        className: "tei-core-said"
+                    },
+                    "tei/core/time": {
+                        format: "decorate",
+                        className: "tei-core-time",
+                        attributes: {
+                            when: {
+                                renderer: function (prop) {
+                                    return "when [" + (prop.attributes.when || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var when = prompt("When?", prop.attributes.when);
+                                    process(when);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/unclear": {
+                        format: "decorate",
+                        className: "tei-core-unclear",
+                        attributes: {
+                            reason: {
+                                renderer: function (prop) {
+                                    return "reason [" + (prop.attributes.reason || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var reason = prompt("Reason?", prop.attributes.reason);
+                                    process(reason);
+                                }
+                            }
+                        }
+                    },
+                    "tei/core/unit": {
+                        format: "decorate",
+                        className: "tei-core-unit",
+                        attributes: {
+                            type: {
+                                renderer: function (prop) {
+                                    return "type [" + (prop.attributes.type || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var type = prompt("Type?", prop.attributes.type);
+                                    process(type);
+                                }
+                            },
+                            unit: {
+                                renderer: function (prop) {
+                                    return "unit [" + (prop.attributes.unit || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var unit = prompt("Unit?", prop.attributes.unit);
+                                    process(unit);
+                                }
+                            }
+                        }
+                    },
+                    "tei/namesdates/birth": {
+                        format: "decorate",
+                        className: "tei-namesdates-birth"
+                    },
+                    "tei/namesdates/forename": {
+                        format: "decorate",
+                        className: "tei-namesdates-forename"
+                    },
+                    "tei/namesdates/surname": {
+                        format: "decorate",
+                        className: "tei-namesdates-surname"
+                    },
+                    "tei/textstructure/argument": {
+                        format: "decorate",
+                        className: "tei-textstructure-argument"
+                    },
+                    "tei/textstructure/closer": {
+                        format: "decorate",
+                        className: "tei-textstructure-closer"                        
+                    },
+                    "tei/textstructure/dateline": {
+                        format: "decorate",
+                        className: "tei-textstructure-dateline"
+                    },
+                    "tei/textstructure/postscript": {
+                        format: "decorate",
+                        className: "tei-textstructure-postscript"
+                    },
+                    "tei/textstructure/opener": {
+                        format: "decorate",
+                        className: "tei-textstructure-opener"
+                    },
+                    "tei/textstructure/salute": {
+                        format: "decorate",
+                        className: "tei-textstructure-salute"
+                    },
+                    "tei/textstructure/signed": {
+                        format: "decorate",
+                        className: "tei-textstructure-signed"
+                    },
+                    "tei/verse/caesura": {
+                        format: "decorate",
+                        zeroPoint: {
+                            className: "tei-verse-caesura"
+                        },
+                        className: "caesura",
+                        content: "|"
+                    },    
+                    "tei/verse/metDecl": {
+                        format: "decorate",
+                        className: "tei-verse-metDecl",
+                        attributes: {
+                            type: {
+                                renderer: function (prop) {
+                                    return "type [" + (prop.attributes.type || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var type = prompt("Type?", prop.attributes.type);
+                                    process(type);
+                                }
+                            }
+                        }
+                    },
+                    "tei/verse/metSym": {
+                        format: "decorate",
+                        className: "tei-verse-metSym"                        
+                    },
+                    "tei/verse/rhyme": {
+                        format: "decorate",
+                        className: "tei-verse-rhyme",
+                        attributes: {
+                            label: {
+                                renderer: function (prop) {
+                                    return "label [" + (prop.attributes.label || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var label = prompt("Label?", prop.attributes.label);
+                                    process(label);
+                                }
+                            }
+                        }
+                    },      
                     page: {
                         format: "decorate",
                         className: "page",
@@ -546,6 +865,10 @@
                 _this.editor.bind(json);
                 _this.viewer(null);
             });
+        };
+        Model.prototype.teiSelected = function () {
+            var tei = this.TEI();
+            this.editor.createProperty(tei);
         };
         Model.prototype.bindClicked = function () {
             var data = JSON.parse(this.viewer() || '{}');
