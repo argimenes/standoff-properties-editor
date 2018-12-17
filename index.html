@@ -16,6 +16,11 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- END CORE CSS FRAMEWORK -->    
     <link href="css/app/editor.css" rel="stylesheet" type="text/css" />
+    <style>
+	.expansion {
+	   color: red;
+	}
+    </style>
 </head>
 <body style="background-color: #efefef;">    
 <section id="main-template">
@@ -114,7 +119,8 @@
                             </label>
                         </div>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Hyphen" data-bind="click: $data.hyphenClicked"><span style="font-weight: 600;">-</span></button>
-                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Line" data-bind="click: $data.lineClicked"><span class="fa fa-arrows-h"></span></button>
+                        <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Line" data-bind="click: $data.lineClicked"><span>|</span></button>
+			<button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Expansion" data-bind="click: $data.expansionClicked"><span class="fa fa-arrows-h"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Paragraph" data-bind="click: $data.paragraphClicked"><span class="fa fa-paragraph"></span></button>
                         <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="Page" data-bind="click: $data.pageClicked"><span style="font-weight: 600;">P</span></button>
                     </div>
@@ -235,7 +241,9 @@
                     this.files = ko.observableArray([
                         "ReggF3-H19-316.json",
                         "ReggF3-H19-316-no-annotations.json",
-                        "adam-liszt.json"
+                        "adam-liszt.json",
+			"HildegardR51.json",
+			"HildegardR52.json",
                         ]);   
                     this.TEI = ko.observable();  
                     this.list = {
@@ -358,6 +366,10 @@
                         },     
                         className: "hyphen",
                         content: "-"
+                    },
+		    expansion: {
+                        format: "decorate",
+                        className: "expansion"
                     },
                     strike: {
                         format: "decorate",
@@ -819,6 +831,9 @@
         };
         Model.prototype.superscriptClicked = function () {
             this.toggleAnnotation("superscript");
+        };
+	Model.prototype.expansionClicked = function () {
+            this.toggleAnnotation("expansion");
         };
         Model.prototype.subscriptClicked = function () {
             this.toggleAnnotation("subscript");
