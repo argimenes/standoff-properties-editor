@@ -118,6 +118,7 @@
 
     function childNodeIndex(node) {
         var i = 0;
+        node = node.speedy ? node : getParent(node, n => n.speedy);
         while (node && ((node = node.previousElementSibling) != null)) {
             if (!node.isZeroPoint) {
                 i++;
@@ -149,6 +150,7 @@
 
     function newSpan(text) {
         var s = document.createElement("SPAN");
+        s.speedy = true;
         s.style.position = "relative";
         if (text) {
             s.innerHTML = text;
@@ -1211,6 +1213,7 @@
                 // No annotation type found.
                 return;
             }
+            content = content || type.content;
             var prop = this.addZeroPoint(propertyTypeName, content, this.getCurrent());
             if (type.propertyValueSelector) {
                 type.propertyValueSelector(prop, function (value, name) {
@@ -1397,9 +1400,11 @@
             var len = model.text.length;
             var zeroProperties = model.properties.filter(function (item) {
                 return item.isZeroPoint;
-            }).sort(function (a, b) { return a.startIndex < b.startIndex ? 1 : a.startIndex < b.startIndex ? -1 : 0; });
-            var zeroPropertiesLength = zeroProperties.length;
+            });
             // Work backwards through the list of zero properties so we don't fetch a SPAN that hasn't been offset from a previous insertion.
+            zeroProperties = zeroProperties.sort((a, b) => a.startIndex > b.startIndex ? -1 : a.startIndex < b.startIndex ? 1 : 0);
+            var zeroPropertiesLength = zeroProperties.length;
+            console.log({ zeroProperties });
             for (var i = 0; i < zeroPropertiesLength; i++) {
                 var p = zeroProperties[i];
                 console.log("Zero-point property", p);
