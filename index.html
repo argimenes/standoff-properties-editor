@@ -14,7 +14,7 @@
     <!-- END PLUGIN CSS -->
     <!-- BEGIN CORE CSS FRAMEWORK -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- END CORE CSS FRAMEWORK -->    
+    <!-- END CORE CSS FRAMEWORK -->
     <link href="css/app/editor.css" rel="stylesheet" type="text/css" />
     <style>
 	.expansion {
@@ -22,7 +22,7 @@
 	}
     </style>
 </head>
-<body style="background-color: #efefef;">    
+<body style="background-color: #efefef;">
 <section id="main-template">
     <div class="container" style="margin-top: 40px;">
         <div class="row">
@@ -96,8 +96,8 @@
                 </div>
         </div>
         <div class="row">
-            <div class="col-md-12">                
-                <div style="margin-top: 20px;">                    
+            <div class="col-md-12">
+                <div style="margin-top: 20px;">
                     <div style="display: inline-block; margin-right: 20px;">
                         <div>
                             <label>
@@ -138,9 +138,9 @@
                         <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Text" class="btn btn-default tip" data-bind="click: $data.textClicked"><span class="fa fa-file-text"></span></button>
                         <button style="border-bottom: 3px solid lightgreen;" data-toggle="tooltip" data-original-title="Web Link" class="btn btn-default tip" data-bind="click: $data.webLinkClicked"><span class="fa fa-link"></span></button>
                         <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Footnotes" class="btn btn-default tip" data-bind="click: $data.footnoteClicked"><span style="font-weight: 600;">f</span></button>
-                    </div>                    
-                    
-                </div> 
+                    </div>
+
+                </div>
                 <div class="row">
                     <div class="col-md-3">
                         <div>
@@ -152,7 +152,7 @@
                                 <span class="input-group-btn">
                                     <button class="btn btn-default" data-bind="click: $data.teiSelected">Apply</button>
                                 </span>
-                            </div>                        
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
     </div>
 </section>
     <script src="scripts/require.js"></script>
-    <script src="scripts/app/app.require.config.js"></script>    
+    <script src="scripts/app/app.require.config.js"></script>
 	<script>
         var editor;
         require(["app/modules/standoff-properties-editor", "knockout", "jquery", "bootstrap"], function (Editor, ko, $) {
@@ -213,7 +213,7 @@
                     try{
                         forEach(sheet.cssRules, cssRuleFunc);
                     } catch(ex) {
-                         
+
                     }
                 }
 
@@ -245,14 +245,29 @@
 			"HildegardR51.json",
 			"HildegardR52.json",
 			"dta2spo.json",
-                        ]);   
-                    this.TEI = ko.observable();  
+                        ]);
+                    this.TEI = ko.observable();
                     this.list = {
-                        TEI: ko.observableArray([                    
+                        TEI: ko.observableArray([
+                            "TEI",
+                            "text",
+                            "body",
+                            "div",
+                            "p",
+                            "pb",
+                            "lb",
+                            "choice",
+                            "abbr",
+                            "expan",
+                            "subst",
+                            "del",
+                            "unclear",
+                            "add",
+                            "fw",
                             "tei/core/date",
                             "tei/core/item",
                             "tei/core/label",
-                            "tei/core/list",                   
+                            "tei/core/list",
                             "tei/core/name",
                             "tei/core/num",
                             "tei/core/quote",
@@ -272,12 +287,12 @@
                             "tei/verse/metSym",
                             "tei/verse/rhyme",
                         ])
-                    };                            
-                    this.lineHeight = ko.observable("2em");           
-                    this.fontSize = ko.observable("1.5em"); 
-                    this.fontFamily = ko.observable("monospace"); 
-                    this.textColour = ko.observable("#000"); 
-                    this.backgroundColour = ko.observable("#FFF"); 
+                    };
+                    this.lineHeight = ko.observable("2em");
+                    this.fontSize = ko.observable("1.5em");
+                    this.fontFamily = ko.observable("monospace");
+                    this.textColour = ko.observable("#000");
+                    this.backgroundColour = ko.observable("#FFF");
                     this.currentModes = ko.observableArray([]);
                     this.userGuid = "abcd-efgh-ijkl-mnop";
                     this.viewer = ko.observable();
@@ -364,7 +379,7 @@
                         format: "decorate",
                         zeroPoint: {
                             className: "hyphen"
-                        },     
+                        },
                         className: "hyphen",
                         content: "-"
                     },
@@ -609,7 +624,7 @@
                     },
                     "tei/textstructure/closer": {
                         format: "decorate",
-                        className: "tei-textstructure-closer"                        
+                        className: "tei-textstructure-closer"
                     },
                     "tei/textstructure/dateline": {
                         format: "decorate",
@@ -638,7 +653,7 @@
                         },
                         className: "caesura",
                         content: "|"
-                    },    
+                    },
                     "tei/verse/metDecl": {
                         format: "decorate",
                         className: "tei-verse-metDecl",
@@ -656,7 +671,7 @@
                     },
                     "tei/verse/metSym": {
                         format: "decorate",
-                        className: "tei-verse-metSym"                        
+                        className: "tei-verse-metSym"
                     },
                     "tei/verse/rhyme": {
                         format: "decorate",
@@ -672,7 +687,7 @@
                                 }
                             }
                         }
-                    },      
+                    },
                     page: {
                         format: "decorate",
                         className: "page",
@@ -707,10 +722,10 @@
                             var uuid = prompt("Event UUID?", prop.value || "");
                             process(uuid);
                         },
-                    },                    
+                    },
                     text: {
                         format: "overlay",
-                        shortcut: "t",                        
+                        shortcut: "t",
                         className: "text",
                         zeroPoint:{
                             className: "zero-text",
@@ -721,7 +736,7 @@
                                 var label = prompt("Label", prop.text);
                                 process(label);
                             }
-                        },                        
+                        },
                         attributes: {
                             position: {
                                 renderer: function (prop) {
@@ -732,10 +747,10 @@
                                     process(position);
                                 }
                             }
-                        },                        
+                        },
                         labelRenderer: function (prop) {
                             return prop.isZeroPoint ? "<span class='output-text'>footnote<span>" : "<span class='output-text'>text<span>";
-                        },                        
+                        },
                         propertyValueSelector: function (prop, process) {
                             var uuid = prompt("Text UUID?", prop.value || "");
                             process(uuid);
@@ -748,7 +763,7 @@
                             var uuid = prompt("Place", prop.value || "");
                             process(uuid);
                         }
-                    }, 
+                    },
                     webLink: {
                         format: "overlay",
                         className: "web-link",
@@ -756,7 +771,7 @@
                             var uuid = prompt("Web Link", prop.value || "");
                             process(uuid);
                         }
-                    }, 
+                    },
                     date: {
                         format: "overlay",
                         className: "date",
@@ -764,7 +779,7 @@
                             var uuid = prompt("Date/Time", prop.value || "");
                             process(uuid);
                         }
-                    },                    
+                    },
                     concept: {
                         format: "overlay",
                         className: "concept",
@@ -772,7 +787,7 @@
                             var uuid = prompt("Concept UUID?", prop.value || "");
                             process(uuid);
                         }
-                    },                    
+                    },
                     }
 					});
 					this.editor.bind({
@@ -801,7 +816,7 @@
                 this.currentModes.pop(type);
             } else {
                 this.editor.createProperty(type);
-            }           
+            }
         };
         Model.prototype.hyphenClicked = function () {
             this.editor.createZeroPointProperty("hyphen");
@@ -825,7 +840,7 @@
             this.toggleAnnotation("bold");
         };
         Model.prototype.italicsClicked = function () {
-            this.toggleAnnotation("italics");  
+            this.toggleAnnotation("italics");
         };
         Model.prototype.strikeClicked = function () {
             this.toggleAnnotation("strike");
@@ -841,7 +856,7 @@
         };
         Model.prototype.underlineClicked = function () {
             this.toggleAnnotation("underline");
-        };       
+        };
         Model.prototype.lineClicked = function () {
             this.editor.createProperty("line");
         };
@@ -862,7 +877,7 @@
         };
         Model.prototype.placeClicked = function () {
             this.editor.createProperty("place");
-        }; 
+        };
         Model.prototype.dateClicked = function () {
             this.editor.createProperty("date");
         };
@@ -900,14 +915,14 @@
     })();
 
         var template = document.getElementById("main-template");
-        $.get("ReggF3-H19-316.json", function(json){        
+        $.get("ReggF3-H19-316.json", function(json){
             var model = new Model({
                 template: template,
                 editor: json
             });
             ko.applyBindings(model, template);
         });
-			
+
         });
     </script>
 </body>
