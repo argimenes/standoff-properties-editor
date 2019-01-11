@@ -1,0 +1,289 @@
+{
+  "text": "... nur encÿklopä-dische Abrisse liefernwüdürdefte, welchesbeides ich doch so ...",
+  "properties": [
+    {
+      "startIndex": 0,
+      "endIndex": 2,
+      "index": 0,
+      "attributes": {
+
+      },
+      "text": "...",
+      "type": "p"
+    },
+    {
+      "startIndex": 3,
+      "endIndex": 3,
+      "index": 1,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 4,
+      "endIndex": 6,
+      "index": 2,
+      "attributes": {
+
+      },
+      "text": "nur",
+      "type": "p"
+    },
+    {
+      "startIndex": 7,
+      "endIndex": 7,
+      "index": 3,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 8,
+      "endIndex": 17,
+      "index": 4,
+      "attributes": {
+
+      },
+      "text": "encÿklopä-",
+      "type": "p"
+    },
+    {
+      "startIndex": 18,
+      "endIndex": 23,
+      "index": 5,
+      "attributes": {
+
+      },
+      "text": "dische",
+      "type": "p"
+    },
+    {
+      "startIndex": 24,
+      "endIndex": 24,
+      "index": 6,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 25,
+      "endIndex": 31,
+      "index": 7,
+      "attributes": {
+
+      },
+      "text": "Abrisse",
+      "type": "p"
+    },
+    {
+      "startIndex": 32,
+      "endIndex": 32,
+      "index": 8,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 33,
+      "endIndex": 39,
+      "index": 9,
+      "attributes": {
+
+      },
+      "text": "liefern",
+      "type": "p"
+    },
+    {
+      "startIndex": 40,
+      "endIndex": 40,
+      "index": 10,
+      "attributes": {
+        "rendition": "#ow"
+      },
+      "text": "w",
+      "type": "del"
+    },
+    {
+      "startIndex": 41,
+      "endIndex": 41,
+      "index": 11,
+      "attributes": {
+        "resp": "#BF",
+        "reason": "covered",
+        "cert": "low"
+      },
+      "text": "ü",
+      "type": "unclear"
+    },
+    {
+      "startIndex": 42,
+      "endIndex": 43,
+      "index": 12,
+      "attributes": {
+        "place": "across"
+      },
+      "text": "dü",
+      "type": "add"
+    },
+    {
+      "startIndex": 44,
+      "endIndex": 44,
+      "index": 13,
+      "attributes": {
+
+      },
+      "text": "r",
+      "type": "p"
+    },
+    {
+      "startIndex": 45,
+      "endIndex": 46,
+      "index": 14,
+      "attributes": {
+        "resp": "#CT",
+        "reason": "covered",
+        "cert": "low"
+      },
+      "text": "de",
+      "type": "unclear"
+    },
+    {
+      "startIndex": 47,
+      "endIndex": 49,
+      "index": 15,
+      "attributes": {
+        "place": "across"
+      },
+      "text": "fte",
+      "type": "add"
+    },
+    {
+      "startIndex": 50,
+      "endIndex": 50,
+      "index": 16,
+      "attributes": {
+
+      },
+      "text": ",",
+      "type": "p"
+    },
+    {
+      "startIndex": 51,
+      "endIndex": 51,
+      "index": 17,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 52,
+      "endIndex": 58,
+      "index": 18,
+      "attributes": {
+
+      },
+      "text": "welches",
+      "type": "p"
+    },
+    {
+      "startIndex": 59,
+      "endIndex": 64,
+      "index": 19,
+      "attributes": {
+
+      },
+      "text": "beides",
+      "type": "p"
+    },
+    {
+      "startIndex": 65,
+      "endIndex": 65,
+      "index": 20,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 66,
+      "endIndex": 68,
+      "index": 21,
+      "attributes": {
+
+      },
+      "text": "ich",
+      "type": "p"
+    },
+    {
+      "startIndex": 69,
+      "endIndex": 69,
+      "index": 22,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 70,
+      "endIndex": 73,
+      "index": 23,
+      "attributes": {
+
+      },
+      "text": "doch",
+      "type": "p"
+    },
+    {
+      "startIndex": 74,
+      "endIndex": 74,
+      "index": 24,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 75,
+      "endIndex": 76,
+      "index": 25,
+      "attributes": {
+
+      },
+      "text": "so",
+      "type": "p"
+    },
+    {
+      "startIndex": 77,
+      "endIndex": 77,
+      "index": 26,
+      "attributes": {
+
+      },
+      "text": " ",
+      "type": "p"
+    },
+    {
+      "startIndex": 78,
+      "endIndex": 80,
+      "index": 27,
+      "attributes": {
+
+      },
+      "text": "...",
+      "type": "p"
+    }
+  ]
+}

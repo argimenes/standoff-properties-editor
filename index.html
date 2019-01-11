@@ -183,6 +183,23 @@
         </div>
     </div>
 </section>
+<style>
+    .tei-del {
+        color: red;
+    }
+
+    .tei-unclear {
+        color: yellow;
+    }
+
+    .tei-p {
+        color: gray;
+    }
+
+    .tei-add {
+        color: green;
+    }
+</style>
     <script src="scripts/require.js"></script>
     <script src="scripts/app/app.require.config.js"></script>    
 	<script>
@@ -242,8 +259,9 @@
                         "ReggF3-H19-316.json",
                         "ReggF3-H19-316-no-annotations.json",
                         "adam-liszt.json",
-			"HildegardR51.json",
-			"HildegardR52.json",
+                        "HildegardR51.json",
+                        "HildegardR52.json",
+                        "xml2spo.json",
                         ]);   
                     this.TEI = ko.observable();  
                     this.list = {
@@ -367,7 +385,7 @@
                         className: "hyphen",
                         content: "-"
                     },
-		    expansion: {
+                    expansion: {
                         format: "decorate",
                         className: "expansion"
                     },
@@ -395,6 +413,73 @@
                     line: {
                         format: "decorate",
                         className: "line"
+                    },
+                    "p": {
+                        format: "decorate",
+                        className: "tei-p"
+                    },
+                    "del": {
+                        format: "decorate",
+                        className: "tei-del",
+                        attributes: {
+                            rendition: {
+                                renderer: function (prop) {
+                                    return "rendition [" + (prop.attributes.rendition || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var rendition = prompt("rendition?", prop.attributes.rendition);
+                                    process(rendition);
+                                }
+                            }
+                        }
+                    },
+                    "unclear": {
+                        format: "decorate",
+                        className: "tei-unclear",
+                        attributes: {
+                            resp: {
+                                renderer: function (prop) {
+                                    return "resp [" + (prop.attributes.resp || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var resp = prompt("resp?", prop.attributes.resp);
+                                    process(resp);
+                                }
+                            },
+                            reason: {
+                                renderer: function (prop) {
+                                    return "reason [" + (prop.attributes.reason || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var reason = prompt("reason?", prop.attributes.reason);
+                                    process(reason);
+                                }
+                            },
+                            cert: {
+                                renderer: function (prop) {
+                                    return "cert [" + (prop.attributes.cert || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var cert = prompt("cert?", prop.attributes.cert);
+                                    process(cert);
+                                }
+                            }
+                        }
+                    },
+                    "add": {
+                        format: "decorate",
+                        className: "tei-add",
+                        attributes: {
+                            place: {
+                                renderer: function (prop) {
+                                    return "place [" + (prop.attributes.place || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var place = prompt("place?", prop.attributes.place);
+                                    process(place);
+                                }
+                            }
+                        }
                     },
                     "tei/core/label": {
                         format: "decorate",
