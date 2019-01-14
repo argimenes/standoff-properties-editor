@@ -589,6 +589,7 @@
                 var propertyType = this.propertyType[prop.type];
                 var range = newSpan();
                 range.style.marginRight = "10px";
+                range.classList.add("monitor-range");
                 var labelRenderer = propertyType.labelRenderer;
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
                 var type = newSpan(label);

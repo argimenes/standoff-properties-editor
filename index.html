@@ -37,8 +37,14 @@
                     </span>
                 </div>
             </div>
+            <div class="col-md-6">
+                <label>
+                    Blacklist types
+                </label>
+                <input type="text" data-bind="value: $data.blacklist" class="form-control" />
+            </div>
         </div>
-        <div class="row">
+        <div class="row" style="margin-top: 20px;">
             <div class="col-md-2">
                 <label>
                     Line height
@@ -268,7 +274,7 @@
                         ]);   
                     this.TEI = ko.observable();  
                     this.list = {
-                        TEI: ko.observableArray([                    
+                        TEI: ko.observableArray([                                                
                             "tei/core/date",
                             "tei/core/item",
                             "tei/core/label",
@@ -292,7 +298,8 @@
                             "tei/verse/metSym",
                             "tei/verse/rhyme",
                         ])
-                    };                            
+                    };
+                    this.blacklist = ko.observable("div, body, text, p");
                     this.lineHeight = ko.observable("2em");           
                     this.fontSize = ko.observable("1.5em"); 
                     this.fontFamily = ko.observable("monospace"); 
@@ -435,6 +442,155 @@
                                 }
                             }
                         }
+                    },
+                    "text": {
+                        format: "decorate",
+                        className: "tei-text",                        
+                    },
+                    "body": {
+                        format: "decorate",
+                        className: "tei-body",                        
+                    },
+                    "div": {
+                        format: "decorate",
+                        className: "tei-div", 
+                        attributes: {
+                            type: {
+                                renderer: function (prop) {
+                                    return "type [" + (prop.attributes.type || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var type = prompt("type?", prop.attributes.type);
+                                    process(type);
+                                }
+                            },
+                            id: {
+                                renderer: function (prop) {
+                                    return "id [" + (prop.attributes.id || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var id = prompt("id?", prop.attributes.id);
+                                    process(id);
+                                }
+                            },
+                            next: {
+                                renderer: function (prop) {
+                                    return "next [" + (prop.attributes.next || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var next = prompt("next?", prop.attributes.next);
+                                    process(next);
+                                }
+                            },
+                            n: {
+                                renderer: function (prop) {
+                                    return "n [" + (prop.attributes.n || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var n = prompt("n?", prop.attributes.n);
+                                    process(n);
+                                }
+                            }     
+                        }                       
+                    },
+                    "pb": {
+                        format: "decorate",
+                        className: "tei-pb",                        
+                    },
+                    "lb": {
+                        format: "decorate",
+                        className: "tei-lb",                        
+                    },
+                    "note": {
+                        format: "decorate",
+                        className: "tei-note",
+                        attributes: {
+                            place: {
+                                renderer: function (prop) {
+                                    return "place [" + (prop.attributes.place || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var place = prompt("place?", prop.attributes.place);
+                                    process(place);
+                                }
+                            }                            
+                        }
+                    },
+                    "hi": {
+                        format: "decorate",
+                        className: "tei-hi",
+                        attributes: {
+                            rendition: {
+                                renderer: function (prop) {
+                                    return "rendition [" + (prop.attributes.rendition || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var rendition = prompt("rendition?", prop.attributes.rendition);
+                                    process(rendition);
+                                }
+                            },
+                            hand: {
+                                renderer: function (prop) {
+                                    return "hand [" + (prop.attributes.hand || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var hand = prompt("hand?", prop.attributes.hand);
+                                    process(hand);
+                                }
+                            }                                
+                        }
+                    },
+                    "choice": {
+                        format: "decorate",
+                        className: "tei-choice",                        
+                    },
+                    "sic": {
+                        format: "decorate",
+                        className: "tei-sic",                        
+                    },
+                    "corr": {
+                        format: "decorate",
+                        className: "tei-corr",
+                        attributes: {
+                            resp: {
+                                renderer: function (prop) {
+                                    return "resp [" + (prop.attributes.resp || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var resp = prompt("resp?", prop.attributes.resp);
+                                    process(resp);
+                                }
+                            }                            
+                        }
+                    },
+                    "abbr": {
+                        format: "decorate",
+                        className: "tei-abbr"                        
+                    },
+                    "expan": {
+                        format: "decorate",
+                        className: "tei-expan",    
+                        resp: {
+                            renderer: function (prop) {
+                                return "resp [" + (prop.attributes.resp || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                            },
+                            selector: function (prop, process) {
+                                var resp = prompt("resp?", prop.attributes.resp);
+                                process(resp);
+                            }
+                        }                        
+                    },
+                    "subst": {
+                        format: "decorate",
+                        className: "tei-subst",                        
+                    },
+                    "gap": {
+                        format: "decorate",
+                        className: "tei-gap",                        
+                    },
+                    "metamark": {
+                        format: "decorate",
+                        className: "tei-metamark",                        
                     },
                     "unclear": {
                         format: "decorate",
@@ -795,7 +951,7 @@
                             process(uuid);
                         },
                     },                    
-                    text: {
+                    "codex/text": {
                         format: "overlay",
                         shortcut: "t",                        
                         className: "text",
@@ -968,6 +1124,11 @@
             var _this = this;
             var file = this.file();
             $.get(file, function(json){
+                var blacklist = _this.blacklist();
+                if (blacklist) {
+                    blacklist = blacklist.split(",").map(x => x.trim());
+                    json.properties = json.properties.filter(x => blacklist.indexOf(x.type) == -1);
+                }
                 _this.editor.bind(json);
                 _this.viewer(null);
             });
