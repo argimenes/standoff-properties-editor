@@ -1,0 +1,730 @@
+{
+    "text": "erblicken wir einen großen Unterſchied zwiſchen den entferntern u. nähern von der Soñe. Dies giebt zwei beſondre Sÿſteme. Die Scheide machen die kleinern Körper die ſich zwiſchen Mars u. Jupiter bewegen, die ein ganz eignes Syſtem bilden, von denen die Veſta als die größte ungefahrungefähr die Oberfl.Oberfläche von Deutſchland hat. Sie haben eine translative Bewegung von Weſten nach Oſten, ſind ihrer Stellung nach ähnlich den Com̃etenCometen; obgleich doch keine Aehnlichkeit anderweit zwiſchen ihnen u. den Com̃et￼Comet￼Com̃etenCometen iſt, wie überhaupt kein Uebergang zwiſchen Planeten u. Cometen gefunden wird u. keine poſitive Aehnlichkeit. Jn dieſem doppelten Syſtem der Planeten gehören zuſam̃en: Merkur, Venus, Erde, Mars. Sie haben das gemeinſame der beſondern Dichtigkeit, wie Platina, Magnetſtein u. dgl.; ſie rotirenbewegen ſich viel geſchwinder um die Soñe, ſind mondarmer |: bloß die Erde hat einen Trabant￼Trabanten :|, an den Polen abgeplattet. Anders verhält es ſich mit den Planeten auf der Bahn jenſeits der kleinen Planeten. ",
+    "properties": [
+        {
+            "index": 19,
+            "guid": null,
+            "type": "lb",
+            "text": null,
+            "startIndex": 42,
+            "endIndex": 41,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 49,
+            "guid": null,
+            "type": "hi",
+            "text": "Dies giebt zwei beſondre Sÿſteme",
+            "startIndex": 89,
+            "endIndex": 120,
+            "attributes": {
+                "rendition": "#u"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 57,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 113,
+            "endIndex": 113,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 71,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 154,
+            "endIndex": 154,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 86,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 195,
+            "endIndex": 195,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 99,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 231,
+            "endIndex": 231,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 114,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 267,
+            "endIndex": 267,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 116,
+            "guid": null,
+            "type": "hi",
+            "text": "größte",
+            "startIndex": 268,
+            "endIndex": 273,
+            "attributes": {
+                "rendition": "#u",
+                "hand": "#pencil"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 119,
+            "guid": null,
+            "type": "choice",
+            "text": "ungefahrungefähr",
+            "startIndex": 275,
+            "endIndex": 290,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 120,
+            "guid": null,
+            "type": "sic",
+            "text": "ungefahr",
+            "startIndex": 275,
+            "endIndex": 282,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 122,
+            "guid": null,
+            "type": "corr",
+            "text": "ungefähr",
+            "startIndex": 283,
+            "endIndex": 290,
+            "attributes": {
+                "resp": "#CT"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 127,
+            "guid": null,
+            "type": "choice",
+            "text": "Oberfl.Oberfläche",
+            "startIndex": 296,
+            "endIndex": 312,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 128,
+            "guid": null,
+            "type": "abbr",
+            "text": "Oberfl.",
+            "startIndex": 296,
+            "endIndex": 302,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 130,
+            "guid": null,
+            "type": "expan",
+            "text": "Oberfläche",
+            "startIndex": 303,
+            "endIndex": 312,
+            "attributes": {
+                "resp": "#CT"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 136,
+            "guid": null,
+            "type": "lb",
+            "text": null,
+            "startIndex": 325,
+            "endIndex": 324,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 151,
+            "guid": null,
+            "type": "lb",
+            "text": null,
+            "startIndex": 364,
+            "endIndex": 363,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 166,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 404,
+            "endIndex": 404,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 176,
+            "guid": null,
+            "type": "choice",
+            "text": "Com̃etenCometen",
+            "startIndex": 431,
+            "endIndex": 445,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 177,
+            "guid": null,
+            "type": "sic",
+            "text": "Com̃eten",
+            "startIndex": 431,
+            "endIndex": 438,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 179,
+            "guid": null,
+            "type": "corr",
+            "text": "Cometen",
+            "startIndex": 439,
+            "endIndex": 445,
+            "attributes": {
+                "resp": "#BF"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 184,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 456,
+            "endIndex": 456,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 191,
+            "guid": null,
+            "type": "subst",
+            "text": "e",
+            "startIndex": 469,
+            "endIndex": 469,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 194,
+            "guid": null,
+            "type": "add",
+            "text": "e",
+            "startIndex": 469,
+            "endIndex": 469,
+            "attributes": {
+                "place": "across"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 201,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 499,
+            "endIndex": 499,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 209,
+            "guid": null,
+            "type": "choice",
+            "text": "Com̃et￼Comet￼Com̃etenCometen",
+            "startIndex": 513,
+            "endIndex": 540,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 210,
+            "guid": null,
+            "type": "abbr",
+            "text": "Com̃et￼Comet￼",
+            "startIndex": 513,
+            "endIndex": 525,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 211,
+            "guid": null,
+            "type": "choice",
+            "text": "Com̃et￼Comet￼",
+            "startIndex": 513,
+            "endIndex": 525,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 212,
+            "guid": null,
+            "type": "sic",
+            "text": "Com̃et￼",
+            "startIndex": 513,
+            "endIndex": 519,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 214,
+            "guid": null,
+            "type": "corr",
+            "text": "Comet￼",
+            "startIndex": 520,
+            "endIndex": 525,
+            "attributes": {
+                "resp": "#BF"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 216,
+            "guid": null,
+            "type": "expan",
+            "text": "Com̃etenCometen",
+            "startIndex": 526,
+            "endIndex": 540,
+            "attributes": {
+                "resp": "#BF"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 217,
+            "guid": null,
+            "type": "choice",
+            "text": "Com̃etenCometen",
+            "startIndex": 526,
+            "endIndex": 540,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 218,
+            "guid": null,
+            "type": "sic",
+            "text": "Com̃eten",
+            "startIndex": 526,
+            "endIndex": 533,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 220,
+            "guid": null,
+            "type": "corr",
+            "text": "Cometen",
+            "startIndex": 534,
+            "endIndex": 540,
+            "attributes": {
+                "resp": "#BF"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 228,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 560,
+            "endIndex": 560,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 241,
+            "guid": null,
+            "type": "lb",
+            "text": null,
+            "startIndex": 599,
+            "endIndex": 598,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 254,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 636,
+            "endIndex": 636,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 270,
+            "guid": null,
+            "type": "hi",
+            "text": "Jn dieſem doppelten Syſtem der Planeten gehören zuſam̃en: Merkur, Venus, Erde, Mars.",
+            "startIndex": 651,
+            "endIndex": 734,
+            "attributes": {
+                "rendition": "#u"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 278,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 677,
+            "endIndex": 677,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 289,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 716,
+            "endIndex": 716,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 302,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 749,
+            "endIndex": 749,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 311,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 787,
+            "endIndex": 787,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 315,
+            "guid": null,
+            "type": "hi",
+            "text": "Platina",
+            "startIndex": 792,
+            "endIndex": 798,
+            "attributes": {
+                "rendition": "#aq"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 326,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 825,
+            "endIndex": 825,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 328,
+            "guid": null,
+            "type": "subst",
+            "text": "rotirenbewegen ſich",
+            "startIndex": 826,
+            "endIndex": 844,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 329,
+            "guid": null,
+            "type": "del",
+            "text": "rotiren",
+            "startIndex": 826,
+            "endIndex": 832,
+            "attributes": {
+                "rendition": "#s"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 331,
+            "guid": null,
+            "type": "add",
+            "text": "bewegen ſich",
+            "startIndex": 833,
+            "endIndex": 844,
+            "attributes": {
+                "place": "superlinear",
+                "ref": "rotieren.json"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 341,
+            "guid": null,
+            "type": "add",
+            "text": "um die Soñe",
+            "startIndex": 863,
+            "endIndex": 874,
+            "attributes": {
+                "place": "superlinear"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 352,
+            "guid": null,
+            "type": "lb",
+            "text": null,
+            "startIndex": 886,
+            "endIndex": 885,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 368,
+            "guid": null,
+            "type": "choice",
+            "text": "Trabant￼Trabanten",
+            "startIndex": 919,
+            "endIndex": 935,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 369,
+            "guid": null,
+            "type": "abbr",
+            "text": "Trabant￼",
+            "startIndex": 919,
+            "endIndex": 926,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 371,
+            "guid": null,
+            "type": "expan",
+            "text": "Trabanten",
+            "startIndex": 927,
+            "endIndex": 935,
+            "attributes": {
+                "resp": "#BF"
+            },
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 375,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 940,
+            "endIndex": 940,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 386,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 973,
+            "endIndex": 973,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 403,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 1014,
+            "endIndex": 1014,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 414,
+            "guid": null,
+            "type": "lb",
+            "text": " ",
+            "startIndex": 1050,
+            "endIndex": 1050,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false
+        },
+        {
+            "index": 4,
+            "guid": null,
+            "type": "hyphen",
+            "layer": null,
+            "text": "-",
+            "startIndex": 886,
+            "endIndex": null,
+            "attributes": {},
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 2,
+            "guid": null,
+            "type": "hyphen",
+            "layer": null,
+            "text": "-",
+            "startIndex": 599,
+            "endIndex": null,
+            "attributes": {},
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 2,
+            "guid": null,
+            "type": "hyphen",
+            "layer": null,
+            "text": "-",
+            "startIndex": 364,
+            "endIndex": null,
+            "attributes": {},
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 3,
+            "guid": null,
+            "type": "hyphen",
+            "layer": null,
+            "text": "-",
+            "startIndex": 325,
+            "endIndex": null,
+            "attributes": {},
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 1,
+            "guid": null,
+            "type": "note",
+            "layer": null,
+            "text": "note 1",
+            "startIndex": 73,
+            "endIndex": null,
+            "attributes": {
+                "ref": "note1.json"
+            },
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 1,
+            "guid": null,
+            "type": "hyphen",
+            "layer": null,
+            "text": "-",
+            "startIndex": 42,
+            "endIndex": null,
+            "attributes": {},
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 2,
+            "guid": null,
+            "type": "note",
+            "layer": null,
+            "text": "note 2",
+            "startIndex": 636,
+            "endIndex": null,
+            "attributes": {
+                "ref":"note2.json"
+            },
+            "isZeroPoint": true,
+            "isDeleted": false
+        }
+    ]
+}

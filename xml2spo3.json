@@ -459,7 +459,8 @@
       "endIndex": 116,
       "index": 34,
       "attributes": {
-        "place": "left"
+        "place": "left",
+        "ref": "note2.json"
       },
       "text": "Zwei beſondere Planeten-Syſteme ",
       "type": "note"

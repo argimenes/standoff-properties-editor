@@ -45,6 +45,7 @@
                 "xml2spo.json",
                 "xml2spo2.json",
                 "xml2spo3.json",
+                "xml2spo3a.json",
             ]);
             this.TEI = ko.observable();
             this.list = {
@@ -285,8 +286,21 @@
                         className: "tei-lb",
                     },
                     "note": {
-                        format: "decorate",
-                        className: "tei-note",
+                        format: "overlay",
+                        className: "text",
+                        labelRenderer: function (prop) {
+                            return prop.isZeroPoint ? "<span class='output-text'>note<span>" : "<span class='output-text'>text<span>";
+                        },
+                        zeroPoint: {
+                            className: "zero-text",
+                            offerConversion: function (prop) {
+                                return !prop.isZeroPoint;
+                            },
+                            selector: function (prop, process) {
+                                var label = prompt("Label", prop.text);
+                                process(label);
+                            }
+                        },  
                         attributes: {
                             place: {
                                 renderer: function (prop) {
@@ -296,7 +310,34 @@
                                     var place = prompt("place?", prop.attributes.place);
                                     process(place);
                                 }
+                            },
+                            "ref": {
+                                renderer: function (prop) {
+                                    return "ref [" + (prop.attributes.ref || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("ref?", prop.attributes.ref);
+                                    process(value);
+                                }
                             }
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var TextEdit = require("part/text-edit");
+                            var ref = prop.attributes.ref;
+                            if (ref) {
+                                $.get(ref, {}, function(json) {
+                                    openModalFromNode(_this.constructorData.template, {
+                                        name: "TEI/del",
+                                        contentAdded: function (element) {
+                                            var modal = new TextEdit({
+                                                template: element,
+                                                editor: json
+                                            });
+                                            modal.applyBindings(element);
+                                        }
+                                    });
+                                });                                
+                            }                            
                         }
                     },
                     "hi": {
