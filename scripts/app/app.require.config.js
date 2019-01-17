@@ -5,6 +5,7 @@
         paths: {
             "app/utils": "app/app.utils.pkgd",            
             "app/modules/standoff-properties-editor": "app/modules/standoff-properties-editor",            
+            "part/text-edit": "app/parts/text-edit",
             "bootstrap": "bootstrap.min",            
             "knockout": "knockout-3.4.2",
             "jquery": "jquery-3.1.1.min",                        
