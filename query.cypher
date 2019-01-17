@@ -1,4 +1,4 @@
-Beginn bei /TEI/text/body/*
+// Beginn bei /TEI/text/body/*
 // get complete text first
 match path=(d:XmlDocument)-[:NE*]->(e:XmlCharacters)
 where not (e)-[:NE]->()
