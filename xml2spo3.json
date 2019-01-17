@@ -649,11 +649,11 @@
       "endIndex": 930,
       "index": 331,
       "attributes": {
-        "place": "superlinear"
+        "place": "superlinear",
+        "ref": "rotieren.json"
       },
       "text": "bewegen ſich",
-      "type": "add"
-      "ref": "rotieren.json
+      "type": "add"      
     },
     {
       "startIndex": 912,

@@ -224,23 +224,7 @@
                                     process(rendition);
                                 }
                             }
-                        },
-                        propertyValueSelector: function (prop, process) {
-                            var TextEdit = require("part/text-edit");
-                            openModalFromNode(_this.constructorData.template, {
-                                name: "TEI/del",
-                                contentAdded: function (element) {
-                                    var modal = new TextEdit({
-                                        template: element,
-                                        editor: {
-                                            text: "Testy tester tests ...",
-                                            properties: []
-                                        }
-                                    });
-                                    modal.applyBindings(element);
-                                }
-                            });
-                        }
+                        }                        
                     },
                     "text": {
                         format: "decorate",
@@ -436,7 +420,34 @@
                                     var place = prompt("place?", prop.attributes.place);
                                     process(place);
                                 }
+                            },
+                            "ref": {
+                                renderer: function (prop) {
+                                    return "ref [" + (prop.attributes.ref || "") + "] <button data-toggle='tooltip' data-original-title='Set' class='btn btn-sm'><span class='fa fa-pencil'></span></button>";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("ref?", prop.attributes.ref);
+                                    process(value);
+                                }
                             }
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var TextEdit = require("part/text-edit");
+                            var ref = prop.attributes.ref;
+                            if (ref) {
+                                $.get(ref, {}, function(json) {
+                                    openModalFromNode(_this.constructorData.template, {
+                                        name: "TEI/del",
+                                        contentAdded: function (element) {
+                                            var modal = new TextEdit({
+                                                template: element,
+                                                editor: json
+                                            });
+                                            modal.applyBindings(element);
+                                        }
+                                    });
+                                });                                
+                            }                            
                         }
                     },
                     "tei/core/label": {
