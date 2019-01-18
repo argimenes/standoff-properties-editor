@@ -1,5 +1,5 @@
 {
-    "text": "erblicken wir einen großen Unterſchied zwiſchen den entferntern u. nähern von der Soñe. Dies giebt zwei beſondre Sÿſteme. Die Scheide machen die kleinern Körper die ſich zwiſchen Mars u. Jupiter bewegen, die ein ganz eignes Syſtem bilden, von denen die Veſta als die größte ungefahrungefähr die Oberfl.Oberfläche von Deutſchland hat. Sie haben eine translative Bewegung von Weſten nach Oſten, ſind ihrer Stellung nach ähnlich den Com̃etenCometen; obgleich doch keine Aehnlichkeit anderweit zwiſchen ihnen u. den Com̃et￼Comet￼Com̃etenCometen iſt, wie überhaupt kein Uebergang zwiſchen Planeten u. Cometen gefunden wird u. keine poſitive Aehnlichkeit. Jn dieſem doppelten Syſtem der Planeten gehören zuſam̃en: Merkur, Venus, Erde, Mars. Sie haben das gemeinſame der beſondern Dichtigkeit, wie Platina, Magnetſtein u. dgl.; ſie rotirenbewegen ſich viel geſchwinder um die Soñe, ſind mondarmer |: bloß die Erde hat einen Trabant￼Trabanten :|, an den Polen abgeplattet. Anders verhält es ſich mit den Planeten auf der Bahn jenſeits der kleinen Planeten. ",
+    "text": "erblicken wir einen großen Unterſchied zwiſchen den entferntern u. nähern Planeten von der Soñe. Dies giebt zwei beſondre Sÿſteme. Die Scheide machen die kleinern Körper die ſich zwiſchen Mars u. Jupiter bewegen, die ein ganz eignes Syſtem bilden, von denen die Veſta als die größte ungefahrungefähr die Oberfl.Oberfläche von Deutſchland hat. Sie haben eine translative Bewegung von Weſten nach Oſten, ſind ihrer Stellung nach ähnlich den Com̃etenCometen; obgleich doch keine Aehnlichkeit anderweit zwiſchen ihnen u. den Com̃et￼Comet￼Com̃etenCometen iſt, wie überhaupt kein Uebergang zwiſchen Planeten u. Cometen gefunden wird u. keine poſitive Aehnlichkeit. Jn dieſem doppelten Syſtem der Planeten gehören zuſam̃en: Merkur, Venus, Erde, Mars. Sie haben das gemeinſame der beſondern Dichtigkeit, wie Platina, Magnetſtein u. dgl.; ſie rotirenbewegen ſich viel geſchwinder um die Soñe, ſind mondarmer |: bloß die Erde hat einen Trabant￼Trabanten :|, an den Polen abgeplattet. Anders verhält es ſich mit den Planeten auf der Bahn jenſeits der kleinen Planeten. ",
     "properties": [
         {
             "index": 19,
@@ -17,8 +17,8 @@
             "guid": null,
             "type": "hi",
             "text": "Dies giebt zwei beſondre Sÿſteme",
-            "startIndex": 89,
-            "endIndex": 120,
+            "startIndex": 98,
+            "endIndex": 129,
             "attributes": {
                 "rendition": "#u"
             },
@@ -30,8 +30,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 113,
-            "endIndex": 113,
+            "startIndex": 122,
+            "endIndex": 122,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -41,8 +41,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 154,
-            "endIndex": 154,
+            "startIndex": 163,
+            "endIndex": 163,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -52,8 +52,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 195,
-            "endIndex": 195,
+            "startIndex": 204,
+            "endIndex": 204,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -63,8 +63,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 231,
-            "endIndex": 231,
+            "startIndex": 240,
+            "endIndex": 240,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -74,8 +74,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 267,
-            "endIndex": 267,
+            "startIndex": 276,
+            "endIndex": 276,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -85,8 +85,8 @@
             "guid": null,
             "type": "hi",
             "text": "größte",
-            "startIndex": 268,
-            "endIndex": 273,
+            "startIndex": 277,
+            "endIndex": 282,
             "attributes": {
                 "rendition": "#u",
                 "hand": "#pencil"
@@ -99,8 +99,8 @@
             "guid": null,
             "type": "choice",
             "text": "ungefahrungefähr",
-            "startIndex": 275,
-            "endIndex": 290,
+            "startIndex": 284,
+            "endIndex": 299,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -110,8 +110,8 @@
             "guid": null,
             "type": "sic",
             "text": "ungefahr",
-            "startIndex": 275,
-            "endIndex": 282,
+            "startIndex": 284,
+            "endIndex": 291,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -121,8 +121,8 @@
             "guid": null,
             "type": "corr",
             "text": "ungefähr",
-            "startIndex": 283,
-            "endIndex": 290,
+            "startIndex": 292,
+            "endIndex": 299,
             "attributes": {
                 "resp": "#CT"
             },
@@ -134,8 +134,8 @@
             "guid": null,
             "type": "choice",
             "text": "Oberfl.Oberfläche",
-            "startIndex": 296,
-            "endIndex": 312,
+            "startIndex": 305,
+            "endIndex": 321,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -145,8 +145,8 @@
             "guid": null,
             "type": "abbr",
             "text": "Oberfl.",
-            "startIndex": 296,
-            "endIndex": 302,
+            "startIndex": 305,
+            "endIndex": 311,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -156,8 +156,8 @@
             "guid": null,
             "type": "expan",
             "text": "Oberfläche",
-            "startIndex": 303,
-            "endIndex": 312,
+            "startIndex": 312,
+            "endIndex": 321,
             "attributes": {
                 "resp": "#CT"
             },
@@ -169,8 +169,8 @@
             "guid": null,
             "type": "lb",
             "text": null,
-            "startIndex": 325,
-            "endIndex": 324,
+            "startIndex": 334,
+            "endIndex": 333,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -180,8 +180,8 @@
             "guid": null,
             "type": "lb",
             "text": null,
-            "startIndex": 364,
-            "endIndex": 363,
+            "startIndex": 373,
+            "endIndex": 372,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -191,8 +191,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 404,
-            "endIndex": 404,
+            "startIndex": 413,
+            "endIndex": 413,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -202,8 +202,8 @@
             "guid": null,
             "type": "choice",
             "text": "Com̃etenCometen",
-            "startIndex": 431,
-            "endIndex": 445,
+            "startIndex": 440,
+            "endIndex": 454,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -213,8 +213,8 @@
             "guid": null,
             "type": "sic",
             "text": "Com̃eten",
-            "startIndex": 431,
-            "endIndex": 438,
+            "startIndex": 440,
+            "endIndex": 447,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -224,8 +224,8 @@
             "guid": null,
             "type": "corr",
             "text": "Cometen",
-            "startIndex": 439,
-            "endIndex": 445,
+            "startIndex": 448,
+            "endIndex": 454,
             "attributes": {
                 "resp": "#BF"
             },
@@ -237,8 +237,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 456,
-            "endIndex": 456,
+            "startIndex": 465,
+            "endIndex": 465,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -248,8 +248,8 @@
             "guid": null,
             "type": "subst",
             "text": "e",
-            "startIndex": 469,
-            "endIndex": 469,
+            "startIndex": 478,
+            "endIndex": 478,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -259,8 +259,8 @@
             "guid": null,
             "type": "add",
             "text": "e",
-            "startIndex": 469,
-            "endIndex": 469,
+            "startIndex": 478,
+            "endIndex": 478,
             "attributes": {
                 "place": "across"
             },
@@ -272,8 +272,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 499,
-            "endIndex": 499,
+            "startIndex": 508,
+            "endIndex": 508,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -283,8 +283,8 @@
             "guid": null,
             "type": "choice",
             "text": "Com̃et￼Comet￼Com̃etenCometen",
-            "startIndex": 513,
-            "endIndex": 540,
+            "startIndex": 522,
+            "endIndex": 549,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -294,8 +294,8 @@
             "guid": null,
             "type": "abbr",
             "text": "Com̃et￼Comet￼",
-            "startIndex": 513,
-            "endIndex": 525,
+            "startIndex": 522,
+            "endIndex": 534,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -305,8 +305,8 @@
             "guid": null,
             "type": "choice",
             "text": "Com̃et￼Comet￼",
-            "startIndex": 513,
-            "endIndex": 525,
+            "startIndex": 522,
+            "endIndex": 534,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -316,8 +316,8 @@
             "guid": null,
             "type": "sic",
             "text": "Com̃et￼",
-            "startIndex": 513,
-            "endIndex": 519,
+            "startIndex": 522,
+            "endIndex": 528,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -327,8 +327,8 @@
             "guid": null,
             "type": "corr",
             "text": "Comet￼",
-            "startIndex": 520,
-            "endIndex": 525,
+            "startIndex": 529,
+            "endIndex": 534,
             "attributes": {
                 "resp": "#BF"
             },
@@ -340,8 +340,8 @@
             "guid": null,
             "type": "expan",
             "text": "Com̃etenCometen",
-            "startIndex": 526,
-            "endIndex": 540,
+            "startIndex": 535,
+            "endIndex": 549,
             "attributes": {
                 "resp": "#BF"
             },
@@ -353,8 +353,8 @@
             "guid": null,
             "type": "choice",
             "text": "Com̃etenCometen",
-            "startIndex": 526,
-            "endIndex": 540,
+            "startIndex": 535,
+            "endIndex": 549,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -364,8 +364,8 @@
             "guid": null,
             "type": "sic",
             "text": "Com̃eten",
-            "startIndex": 526,
-            "endIndex": 533,
+            "startIndex": 535,
+            "endIndex": 542,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -375,8 +375,8 @@
             "guid": null,
             "type": "corr",
             "text": "Cometen",
-            "startIndex": 534,
-            "endIndex": 540,
+            "startIndex": 543,
+            "endIndex": 549,
             "attributes": {
                 "resp": "#BF"
             },
@@ -388,8 +388,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 560,
-            "endIndex": 560,
+            "startIndex": 569,
+            "endIndex": 569,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -399,8 +399,8 @@
             "guid": null,
             "type": "lb",
             "text": null,
-            "startIndex": 599,
-            "endIndex": 598,
+            "startIndex": 608,
+            "endIndex": 607,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -410,8 +410,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 636,
-            "endIndex": 636,
+            "startIndex": 645,
+            "endIndex": 645,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -421,8 +421,8 @@
             "guid": null,
             "type": "hi",
             "text": "Jn dieſem doppelten Syſtem der Planeten gehören zuſam̃en: Merkur, Venus, Erde, Mars.",
-            "startIndex": 651,
-            "endIndex": 734,
+            "startIndex": 660,
+            "endIndex": 743,
             "attributes": {
                 "rendition": "#u"
             },
@@ -434,8 +434,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 677,
-            "endIndex": 677,
+            "startIndex": 686,
+            "endIndex": 686,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -445,8 +445,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 716,
-            "endIndex": 716,
+            "startIndex": 725,
+            "endIndex": 725,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -456,8 +456,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 749,
-            "endIndex": 749,
+            "startIndex": 758,
+            "endIndex": 758,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -467,8 +467,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 787,
-            "endIndex": 787,
+            "startIndex": 796,
+            "endIndex": 796,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -478,8 +478,8 @@
             "guid": null,
             "type": "hi",
             "text": "Platina",
-            "startIndex": 792,
-            "endIndex": 798,
+            "startIndex": 801,
+            "endIndex": 807,
             "attributes": {
                 "rendition": "#aq"
             },
@@ -491,8 +491,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 825,
-            "endIndex": 825,
+            "startIndex": 834,
+            "endIndex": 834,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -502,8 +502,8 @@
             "guid": null,
             "type": "subst",
             "text": "rotirenbewegen ſich",
-            "startIndex": 826,
-            "endIndex": 844,
+            "startIndex": 835,
+            "endIndex": 853,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -513,8 +513,8 @@
             "guid": null,
             "type": "del",
             "text": "rotiren",
-            "startIndex": 826,
-            "endIndex": 832,
+            "startIndex": 835,
+            "endIndex": 841,
             "attributes": {
                 "rendition": "#s"
             },
@@ -526,8 +526,8 @@
             "guid": null,
             "type": "add",
             "text": "bewegen ſich",
-            "startIndex": 833,
-            "endIndex": 844,
+            "startIndex": 842,
+            "endIndex": 853,
             "attributes": {
                 "place": "superlinear",
                 "ref": "rotieren.json"
@@ -540,8 +540,8 @@
             "guid": null,
             "type": "add",
             "text": "um die Soñe",
-            "startIndex": 863,
-            "endIndex": 874,
+            "startIndex": 872,
+            "endIndex": 883,
             "attributes": {
                 "place": "superlinear"
             },
@@ -553,8 +553,8 @@
             "guid": null,
             "type": "lb",
             "text": null,
-            "startIndex": 886,
-            "endIndex": 885,
+            "startIndex": 895,
+            "endIndex": 894,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -564,8 +564,8 @@
             "guid": null,
             "type": "choice",
             "text": "Trabant￼Trabanten",
-            "startIndex": 919,
-            "endIndex": 935,
+            "startIndex": 928,
+            "endIndex": 944,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -575,8 +575,8 @@
             "guid": null,
             "type": "abbr",
             "text": "Trabant￼",
-            "startIndex": 919,
-            "endIndex": 926,
+            "startIndex": 928,
+            "endIndex": 935,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -586,8 +586,8 @@
             "guid": null,
             "type": "expan",
             "text": "Trabanten",
-            "startIndex": 927,
-            "endIndex": 935,
+            "startIndex": 936,
+            "endIndex": 944,
             "attributes": {
                 "resp": "#BF"
             },
@@ -599,8 +599,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 940,
-            "endIndex": 940,
+            "startIndex": 949,
+            "endIndex": 949,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -610,8 +610,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 973,
-            "endIndex": 973,
+            "startIndex": 982,
+            "endIndex": 982,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -621,8 +621,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 1014,
-            "endIndex": 1014,
+            "startIndex": 1023,
+            "endIndex": 1023,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -632,8 +632,8 @@
             "guid": null,
             "type": "lb",
             "text": " ",
-            "startIndex": 1050,
-            "endIndex": 1050,
+            "startIndex": 1059,
+            "endIndex": 1059,
             "attributes": {},
             "isZeroPoint": false,
             "isDeleted": false
@@ -644,7 +644,33 @@
             "type": "hyphen",
             "layer": null,
             "text": "-",
-            "startIndex": 886,
+            "startIndex": 895,
+            "endIndex": null,
+            "attributes": {},
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 2,
+            "guid": null,
+            "type": "note",
+            "layer": null,
+            "text": "note 2",
+            "startIndex": 645,
+            "endIndex": null,
+            "attributes": {
+                "ref": "note2.json"
+            },
+            "isZeroPoint": true,
+            "isDeleted": false
+        },
+        {
+            "index": 2,
+            "guid": null,
+            "type": "hyphen",
+            "layer": null,
+            "text": "-",
+            "startIndex": 608,
             "endIndex": null,
             "attributes": {},
             "isZeroPoint": true,
@@ -656,19 +682,7 @@
             "type": "hyphen",
             "layer": null,
             "text": "-",
-            "startIndex": 599,
-            "endIndex": null,
-            "attributes": {},
-            "isZeroPoint": true,
-            "isDeleted": false
-        },
-        {
-            "index": 2,
-            "guid": null,
-            "type": "hyphen",
-            "layer": null,
-            "text": "-",
-            "startIndex": 364,
+            "startIndex": 373,
             "endIndex": null,
             "attributes": {},
             "isZeroPoint": true,
@@ -680,7 +694,7 @@
             "type": "hyphen",
             "layer": null,
             "text": "-",
-            "startIndex": 325,
+            "startIndex": 334,
             "endIndex": null,
             "attributes": {},
             "isZeroPoint": true,
@@ -692,7 +706,7 @@
             "type": "note",
             "layer": null,
             "text": "note 1",
-            "startIndex": 73,
+            "startIndex": 82,
             "endIndex": null,
             "attributes": {
                 "ref": "note1.json"
@@ -713,18 +727,43 @@
             "isDeleted": false
         },
         {
-            "index": 2,
+            "index": 62,
             "guid": null,
-            "type": "note",
+            "type": "underline",
             "layer": null,
-            "text": "note 2",
-            "startIndex": 636,
-            "endIndex": null,
-            "attributes": {
-                "ref":"note2.json"
-            },
-            "isZeroPoint": true,
-            "isDeleted": false
+            "text": "Dies giebt zwei beſondre Sÿſteme",
+            "startIndex": 98,
+            "endIndex": 129,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false,
+            "userGuid": "abcd-efgh-ijkl-mnop"
+        },
+        {
+            "index": 63,
+            "guid": null,
+            "type": "underline",
+            "layer": null,
+            "text": "größte",
+            "startIndex": 277,
+            "endIndex": 282,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false,
+            "userGuid": "abcd-efgh-ijkl-mnop"
+        },
+        {
+            "index": 64,
+            "guid": null,
+            "type": "underline",
+            "layer": null,
+            "text": "Jn dieſem doppelten Syſtem der Planeten gehören zuſam̃en: Merkur, Venus, Erde, Mars.",
+            "startIndex": 660,
+            "endIndex": 743,
+            "attributes": {},
+            "isZeroPoint": false,
+            "isDeleted": false,
+            "userGuid": "abcd-efgh-ijkl-mnop"
         }
     ]
 }
