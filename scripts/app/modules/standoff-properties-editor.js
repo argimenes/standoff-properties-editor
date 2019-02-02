@@ -116,6 +116,22 @@
         return -1;
     }
 
+    function markNodesWithIndexes(node) {        
+        var i = 0;
+        var text = "";
+        node = node.speedy ? node : getParent(node, n => n.speedy);
+        do {
+            if (node.isZeroPoint) {
+                node.speedy.index = i;
+                continue;
+            }
+            text += node.textContent;
+            node.speedy.index = i++;
+        }
+        while (node && ((node = node.nextElementSibling) != null))
+        return text;
+    }
+
     function childNodeIndex(node) {
         var i = 0;
         node = node.speedy ? node : getParent(node, n => n.speedy);
@@ -150,7 +166,7 @@
 
     function newSpan(text) {
         var s = document.createElement("SPAN");
-        s.speedy = true;
+        s.speedy = {};
         s.style.position = "relative";
         if (text) {
             s.innerHTML = text;
@@ -409,8 +425,8 @@
         Property.prototype.toNode = function () {
             var __ = this;
             var text = null;
-            var si = this.startIndex();
-            var ei = this.isZeroPoint ? null : this.endIndex();
+            var si = this.startNode.speedy.index;
+            var ei = this.isZeroPoint ? null : this.endNode.speedy.index;
             if (this.isZeroPoint) {
                 text = this.startNode.textContent;
             }
@@ -589,7 +605,6 @@
                 var propertyType = this.propertyType[prop.type];
                 var range = newSpan();
                 range.style.marginRight = "10px";
-                range.classList.add("monitor-range");
                 var labelRenderer = propertyType.labelRenderer;
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
                 var type = newSpan(label);
@@ -824,6 +839,24 @@
                 this.container.appendChild(frag);
             }
             this.setCarotByNode(e.target);
+            this.updateCurrentRanges();
+        };
+        Editor.prototype.insertCharacterAtCarot = function (c) {
+            var isFirst = !this.container.children.length;
+            var current = this.getCurrent();
+            var span = this.newSpan();
+            span.textContent = c;
+            if (isFirst) {
+                this.container.appendChild(span);
+                this.setCarotByNode(span);
+            }
+            else {
+                var atFirst = !current;
+                var next = atFirst ? this.container.firstChild : current.nextElementSibling;
+                this.container.insertBefore(span, next);
+                this.paint(span);
+                this.setCarotByNode(atFirst ? current : span);
+            }
             this.updateCurrentRanges();
         };
         Editor.prototype.erase = function () {
@@ -1306,14 +1339,16 @@
             }
         };
         Editor.prototype.unbind = function () {
+            var text = markNodesWithIndexes(this.container.firstChild);            
             return {
-                text: this.unbindText(),
+                text: text,
                 properties: this.toPropertyNodes()
             };
         };
         Editor.prototype.unbindText = function () {
             var result = "";
             var node = this.container.firstChild;
+            
             while (node != null) {
                 if (!node.isZeroPoint) {
                     result += node.textContent;
@@ -1349,7 +1384,7 @@
             var propertiesLength = properties.length;
             for (var i = 0; i < propertiesLength; i++) {
                 var p = properties[i];
-                console.log("Property", p);
+                // console.log("Property", p);
                 var type = this.propertyType[p.type];
                 if (!type) {
                     console.warn("Property type not found.", p);
@@ -1405,7 +1440,7 @@
             // Work backwards through the list of zero properties so we don't fetch a SPAN that hasn't been offset from a previous insertion.
             zeroProperties = zeroProperties.sort((a, b) => a.startIndex > b.startIndex ? -1 : a.startIndex < b.startIndex ? 1 : 0);
             var zeroPropertiesLength = zeroProperties.length;
-            console.log({ zeroProperties });
+            // console.log({ zeroProperties });
             for (var i = 0; i < zeroPropertiesLength; i++) {
                 var p = zeroProperties[i];
                 console.log("Zero-point property", p);
@@ -1457,11 +1492,11 @@
             this.container.appendChild(frag);
         };
         Editor.prototype.textToDocumentFragment = function (text) {
-            var len = text.length;
+            var len = text.length, i = 0;
             var skip = [LINE_FEED];
             var frag = document.createDocumentFragment();
-            for (var i = 0; i < len; i++) {
-                var c = text.substr(i, 1);
+            while (len--) {
+                var c = text[i++];
                 var code = c.charCodeAt();
                 if (skip.indexOf(code) >= 0) {
                     continue;
