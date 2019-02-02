@@ -3,6 +3,9 @@
 | --------- | --------- | --------- | --------- |
 | IE11, Edge| last 2 versions| last 2 versions| last 2 versions
 
+## Demo
+https://argimenes.github.io/standoff-properties-editor/ 
+
 # Introduction
 This project is a standoff property editor module built in JavaScript and HTML that can be dropped into any web application. It aims to provide the basic features of a standard text editor along with the ability to create user-defined annotations that can overlap freely. The editor can import or export data in a JSON format and makes no assumptions about the back-end data-store. All annotations are user-defined and passed in as a configuration object. Various event hooks are provided to enable your application code to manage things such as LOD lookups.
 
@@ -130,9 +133,6 @@ The SPEEDy configuration object
 - setLayerVisibility: (layer: string; selected: bool);
 - modeClicked: (mode: string);
 - unbind: function () => IStandoffPropertyEditor;
-
-## Demo
-https://argimenes.github.io/standoff-properties-editor/ 
 
 ## Demo-Page from DTA
 http://www.deutschestextarchiv.de/book/view/patzig_msgermfol841842_1828/?hl=welcher;p=11
