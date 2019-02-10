@@ -125,7 +125,7 @@
                 node.speedy.index = i;
                 continue;
             }
-            text += node.textContent;
+            text += node.textContent[0];
             node.speedy.index = i++;
         }
         while (node && ((node = node.nextElementSibling) != null))
@@ -162,18 +162,6 @@
         if (i > -1) {
             arr.splice(i, 1);
         }
-    }
-
-    function newSpan(text) {
-        var s = document.createElement("SPAN");
-        s.speedy = {};
-        s.style.position = "relative";
-        if (text) {
-            s.innerHTML = text;
-        }
-        s.startProperties = [];
-        s.endProperties = [];
-        return s;
     }
 
     function unsetSpanRange(span, className) {
@@ -258,7 +246,7 @@
             var range = { start: this.startNode, end: this.endNode };
             var text = getRangeText(range);
             this.editor.deleteRange(range);
-            var span = newSpan(text);
+            var span = this.editor.newSpan(text);
             span.isZeroPoint = true;
             zero.isZeroPoint = true;
             zero.text = text;
@@ -469,9 +457,14 @@
                     monitorOptions: cons.monitorOptions,
                     monitorButton: cons.monitorButton || {},
                     propertyType: cons.propertyType,
+                    commentManager: cons.commentManager,
+                    layerAdded: this.layerAdded,
+                    updateCurrentRanges: this.updateCurrentRanges,
                     css: cons.css
                 })
-            };
+            };            
+            this.container.style.direction = cons.direction || "LTR";
+            this.interpolateZeroWidthJoiningCharacter = cons.interpolateZeroWidthJoiningCharacter;
             this.onPropertyCreated = cons.onPropertyCreated;
             this.onPropertyChanged = cons.onPropertyChanged;
             this.onPropertyDeleted = cons.onPropertyDeleted;
@@ -876,12 +869,8 @@
                 return;
             }
 
-            var span = this.newSpan();
-            span.textContent = evt.key;
-            this.handleSpecialChars(span, key);
-            if (key == SPACE) {
-                span.textContent = String.fromCharCode(160);
-            }
+            var span = this.newSpan(key == SPACE ? String.fromCharCode(160) : evt.key);
+            this.handleSpecialChars(span, key);            
             if (isFirst) {
                 this.container.appendChild(span);
                 this.setCarotByNode(span);
@@ -1001,7 +990,7 @@
             }
         };
         Editor.prototype.addZeroPoint = function (type, content, position) {
-            var span = newSpan(content);
+            var span = this.newSpan(content);
             span.isZeroPoint = true;
             var property = new Property({
                 editor: this,
@@ -1119,7 +1108,7 @@
             }
         };
         Editor.prototype.unbind = function () {
-            var text = markNodesWithIndexes(this.container.firstChild);            
+            var text = markNodesWithIndexes(this.container.firstChild);
             return {
                 text: text,
                 properties: this.toPropertyNodes()
@@ -1130,7 +1119,7 @@
             var node = this.container.firstChild;
             while (node != null) {
                 if (!node.isZeroPoint) {
-                    result += node.textContent;
+                    result += node.textContent[0];
                 }
                 node = node.nextElementSibling;
             }
@@ -1212,7 +1201,7 @@
             this.bindZeroLengthAnnotations(model);
         };
         Editor.prototype.bindZeroLengthAnnotations = function (model) {
-            var len = model.text.length;            
+            var len = model.text.length;
             var zeroProperties = model.properties.filter(function (item) {
                 return item.isZeroPoint;
             });
@@ -1280,14 +1269,26 @@
                 if (skip.indexOf(code) >= 0) {
                     continue;
                 }
-                var span = this.newSpan();
-                span.textContent = c;
+                var span = this.newSpan(c);
                 this.handleSpecialChars(span, code);
                 frag.appendChild(span);
             }
             return frag;
         };
-        Editor.prototype.newSpan = newSpan;
+        Editor.prototype.newSpan = function (text) {
+            var s = document.createElement("SPAN");
+            s.speedy = {};
+            s.style.position = "relative";
+            if (text) {
+                if (this.interpolateZeroWidthJoiningCharacter) {
+                    text += "&#x200d;";
+                }
+                s.innerHTML = text;
+            }
+            s.startProperties = [];
+            s.endProperties = [];
+            return s;
+        };
         return Editor;
     })();
 
@@ -1295,11 +1296,25 @@
         function MonitorBar(cons) {
             this.monitorOptions = cons.monitorOptions; // Todo: rename to 'options'
             this.monitorButton = cons.monitorButton;
+            this.layerAdded = cons.layerAdded;
+            this.commentManager = cons.commentManager;
+            this.updateCurrentRanges = cons.updateCurrentRanges;
             this.css = cons.css;
             this.monitor = cons.monitor; // HTMLElement
             this.propertyType = cons.propertyType; // Hack: property types editor accepts
             this.properties = [];
         }
+        MonitorBar.prototype.newSpan = function (text) {
+            var s = document.createElement("SPAN");
+            s.speedy = {};
+            s.style.position = "relative";
+            if (text) {
+                s.innerHTML = text + "&#x200d;";
+            }
+            s.startProperties = [];
+            s.endProperties = [];
+            return s;
+        };
         MonitorBar.prototype.clear = function () {
             this.monitor.textContent = "";
         };
@@ -1310,11 +1325,11 @@
             for (var i = 0; i < props.length; i++) {
                 var prop = props[i];
                 var propertyType = this.propertyType[prop.type];
-                var range = newSpan();
+                var range = this.newSpan();
                 range.style.marginRight = "10px";
                 var labelRenderer = propertyType.labelRenderer;
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
-                var type = newSpan(label);
+                var type = this.newSpan(label);
                 type.property = prop;
                 if (_.monitorOptions.highlightProperties) {
                     type.addEventListener("mouseover", function (e) {
@@ -1341,7 +1356,7 @@
                     }, 1);
                 }
                 if (!!prop.value) {
-                    var link = newSpan(this.monitorButton.link || "[O-O]");
+                    var link = this.newSpan(this.monitorButton.link || "[O-O]");
                     link.property = prop;
                     link.style.marginLeft = "5px";
                     link.addEventListener("click", function (e) {
@@ -1354,16 +1369,16 @@
                             if (guid) {
                                 p.value = guid;
                                 p.name = name;
-                                // _.updateCurrentRanges(p.startNode);
+                                _.updateCurrentRanges(p.startNode);
                                 if (_.onPropertyChanged) {
                                     _.onPropertyChanged(p);
                                 }
                             }
                         });
-                        // _.updateCurrentRanges(p.startNode);
+                        _.updateCurrentRanges(p.startNode);
                     });
                 }
-                var layer = newSpan(this.monitorButton.layer || "[=]");
+                var layer = this.newSpan(this.monitorButton.layer || "[=]");
                 layer.property = prop;
                 layer.style.marginLeft = "5px";
                 layer.addEventListener("click", function (e) {
@@ -1375,10 +1390,10 @@
                     var name = prompt("What is the name of the layer", p.layer || "");
                     if (!!name) {
                         p.setLayer(name);
-                        // _.layerAdded({ state: "added", data: name });
+                        _.layerAdded({ state: "added", data: name });
                     }
                 });
-                var del = newSpan(this.monitorButton.remove || "[x]");
+                var del = this.newSpan(this.monitorButton.remove || "[x]");
                 del.property = prop;
                 del.style.marginLeft = "5px";
                 del.addEventListener("click", function (e) {
@@ -1389,7 +1404,7 @@
                     var p = span.property;
                     p.remove();
                 });
-                var comment = newSpan(this.monitorButton.comment || "[.oO]");
+                var comment = this.newSpan(this.monitorButton.comment || "[.oO]");
                 comment.property = prop;
                 comment.style.marginLeft = "5px";
                 comment.addEventListener("click", function (e) {
@@ -1398,9 +1413,9 @@
                         return;
                     }
                     var p = span.property;
-                    // _.commentManager(p);
+                    _.commentManager(p);
                 });
-                var shiftLeft = newSpan(this.monitorButton.shiftLeft || "<-");
+                var shiftLeft = this.newSpan(this.monitorButton.shiftLeft || "<-");
                 shiftLeft.property = prop;
                 shiftLeft.style.marginLeft = "5px";
                 shiftLeft.addEventListener("click", function (e) {
@@ -1411,7 +1426,7 @@
                     var p = span.property;
                     p.shiftLeft();
                 });
-                var shiftRight = newSpan(this.monitorButton.shiftRight || "->");
+                var shiftRight = this.newSpan(this.monitorButton.shiftRight || "->");
                 shiftRight.property = prop;
                 shiftRight.style.marginLeft = "5px";
                 shiftRight.addEventListener("click", function (e) {
@@ -1422,7 +1437,7 @@
                     var p = span.property;
                     p.shiftRight();
                 });
-                var expand = newSpan(this.monitorButton.expand || "[+]");
+                var expand = this.newSpan(this.monitorButton.expand || "[+]");
                 expand.property = prop;
                 expand.style.marginLeft = "5px";
                 expand.addEventListener("click", function (e) {
@@ -1433,7 +1448,7 @@
                     var p = span.property;
                     p.expand();
                 });
-                var contract = newSpan(this.monitorButton.contract || "[-]");
+                var contract = this.newSpan(this.monitorButton.contract || "[-]");
                 contract.property = prop;
                 contract.style.marginLeft = "5px";
                 contract.addEventListener("click", function (e) {
@@ -1465,7 +1480,7 @@
                 }
                 var showConvertToZeroPoint = (propertyType.zeroPoint && propertyType.zeroPoint.offerConversion && propertyType.zeroPoint.offerConversion(prop));
                 if (showConvertToZeroPoint) {
-                    var toZeroPoint = newSpan(this.monitorButton.toZeroPoint || "[Z]");
+                    var toZeroPoint = this.newSpan(this.monitorButton.toZeroPoint || "[Z]");
                     toZeroPoint.property = prop;
                     toZeroPoint.style.marginLeft = "5px";
                     toZeroPoint.addEventListener("click", function (e) {
@@ -1499,7 +1514,7 @@
                     for (var key in propertyType.attributes) {
                         var attribute = propertyType.attributes[key];
                         var label = attribute.renderer(prop);
-                        var attr = newSpan(label);
+                        var attr = this.newSpan(label);
                         attr.speedy = {};
                         attr.speedy.property = prop;
                         attr.speedy.attributeName = key;

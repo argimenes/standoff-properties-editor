@@ -8,6 +8,43 @@
         element.remove();
     }
 
+    function defined(value) {
+        return typeof value != "undefined";
+    }
+
+    // useful for HtmlCollection, NodeList, String types (array-like types)
+    function forEach(array, callback, scope) {
+        for (var i = 0, n = array.length; i < n; i++) {
+            callback.call(scope, array[i], i, array);
+        }
+    } // passes back stuff we need
+
+    function changeCss(selectorText, tgtAttribName, newValue) {
+        var styleSheets = document.styleSheets;
+        forEach(styleSheets, styleSheetFunc);
+
+        function styleSheetFunc(sheet) {
+            try {
+                forEach(sheet.cssRules, cssRuleFunc);
+            } catch (ex) {
+
+            }
+        }
+
+        function cssRuleFunc(rule) {
+            if (selectorText.indexOf(rule.selectorText) != -1) {
+                forEach(rule.style, cssRuleAttributeFunc);
+            }
+
+            function cssRuleAttributeFunc(attribName) {
+                if (attribName == tgtAttribName) {
+                    rule.style[attribName] = newValue;
+                    console.log('attribute replaced');
+                }
+            }
+        }
+    }
+
     var openModalFromNode = function (contentNode, settings) {
         settings = settings || {};
         var modal = document.createElement("DIV");
@@ -46,6 +83,7 @@
                 "xml2spo2.json",
                 "xml2spo3.json",
                 "xml2spo3a.json",
+                "arabic.json",
             ]);
             this.TEI = ko.observable();
             this.list = {
@@ -89,12 +127,17 @@
             ko.applyBindings(this, node);
             this.setupEditor();
         };
-        Model.prototype.setupEditor = function() {
+        Model.prototype.setupEditor = function(settings) {
+            settings = settings || {};
             var cons = this.constructorData;
             var _this = this;
+            this.container =  settings.container ? settings.container : cons.template.querySelectorAll("[data-role='editor']")[0];
+            this.monitor =  settings.monitor ? settings.monitor : cons.template.querySelectorAll("[data-role='monitor']")[0];
             this.editor = new Speedy({
-                container: cons.template.querySelectorAll("[data-role='editor']")[0],
-                monitor: cons.template.querySelectorAll("[data-role='monitor']")[0],
+                container: this.container,
+                monitor: this.monitor,
+                direction: settings.direction ? settings.direction : null,
+                interpolateZeroWidthJoiningCharacter: defined(settings.interpolateZeroWidthJoiningCharacter) ? settings.interpolateZeroWidthJoiningCharacter : null,
                 onPropertyCreated: function (prop, data) {
                     // Copy the custom fields across from the JSON data to the Property.
                     if (!data) {
@@ -980,9 +1023,28 @@
                     blacklist = blacklist.split(",").map(x => x.trim());
                     json.properties = json.properties.filter(x => blacklist.indexOf(x.type) == -1);
                 }
-                _this.editor.bind(json);
+                var containsArabic = (file.indexOf("arabic") >= 0); // A crude temporary check. We will check for a meta-data property later.
+                if (containsArabic) {                    
+                    _this.setupEditor({
+                        container: _this.cloneNode(_this.container),
+                        monitor: _this.cloneNode(_this.monitor),
+                        direction: "RTL",
+                        interpolateZeroWidthJoiningCharacter: true
+                    });
+                } else {
+                    _this.setupEditor({
+                        container: _this.cloneNode(_this.container),
+                        monitor: _this.cloneNode(_this.monitor)
+                    });
+                }
+                _this.editor.bind(json);        
                 _this.viewer(null);
             });
+        };
+        Model.prototype.cloneNode = function (node) {
+            var clone = node.cloneNode(true);
+            node.parentNode.replaceChild(clone, node);
+            return clone;
         };
         Model.prototype.teiSelected = function () {
             var tei = this.TEI();
