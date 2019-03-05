@@ -138,7 +138,7 @@ The SPEEDy configuration object
 
 // Interfaces
 interface IProperty {
-   attributes: {};
+   attributes: IAttributes;
    value: String;
 }
 interface IAttributeHandlers {
@@ -147,6 +147,9 @@ interface IAttributeHandlers {
 interface IAttributeHandler {
    renderer: (property: IProperty): String;
    selector: (property: IProperty, process: (value: String)): void;
+}
+interface IAttributes {
+   "key": IAttribute;
 }
 interface IAttribute {
    "key": String;
