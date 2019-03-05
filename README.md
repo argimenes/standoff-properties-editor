@@ -118,6 +118,39 @@ The SPEEDy configuration object
       }
    }
 }
+
+// Property type interface
+{   
+   className: String;
+   shortcut: String;
+   format: String;      // Options: "overlay"; "decorate"
+   propertyValueSelector: (property: IProperty, process: (value: String)): void;
+   labelRenderer: (property: IProperty): String;
+   styleRenderer: (spans: Span[], property: IProperty): String;
+   unstyleRenderer: (spans: Span[], property: IProperty): String;
+   attributes: IAttributeHandlers;
+   zeroPoint: {
+      className: String;
+      offerConversion: (property: IProperty): Boolean;
+      selector: (property: IProperty, process: (value: String)): void;
+   }
+}
+
+// Interfaces
+interface IProperty {
+   attributes: {};
+   value: String;
+}
+interface IAttributeHandlers {
+   "key": IAttributeHandler;
+}
+interface IAttributeHandler {
+   renderer: (property: IProperty): String;
+   selector: (property: IProperty, process: (value: String)): void;
+}
+interface IAttribute {
+   "key": String;
+}
 ```
   
 ## Hooks
