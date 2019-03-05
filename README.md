@@ -121,39 +121,59 @@ The SPEEDy configuration object
 
 // Property type interface
 {   
-   className: String;
-   shortcut: String;
-   format: String;      // Options: "overlay"; "decorate"
-   propertyValueSelector: (property: IProperty, process: (value: String)): void;
-   labelRenderer: (property: IProperty): String;
-   styleRenderer: (spans: Span[], property: IProperty): String;
-   unstyleRenderer: (spans: Span[], property: IProperty): String;
+   className: string;   // CSS class name representing the annotation styling
+   shortcut: string;    // Single character CONTROL-key shortcut
+   format: string;      // Options: "overlay"; "decorate"
+   propertyValueSelector: (property: IProperty, process: (value: String) => void) => void;
+   labelRenderer: (property: IProperty) => String;
+   styleRenderer: (spans: HTMLSpanElement[], property: IProperty) => String;
+   unstyleRenderer: (spans: HTMLSpanElement[], property: IProperty) => String;
    attributes: IAttributeHandlers;
    zeroPoint: {
-      className: String;
-      offerConversion: (property: IProperty): Boolean;
-      selector: (property: IProperty, process: (value: String)): void;
+      className: string;
+      offerConversion: (property: IProperty) => bool;
+      selector: (property: IProperty, process: (value: string) => void) => void;
    }
 }
 
 // Interfaces
 interface IProperty {
+   value: string;
+   text: string;
    attributes: IAttributes;
-   value: String;
+   startNode: HTMLSpanElement;
+   endNode: HTMLSpanElement;   
+   guid: IGuid?;
+   userGuid: IGuid?;
+   isDeleted: bool;
+   -------------------------
+   toNode: () => IStandoffProperty;
+}
+interface IStandoffProperty {
+   type: string;
+   text: string?;
+   value: string?;
+   attributes: IAttributes;
+   startIndex: integer?;
+   endIndex: integer?;
+   isDeleted: bool;
+   guid: IGuid?;
+   userGuid: IGuid?;
 }
 interface IAttributeHandlers {
    "key": IAttributeHandler;
 }
 interface IAttributeHandler {
-   renderer: (property: IProperty): String;
-   selector: (property: IProperty, process: (value: String)): void;
+   renderer: (property: IProperty) => string;
+   selector: (property: IProperty, process: (value: string) => void) => void;
 }
 interface IAttributes {
    "key": IAttribute;
 }
 interface IAttribute {
-   "key": String;
+   "key": string;
 }
+interface IGuid {} // 32 character UUID string
 ```
   
 ## Hooks
