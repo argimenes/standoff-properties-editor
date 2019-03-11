@@ -14,7 +14,17 @@
         return each(this, func);
     };
 
-    var BACKSPACE = 8,
+    const TEXT_STREAM = {
+        IN: 0,
+        OUT: 1
+    };
+    const ELEMENT_ROLE = {
+        CHAR: 0,
+        BLOCK: 1,
+        ROOT: 2
+    };
+
+    const BACKSPACE = 8,
         DELETE = 46, HOME = 36, END = 35,
         LEFT_ARROW = 37, RIGHT_ARROW = 39, UP_ARROW = 38, DOWN_ARROW = 40, SPACE = 32,
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, LINE_FEED = 10, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
@@ -33,7 +43,10 @@
         }
         var text = "";
         whileNext(range.start, range.end, function (node) {
-            if (node.isZeroPoint) {
+            if (!node.speedy) {
+                return;
+            }
+            if (node.speedy.stream == TEXT_STREAM.OUT) {
                 return;
             }
             text += node.textContent;
@@ -78,10 +91,16 @@
                 loop = false;
                 found = true;
             }
-            temp = temp.previousElementSibling;
-            if (temp == null) {
-                loop = false;
+            if (temp.previousElementSibling == null) {
+                if (hasBlockParent(temp)) {
+                    temp = temp.parentElement;
+                }
+                else {
+                    loop = false;
+                    continue;
+                }
             }
+            temp = temp.previousElementSibling;
         }
         return found;
     }
@@ -89,22 +108,29 @@
     function isBefore(start, node) {
         var found = false;
         var loop = true;
-        var temp = node;
-        while (loop && temp) {
-            if (start == temp) {
+        var cursor = node;
+        while (loop && cursor) {
+            if (start == cursor) {
                 loop = false;
                 found = true;
             }
-            temp = temp.nextElementSibling;
-            if (temp == null) {
-                loop = false;
+            if (cursor.nextElementSibling == null) {
+                if (hasBlockParent(cursor)) {
+                    cursor = cursor.parentElement;
+                }
+                else {
+                    loop = false;
+                    continue;
+                }
             }
+            cursor = cursor.nextElementSibling;
         }
         return found;
     }
 
     function isWithin(start, end, node) {
-        return isAfter(start, node) && isBefore(end, node);
+        var si = nodeIndex(start), ei = nodeIndex(end), ni = nodeIndex(node);
+        return si <= ni && ni <= ei;
     }
 
     function indexOf(arr, comparer) {
@@ -116,31 +142,113 @@
         return -1;
     }
 
+    function hasBlockParent(node) {
+        return node && node.parentElement && isBlock(node.parentElement);
+    }
+
+    function getTextContent(node) {
+        // This may need to be changed to account for zero-width joining characters.
+        return node.textContent[0];
+    }
+
+    function isBlock(node) {
+        return node && node.speedy && node.speedy.role == ELEMENT_ROLE.BLOCK;
+    }
+
+    function isChar(node) {
+        return node && node.speedy && node.speedy.role == ELEMENT_ROLE.CHAR;
+    }
+
+    function isOutOfTextStream(node) {
+        return node && node.speedy && node.speedy.stream == TEXT_STREAM.OUT;
+    }
+
+    function isInTextStream(node) {
+        return node && node.speedy && node.speedy.stream == TEXT_STREAM.IN;
+    }
+
     function markNodesWithIndexes(node) {
         var i = 0;
         var text = "";
-        node = node.speedy ? node : getParent(node, n => n.speedy);
-        do {
-            if (node.isZeroPoint) {
+        var loop = true;
+        node = (node.speedy ? node : getParent(node, n => n.speedy));
+        if (isBlock(node)) {
+            node = node.firstChild;
+        }
+        while (loop && node) {
+            if (isOutOfTextStream(node)) {
                 node.speedy.index = i;
+                node = node.nextElementSibling
                 continue;
             }
-            text += node.textContent[0];
+            text += getTextContent(node);
             node.speedy.index = i++;
-        }
-        while (node && ((node = node.nextElementSibling) != null))
+            var next = node.nextElementSibling;
+            if (next) {
+                if (isBlock(next)) {
+                    node = next.firstChild;
+                    continue;
+                }
+            } else {
+                if (hasBlockParent(node)) {
+                    node = node.parentElement.nextElementSibling;
+                    continue;
+                }
+                else {
+                    loop = false;
+                    continue;
+                }
+            }
+            node = node.nextElementSibling;
+        };
         return text;
     }
 
-    function childNodeIndex(node) {
-        var i = 0;
-        node = node.speedy ? node : getParent(node, n => n.speedy);
-        while (node && ((node = node.previousElementSibling) != null)) {
-            if (!node.isZeroPoint) {
+    function nodeIndex(node) {
+        var i = -1;
+        node = (node.speedy ? node : getParent(node, n => n && n.speedy));
+        while (node) {
+            if (isInTextStream(node)) {
                 i++;
             }
-        }
+            if (isChar(node)) {
+                var previous = node.previousElementSibling;
+                if (previous == null) {
+                    if (hasBlockParent(node)) {
+                        previous = node.parentElement.previousElementSibling;
+                    }
+                }
+                node = previous;
+            }
+            if (isBlock(node)) {
+                node = node.lastChild;
+            }
+            
+        };
         return i;
+    }
+
+    function indexNode(start, index) {
+        var i = 0;
+        var node = start;
+        while (i != index) {
+            if (isInTextStream(node)) {
+                i++;
+            }
+            if (isChar(node)) {
+                var next = node.nextElementSibling;
+                if (next == null) {
+                    if (hasBlockParent(node)) {
+                        next = node.parentElement.nextElementSibling;
+                    }
+                }
+                node = next;
+            }
+            if (isBlock(node)) {
+                node = node.firstChild;
+            }            
+        };
+        return node;
     }
 
     function any(arr, comparer) {
@@ -232,13 +340,19 @@
             this.overRange(s => s.classList.remove(css));
         };
         Property.prototype.startIndex = function () {
-            return childNodeIndex(this.startNode);
+            if (typeof this.startNode.speedy.index != "undefined") {
+                return this.startNode.speedy.index;
+            }
+            return nodeIndex(this.startNode);
         };
         Property.prototype.endIndex = function () {
-            if (this.endNode.isZeroPoint) {
+            if (typeof this.endNode.speedy.index != "undefined") {
+                return this.endNode.speedy.index;
+            }
+            if (this.endNode.speedy.stream == TEXT_STREAM.OUT) {
                 return null;
             }
-            return childNodeIndex(this.endNode);
+            return nodeIndex(this.endNode);
         };
         Property.prototype.convertToZeroPoint = function () {
             var zero = this.clone();
@@ -247,7 +361,7 @@
             var text = getRangeText(range);
             this.editor.deleteRange(range);
             var span = this.editor.newSpan(text);
-            span.isZeroPoint = true;
+            span.speedy.stream = TEXT_STREAM.OUT;
             zero.isZeroPoint = true;
             zero.text = text;
             zero.startNode = span;
@@ -320,14 +434,23 @@
         Property.prototype.unsetSpanRange = function () {
             var _this = this;
             var propertyType = this.getPropertyType();
-            whileNext(this.startNode, this.endNode, function (s) {
-                var className = _this.className || propertyType.className || propertyType.zeroPoint.className;
-                if (propertyType.format == "decorate") {
-                    s.classList.remove(className);
-                } else if (propertyType.format == "overlay") {
-                    unsetSpanRange(s, className);
-                }
-            }.bind(this));
+            if (propertyType.format == "block") {
+                var spans = allNodesBetween(this.startNode, this.endNode);
+                var parent = this.startNode.parentElement;
+                var container = parent.parentElement;
+                var insertionPoint = parent.nextElementSibling ? parent.nextElementSibling : parent.previousElementSibling;
+                spans.forEach(span => container.insertBefore(span, insertionPoint));
+                container.removeChild(parent);
+            } else {
+                whileNext(this.startNode, this.endNode, function (s) {
+                    var className = _this.className || propertyType.className || propertyType.zeroPoint.className;
+                    if (propertyType.format == "decorate") {
+                        s.classList.remove(className);
+                    } else if (propertyType.format == "overlay") {
+                        unsetSpanRange(s, className);
+                    }
+                }.bind(this));
+            }
             if (propertyType.unstyleRenderer) {
                 propertyType.unstyleRenderer(allNodesBetween(this.startNode, this.endNode), this);
             }
@@ -413,8 +536,8 @@
         Property.prototype.toNode = function () {
             var __ = this;
             var text = null;
-            var si = this.startNode.speedy.index;
-            var ei = this.isZeroPoint ? null : this.endNode.speedy.index;
+            var si = this.startIndex();
+            var ei = this.endIndex();
             if (this.isZeroPoint) {
                 text = this.startNode.textContent;
             }
@@ -422,7 +545,7 @@
                 var len = ei - si + 1;
                 if (len > 0) {
                     len = this.editor.unbinding.maxTextLength || len;
-                    var statementText = this.editor.unbindText();
+                    var statementText = this.editor.temp.text || this.editor.unbindText();
                     text = statementText.substr(si, len);
                 }
             }
@@ -453,7 +576,7 @@
             this.container = (cons.container instanceof HTMLElement) ? cons.container : document.getElementById(cons.container);
             this.component = {
                 monitor: new MonitorBar({
-                    monitor: cons.monitor instanceof HTMLElement ? cons.monitor : document.getElementById(cons.monitor),
+                    monitor: cons.monitor,
                     monitorOptions: cons.monitorOptions,
                     monitorButton: cons.monitorButton || {},
                     propertyType: cons.propertyType,
@@ -462,8 +585,14 @@
                     updateCurrentRanges: this.updateCurrentRanges,
                     css: cons.css
                 })
-            };            
-            this.container.style.direction = cons.direction || "LTR";
+            };
+            if (cons.direction == "RTL") {
+                this.container.style.direction = "RTL";
+            }
+            this.monitors = [];
+            this.temp = {
+                text: null
+            };
             this.interpolateZeroWidthJoiningCharacter = cons.interpolateZeroWidthJoiningCharacter;
             this.onPropertyCreated = cons.onPropertyCreated;
             this.onPropertyChanged = cons.onPropertyChanged;
@@ -525,7 +654,7 @@
             if (!enclosing.length) {
                 return null;
             }
-            var i = childNodeIndex(node);
+            var i = nodeIndex(node);
             var ordered = enclosing.sort(function (a, b) {
                 var propa = a.toNode();
                 var propb = b.toNode();
@@ -545,7 +674,7 @@
             if (!props.length) {
                 return;
             }
-            var i = childNodeIndex(e.target);
+            var i = nodeIndex(e.target);
             var nearest = props.sort(function (a, b) {
                 var propa = a.toNode();
                 var propb = b.toNode();
@@ -567,6 +696,9 @@
                     }
                 }
             });
+        };
+        Editor.prototype.addMonitor = function (monitor) {
+            this.monitors.push(monitor);
         };
         Editor.prototype.updateCurrentRanges = function (span) {
             window.setTimeout(function () {
@@ -592,6 +724,9 @@
         };
         Editor.prototype.setMonitor = function (props) {
             this.component.monitor.setProperties(props);
+            if (this.monitors.length) {
+                this.monitors.forEach(x => x.setProperties(props));
+            }
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
             this.updateCurrentRanges();
@@ -689,8 +824,8 @@
             var _ = this;
             var previous = current.previousElementSibling;
             var next = current.nextElementSibling;
-            var isZeroPoint = current.isZeroPoint;
-            if (isZeroPoint) {
+            var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
+            if (outOfStream) {
                 current.startProperties[0].remove();
                 current.style.display = "none";
                 if (updateCarot && previous) {
@@ -733,8 +868,8 @@
         Editor.prototype.handleDelete = function (current) {
             var next = current.nextElementSibling;
             var previous = current.previousElementSibling;
-            var isZeroPoint = next.isZeroPoint;
-            if (isZeroPoint) {
+            var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
+            if (outOfStream) {
                 next.startProperties[0].remove();
                 next.style.display = "none";
                 if (current) {
@@ -781,6 +916,18 @@
                 }
             }
             this.handleBackspace(range.start, true);
+        };
+        Editor.prototype.getSelection = function () {
+            var range = this.getSelectionNodes();
+            if (!range) {
+                return null;
+            }
+            var text = getRangeText(range);
+            return {
+                text: text,
+                startIndex: nodeIndex(range.start),
+                endIndex: nodeIndex(range.end)
+            };
         };
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
@@ -869,8 +1016,12 @@
                 return;
             }
 
-            var span = this.newSpan(key == SPACE ? String.fromCharCode(160) : evt.key);
-            this.handleSpecialChars(span, key);            
+            var span = this.newSpan();
+            span.textContent = evt.key;
+            this.handleSpecialChars(span, key);
+            if (key == SPACE) {
+                span.textContent = String.fromCharCode(160);
+            }
             if (isFirst) {
                 this.container.appendChild(span);
                 this.setCarotByNode(span);
@@ -878,7 +1029,13 @@
             else {
                 var atFirst = !current;
                 var next = atFirst ? this.container.firstChild : current.nextElementSibling;
-                this.container.insertBefore(span, next);
+                if (next) {
+                    var container = next.parentElement;
+                    container.insertBefore(span, next);
+                } else {
+                    this.container.appendChild(span);
+                    this.setCarotByNode(span);
+                }
                 this.paint(span);
                 this.setCarotByNode(atFirst ? current : span);
             }
@@ -898,6 +1055,7 @@
             //    //span.textContent = String.fromCharCode(160);
             //}
             if (charCode == ENTER) {
+                //span.speedy.role = ELEMENT_ROLE.CHAR;
                 span.textContent = String.fromCharCode(13);
                 span.classList.add("line-break");
             }
@@ -928,18 +1086,18 @@
             if (range.collapsed) {
                 return null;
             }
-            var sn = range.startContainer;
-            var en = range.endContainer;
-            if (en instanceof HTMLSpanElement) {
-                if (range.endOffset == 0) {
-                    en = en.previousElementSibling;
-                }
-            }
-            var startSpan = this.getParentSpan(sn);
-            var endSpan = this.getParentSpan(en);
+            var sn = getParent(range.startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+            var en = getParent(range.endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);;
+            //if (en instanceof HTMLSpanElement) {
+            //    if (range.endOffset == 0) {
+            //        en = en.previousElementSibling;
+            //    }
+            //}
+            //var startSpan = this.getParentSpan(sn);
+            //var endSpan = this.getParentSpan(en);
             return {
-                start: startSpan,
-                end: endSpan
+                start: sn,
+                end: en
             };
         };
         Editor.prototype.createSelection = function (sn, en) {
@@ -957,14 +1115,15 @@
             });
         };
         Editor.prototype.spanAtIndex = function (i) {
-            var node = this.container.firstChild;
-            while (node != null && i > 0) {
-                if (!node.isZeroPoint) {
-                    i--;
-                }
-                node = node.nextElementSibling;
-            }
-            return node;
+            return indexNode(this.container.firstChild, i);
+            //var node = this.container.firstChild;
+            //while (node != null && i > 0) {
+            //    if (node.speedy.stream == TEXT_STREAM.IN) {
+            //        i--;
+            //    }
+            //    node = node.nextElementSibling;
+            //}
+            //return node;
         };
         Editor.prototype.addProperty = function (p) {
             var nodes = this.container.children;
@@ -978,7 +1137,8 @@
                 value: p.value,
                 type: p.type,
                 startNode: sn,
-                endNode: en
+                endNode: en,
+                attributes: p.attributes
             });
             prop.text = p.text;
             sn.startProperties.push(prop);
@@ -991,7 +1151,7 @@
         };
         Editor.prototype.addZeroPoint = function (type, content, position) {
             var span = this.newSpan(content);
-            span.isZeroPoint = true;
+            span.speedy.stream = TEXT_STREAM.OUT;
             var property = new Property({
                 editor: this,
                 guid: null,
@@ -1026,6 +1186,34 @@
                     }
                 });
             }
+        };
+        Editor.prototype.createBlockProperty = function (propertyTypeName) {
+            var selection = this.getSelectionNodes();
+            this.createBlock(selection.start, selection.end, propertyTypeName);
+            var property = new Property({
+                editor: this,
+                guid: null,
+                layer: null,
+                index: propCounter++,
+                type: propertyTypeName,
+                startNode: selection.start,
+                endNode: selection.end
+            });
+            this.data.properties.push(property);
+        };
+        Editor.prototype.createBlock = function (startNode, endNode, type) {
+            var dummy = document.createElement("SPAN");
+            this.container.insertBefore(dummy, startNode);
+            var block = document.createElement("DIV");
+            block.speedy = {
+                role: ELEMENT_ROLE.BLOCK,
+                stream: TEXT_STREAM.OUT
+            };
+            block.classList.add(this.propertyType[type].className);
+            var nodes = allNodesBetween(startNode, endNode);
+            nodes.forEach(node => block.appendChild(node));
+            this.container.insertBefore(block, dummy);
+            this.container.removeChild(dummy);
         };
         Editor.prototype.createProperty = function (propertyTypeName, value) {
             var _this = this;
@@ -1108,22 +1296,16 @@
             }
         };
         Editor.prototype.unbind = function () {
-            var text = markNodesWithIndexes(this.container.firstChild);
-            return {
+            var text = this.temp.text = markNodesWithIndexes(this.container.firstChild);
+            var result = {
                 text: text,
                 properties: this.toPropertyNodes()
             };
+            console.log({ unbind: result });
+            return result;
         };
         Editor.prototype.unbindText = function () {
-            var result = "";
-            var node = this.container.firstChild;
-            while (node != null) {
-                if (!node.isZeroPoint) {
-                    result += node.textContent[0];
-                }
-                node = node.nextElementSibling;
-            }
-            return result;
+            return markNodesWithIndexes(this.container.firstChild);
         };
         Editor.prototype.toPropertyNodes = function () {
             var list = [];
@@ -1134,6 +1316,7 @@
             return list;
         }
         Editor.prototype.bind = function (model) {
+            var _this = this;
             if (typeof model == "string") {
                 model = JSON.parse(model);
             }
@@ -1146,9 +1329,8 @@
             this.data.properties = [];
             var len = this.data.text.length;
             console.log("Text length", len);
-            var properties = model.properties.filter(function (item) {
-                return !item.isZeroPoint;
-            }).sort(function (a, b) { return a.index > b.index ? 1 : a.index < b.index ? -1 : 0; });
+            var properties = model.properties.filter(item => !item.isZeroPoint)
+                .sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
             var propertiesLength = properties.length;
             for (var i = 0; i < propertiesLength; i++) {
                 var p = properties[i];
@@ -1166,13 +1348,14 @@
                     console.warn("EndIndex out of bounds.", p);
                     continue;
                 }
-                var startNode = this.container.children[p.startIndex];
-                if (!startNode) {
+                var isMetadata = (p.startIndex == null && p.endIndex == null);
+                var startNode = (isMetadata ? null : this.container.children[p.startIndex]);
+                if (!isMetadata && startNode == null) {
                     console.warn("Start node not found.", p);
                     continue;
                 }
-                var endNode = this.container.children[p.endIndex];
-                if (!endNode) {
+                var endNode = (isMetadata ? null : this.container.children[p.endIndex]);
+                if (!isMetadata && endNode == null) {
                     console.warn("End node not found.", p);
                     continue;
                 }
@@ -1192,15 +1375,28 @@
                 if (this.onPropertyCreated) {
                     this.onPropertyCreated(prop, p);
                 }
-                startNode.startProperties.push(prop);
-                endNode.endProperties.push(prop);
+                if (startNode) {
+                    startNode.startProperties.push(prop);
+                }
+                if (endNode) {
+                    endNode.endProperties.push(prop);
+                }
                 prop.setSpanRange();
                 this.data.properties.push(prop);
                 propCounter = this.data.properties.length;
             }
-            this.bindZeroLengthAnnotations(model);
+            this.handleZeroLengthAnnotations(model);
+            this.handleBlocks(properties);
         };
-        Editor.prototype.bindZeroLengthAnnotations = function (model) {
+        Editor.prototype.handleBlocks = function (properties) {
+            var _this = this;
+            var blocks = properties.filter(item => !item.isDeleted && _this.propertyType[item.type] && _this.propertyType[item.type].format == "block")
+                .sort((a, b) => a.startIndex > b.startIndex ? -1 : a.startIndex < b.startIndex ? 1 : 0);
+            if (blocks.length) {
+                blocks.forEach(p => _this.createBlock(_this.container.children[p.startIndex], _this.container.children[p.endIndex], p.type));
+            }
+        };
+        Editor.prototype.handleZeroLengthAnnotations = function (model) {
             var len = model.text.length;
             var zeroProperties = model.properties.filter(function (item) {
                 return item.isZeroPoint;
@@ -1277,7 +1473,10 @@
         };
         Editor.prototype.newSpan = function (text) {
             var s = document.createElement("SPAN");
-            s.speedy = {};
+            s.speedy = {
+                role: ELEMENT_ROLE.CHAR,
+                stream: TEXT_STREAM.IN
+            };
             s.style.position = "relative";
             if (text) {
                 if (this.interpolateZeroWidthJoiningCharacter) {
@@ -1316,9 +1515,15 @@
             return s;
         };
         MonitorBar.prototype.clear = function () {
+            if (!this.monitor) {
+                return;
+            }
             this.monitor.textContent = "";
         };
         MonitorBar.prototype.setProperties = function (props) {
+            if (!this.monitor) {
+                return;
+            }
             var _ = this;
             this.properties = props;
             this.monitor.textContent = "";
@@ -1545,7 +1750,6 @@
 
         return MonitorBar;
     })();
-
 
     return Editor;
 

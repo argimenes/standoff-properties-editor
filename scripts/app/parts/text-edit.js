@@ -73,17 +73,18 @@
             this.constructorData = cons;
             this.file = ko.observable("ReggF3-H19-316.json");
             this.files = ko.observableArray([
-                "ReggF3-H19-316.json",
-                "ReggF3-H19-316-no-annotations.json",
-                "adam-liszt.json",
-                "HildegardR51.json",
-                "HildegardR52.json",
-                "dta2spo.json",
-                "xml2spo.json",
-                "xml2spo2.json",
-                "xml2spo3.json",
-                "xml2spo3a.json",
-                "arabic.json",
+                { text: "Regesta Imperii", value: "ReggF3-H19-316.json" },
+                { text: "Regesta Imperii without annotations", value: "ReggF3-H19-316-no-annotations.json" },
+                { text: "Overlapping annotations on Liszt", value: "adam-liszt.json" },
+                { text: "Hildergard von Bingen (#51)", value: "HildegardR51.json" },
+                { text: "Hildergard von Bingen (#52)", value: "HildegardR52.json" },
+                { text: "DTA-Basisformat XML -> SPEEDy", value: "dta2spo.json" },
+                { text: "TEI-XML -> SPEEDY (I)", value: "xml2spo.json" },
+                { text: "TEI-XML -> SPEEDY (II)", value: "xml2spo2.json" },
+                { text: "TEI-XML -> SPEEDY (III)", value: "xml2spo3.json" },
+                { text: "TEI-XML -> SPEEDY (IV)", value: "xml2spo3a.json" },
+                { text: "Michelangelo letter with text alignment", value: "michelangelo-text-block.json" },
+                { text: "Arabic script (RTL and ligature test)", value: "arabic.json" },
             ]);
             this.TEI = ko.observable();
             this.list = {
@@ -198,6 +199,43 @@
                     //maxTextLength: 20
                 },
                 propertyType: {
+                    "tab": {
+                        format: "decorate",
+                        zeroPoint: {
+                            className: "tab"                            
+                        },
+                        labelRenderer: function () {
+                            return "tab";
+                        }
+                    },
+                    "alignment/indent": {
+                        format: "block",
+                        className: "block-indent",
+                        labelRenderer: function () {
+                            return "alignment (indent)";
+                        }
+                    },
+                    "alignment/justify": {
+                        format: "block",
+                        className: "block-justify",
+                        labelRenderer: function () {
+                            return "alignment (justify)";
+                        }
+                    },
+                    "alignment/right": {
+                        format: "block",
+                        className: "block-right",
+                        labelRenderer: function () {
+                            return "alignment (right)";
+                        }
+                    },
+                    "alignment/center": {
+                        format: "block",
+                        className: "block-center",
+                        labelRenderer: function () {
+                            return "alignment (center)";
+                        }
+                    },
                     bold: {
                         format: "decorate",
                         shortcut: "b",
@@ -975,6 +1013,18 @@
         };
         Model.prototype.subscriptClicked = function () {
             this.toggleAnnotation("subscript");
+        };
+        Model.prototype.indentClicked = function () {
+            this.editor.createBlockProperty("alignment/indent");
+        };
+        Model.prototype.justifyClicked = function () {
+            this.editor.createBlockProperty("alignment/justify");
+        };
+        Model.prototype.rightClicked = function () {
+            this.editor.createBlockProperty("alignment/right");
+        };
+        Model.prototype.centerClicked = function () {
+            this.editor.createBlockProperty("alignment/center");
         };
         Model.prototype.underlineClicked = function () {
             this.toggleAnnotation("underline");
