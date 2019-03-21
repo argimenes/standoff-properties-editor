@@ -1,5 +1,5 @@
 ﻿(function (factory) {
-    define("app/modules/standoff-properties-editor", ["app/utils"], factory);
+    define("speedy/editor", ["app/utils"], factory);
 }(function (utils) {
 
     var where = utils.where;
@@ -74,12 +74,42 @@
     }
 
     function whileNext(startNode, endNode, func) {
-        var s = startNode, loop = true;
-        while (loop) {
-            func(s);
-            loop = (s != endNode && s.nextElementSibling);
-            s = s.nextElementSibling;
+        var loop = true;
+        startNode = (startNode.speedy ? startNode : getParent(startNode, n => n.speedy));
+        endNode = (endNode.speedy ? endNode : getParent(endNode, n => n.speedy));
+        var node = startNode;
+        if (isBlock(node)) {
+            node = node.firstChild;
         }
+        while (loop) {
+            func(node);
+            if (node == endNode) {
+                loop = false;
+                continue;
+            }
+            if (isOutOfTextStream(node)) {
+                node.speedy.index = i;
+                node = node.nextElementSibling
+                continue;
+            }
+            var next = node.nextElementSibling;
+            if (next) {
+                if (isBlock(next)) {
+                    node = next.firstChild;
+                    continue;
+                }
+            } else {
+                if (hasBlockParent(node)) {
+                    node = node.parentElement.nextElementSibling;
+                    continue;
+                }
+                else {
+                    loop = false;
+                    continue;
+                }
+            }
+            node = node.nextElementSibling;
+        };
     }
 
     function isAfter(start, node) {
@@ -473,6 +503,9 @@
                 return;
             }
             var propertyType = this.getPropertyType();
+            if (!propertyType) {
+                return;
+            }
             var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
                 var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPoint.className : propertyType.className);
@@ -594,6 +627,8 @@
                 text: null
             };
             this.interpolateZeroWidthJoiningCharacter = cons.interpolateZeroWidthJoiningCharacter;
+            this.onCharacterAdded = cons.onCharacterAdded;
+            this.onCharacterDeleted = cons.onCharacterDeleted;
             this.onPropertyCreated = cons.onPropertyCreated;
             this.onPropertyChanged = cons.onPropertyChanged;
             this.onPropertyDeleted = cons.onPropertyDeleted;
@@ -1039,7 +1074,16 @@
                 this.paint(span);
                 this.setCarotByNode(atFirst ? current : span);
             }
+            if (this.onCharacterAdded) {
+                this.onCharacterAdded(span, this.getPreviousCharacterNode(span), this.getNextCharacterNode(span), this);
+            }
             this.updateCurrentRanges();
+        };
+        Editor.prototype.getPreviousCharacterNode = function (span) {
+            return span.previousElementSibling;
+        };
+        Editor.prototype.getNextCharacterNode = function (span) {
+            return span.nextElementSibling;
         };
         Editor.prototype.getPropertyTypeNameFromShortcutKey = function (key) {
             for (var propertyTypeName in this.propertyType) {
@@ -1338,7 +1382,7 @@
                 var type = this.propertyType[p.type];
                 if (!type) {
                     console.warn("Property type not found.", p);
-                    continue;
+                    //continue;
                 }
                 if (p.startIndex < 0) {
                     console.warn("StartIndex less than zero.", p);

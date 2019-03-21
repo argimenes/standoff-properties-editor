@@ -1,5 +1,5 @@
 (function (factory) {
-    define("part/text-edit", ["app/modules/standoff-properties-editor", "knockout", "jquery", "bootstrap"], factory);
+    define("part/text-edit", ["speedy/editor", "knockout", "jquery", "bootstrap"], factory);
 }(function (Speedy, ko, $) {
 
     function closeModal(element) {
