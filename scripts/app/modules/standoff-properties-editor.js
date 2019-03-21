@@ -253,7 +253,7 @@
             if (isBlock(node)) {
                 node = node.lastChild;
             }
-            
+
         };
         return i;
     }
@@ -276,7 +276,7 @@
             }
             if (isBlock(node)) {
                 node = node.firstChild;
-            }            
+            }
         };
         return node;
     }
@@ -370,12 +370,18 @@
             this.overRange(s => s.classList.remove(css));
         };
         Property.prototype.startIndex = function () {
+            if (!this.startNode) {
+                return null;
+            }
             if (typeof this.startNode.speedy.index != "undefined") {
                 return this.startNode.speedy.index;
             }
             return nodeIndex(this.startNode);
         };
         Property.prototype.endIndex = function () {
+            if (!this.endNode) {
+                return null;
+            }
             if (typeof this.endNode.speedy.index != "undefined") {
                 return this.endNode.speedy.index;
             }
@@ -742,7 +748,7 @@
                 }
                 this.setMonitor([]);
                 var props = where(this.data.properties, function (prop) {
-                    return !prop.isDeleted && isWithin(prop.startNode, prop.endNode, span);
+                    return !prop.isDeleted && prop.startNode && prop.endNode && isWithin(prop.startNode, prop.endNode, span);
                 });
                 this.setMonitor(props || []);
             }.bind(this), 1);
@@ -771,15 +777,27 @@
         };
         // https://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser
         Editor.prototype.handleOnPasteEvent = function (e) {
+            var _this = this;
             e.stopPropagation();
             e.preventDefault();
             var clipboardData = e.clipboardData || window.clipboardData;
             var text = clipboardData.getData('text');
+            var len = text.length;
             var frag = this.textToDocumentFragment(text);
             if (this.container.children.length) {
                 this.container.insertBefore(frag, e.target.nextElementSibling);
             } else {
                 this.container.appendChild(frag);
+            }
+            if (this.onCharacterAdded) {
+                var start = e.target;
+                var end = e.target;
+                while (len--) {
+                    end = this.getNextCharacterNode(end);
+                }
+                whileNext(start, end, (span) => {
+                    _this.onCharacterAdded(span, _this);
+                });
             }
             this.setCarotByNode(e.target);
             this.updateCurrentRanges();
@@ -1075,7 +1093,7 @@
                 this.setCarotByNode(atFirst ? current : span);
             }
             if (this.onCharacterAdded) {
-                this.onCharacterAdded(span, this.getPreviousCharacterNode(span), this.getNextCharacterNode(span), this);
+                this.onCharacterAdded(span, this);
             }
             this.updateCurrentRanges();
         };
@@ -1523,9 +1541,6 @@
             };
             s.style.position = "relative";
             if (text) {
-                if (this.interpolateZeroWidthJoiningCharacter) {
-                    text += "&#x200d;";
-                }
                 s.innerHTML = text;
             }
             s.startProperties = [];
@@ -1574,6 +1589,9 @@
             for (var i = 0; i < props.length; i++) {
                 var prop = props[i];
                 var propertyType = this.propertyType[prop.type];
+                if (!propertyType) {
+                    continue;
+                }
                 var range = this.newSpan();
                 range.style.marginRight = "10px";
                 var labelRenderer = propertyType.labelRenderer;

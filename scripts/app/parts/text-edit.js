@@ -1,6 +1,6 @@
 (function (factory) {
-    define("part/text-edit", ["speedy/editor", "knockout", "jquery", "bootstrap"], factory);
-}(function (Speedy, ko, $) {
+    define("part/text-edit", ["speedy/editor", "knockout", "jquery", "speedy/arabic-shaping", "bootstrap"], factory);
+}(function (Speedy, ko, $, ArabicShaping) {
 
     function closeModal(element) {
         $(element).modal("hide");
@@ -176,6 +176,33 @@
                     // Handle the adding of a user comment to any standoff property.
                     var value = prompt("Comment", prop.value || "");
                     process(value);
+                },
+                onCharacterAdded: function (current, editor) {
+                    console.log({ current, editor });
+                    var getPrevious = (span) => span.previousElementSibling;
+                    var getNext = (span) => span.nextElementSibling;
+                    var previous = getPrevious(current);
+                    var next = getNext(current);
+                    var addZwj = ArabicShaping.addZwj;
+                    var isArabicChar = ArabicShaping.isArabicChar;
+                    if (false == isArabicChar(current.textContent)) {
+                        return;
+                    }
+                    if (previous) {
+                        var pchar = (getPrevious(previous) || {}).textContent;
+                        var nchar = (getNext(previous) || {}).textContent;
+                        previous.innerHTML = addZwj(previous.textContent, pchar, nchar);
+                    }
+                    if (current) {
+                        var pchar = (getPrevious(current) || {}).textContent;
+                        var nchar = (getNext(current) || {}).textContent;
+                        current.innerHTML = addZwj(current.textContent, pchar, nchar);
+                    }
+                    if (next) {
+                        var pchar = (getPrevious(next) || {}).textContent;
+                        var nchar = (getNext(next) || {}).textContent;
+                        next.innerHTML = addZwj(next.textContent, pchar, nchar);
+                    }
                 },
                 monitorOptions: {
                     highlightProperties: true
