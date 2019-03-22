@@ -5,6 +5,8 @@
         paths: {
             "app/utils": "app/app.utils.pkgd",            
             "speedy/editor": "app/modules/standoff-properties-editor",            
+            "speedy/monitor-bar":"app/modules/monitor-bar",
+            "speedy/renderer": "app/modules/renderer",
             "speedy/arabic-nonspacing-data": "app/modules/arabic-shaping/arabic-nonspacing-data",
             "speedy/arabic-shaping-data": "app/modules/arabic-shaping/arabic-shaping-data",
             "speedy/arabic-shaping": "app/modules/arabic-shaping/arabic-shaping",

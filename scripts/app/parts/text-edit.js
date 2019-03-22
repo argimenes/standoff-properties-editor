@@ -1,6 +1,6 @@
 (function (factory) {
-    define("part/text-edit", ["speedy/editor", "knockout", "jquery", "speedy/arabic-shaping", "bootstrap"], factory);
-}(function (Speedy, ko, $, ArabicShaping) {
+    define("part/text-edit", ["speedy/editor", "speedy/monitor-bar", "knockout", "jquery", "speedy/arabic-shaping", "bootstrap"], factory);
+}(function (Speedy, MonitorBar, ko, $, ArabicShaping) {
 
     function closeModal(element) {
         $(element).modal("hide");
@@ -134,11 +134,9 @@
             var _this = this;
             this.container =  settings.container ? settings.container : cons.template.querySelectorAll("[data-role='editor']")[0];
             this.monitor =  settings.monitor ? settings.monitor : cons.template.querySelectorAll("[data-role='monitor']")[0];
-            this.editor = new Speedy({
+            var configuration = {
                 container: this.container,
-                monitor: this.monitor,
                 direction: settings.direction ? settings.direction : null,
-                interpolateZeroWidthJoiningCharacter: defined(settings.interpolateZeroWidthJoiningCharacter) ? settings.interpolateZeroWidthJoiningCharacter : null,
                 onPropertyCreated: function (prop, data) {
                     // Copy the custom fields across from the JSON data to the Property.
                     if (!data) {
@@ -976,11 +974,38 @@
                         }
                     },
                 }
-            });
+            };
+            this.editor = new Speedy(configuration);
             this.editor.bind({
                 text: cons.editor.text || "",
                 properties: cons.editor.properties || []
             });
+            var monitorBar = new MonitorBar({
+                monitor: this.monitor,
+                monitorOptions: {
+                    highlightProperties: true
+                },
+                monitorButton: {
+                    link: '<button data-toggle="tooltip" data-original-title="Edit" class="btn btn-sm"><span class="fa fa-link"></span></button>',
+                    layer: '<button data-toggle="tooltip" data-original-title="Layer" class="btn btn-sm"><span class="fa fa-cog"></span></button>',
+                    remove: '<button data-toggle="tooltip" data-original-title="Delete" class="btn btn-sm"><span class="fa fa-trash"></span></button>',
+                    comment: '<button data-toggle="tooltip" data-original-title="Comment" class="btn btn-sm"><span class="fa fa-comment"></span></button>',
+                    shiftLeft: '<button data-toggle="tooltip" data-original-title="Left" class="btn btn-sm"><span class="fa fa-arrow-circle-left"></span></button>',
+                    shiftRight: '<button data-toggle="tooltip" data-original-title="Right" class="btn btn-sm"><span class="fa fa-arrow-circle-right"></span></button>',
+                    expand: '<button data-toggle="tooltip" data-original-title="Expand" class="btn btn-sm"><span class="fa fa-plus-circle"></span></button>',
+                    contract: '<button data-toggle="tooltip" data-original-title="Contract" class="btn btn-sm"><span class="fa fa-minus-circle"></span></button>',
+                    toZeroPoint: '<button data-toggle="tooltip" data-original-title="Convert to zero point" class="btn btn-sm"><span style="font-weight: 600;">Z</span></button>',
+                    zeroPointLabel: '<button data-toggle="tooltip" data-original-title="Label" class="btn btn-sm"><span class="fa fa-file-text-o"></span></button>',
+                },
+                propertyType: configuration.propertyType,
+                commentManager: configuration.commentManager,
+                css: {
+                    highlight: "text-highlight"
+                },
+                layerAdded: this.editor.layerAdded,
+                updateCurrentRanges: this.editor.updateCurrentRanges                
+            });            
+            this.editor.addMonitor(monitorBar);
         }
         Model.prototype.layerClicked = function (layer) {
             var selected = layer.selected();
@@ -1104,14 +1129,14 @@
                 if (containsArabic) {                    
                     _this.setupEditor({
                         container: _this.cloneNode(_this.container),
-                        monitor: _this.cloneNode(_this.monitor),
+                        // monitor: _this.cloneNode(_this.monitor),
                         direction: "RTL",
                         interpolateZeroWidthJoiningCharacter: true
                     });
                 } else {
                     _this.setupEditor({
                         container: _this.cloneNode(_this.container),
-                        monitor: _this.cloneNode(_this.monitor)
+                        // monitor: _this.cloneNode(_this.monitor)
                     });
                 }
                 _this.editor.bind(json);        
