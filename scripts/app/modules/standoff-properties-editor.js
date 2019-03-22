@@ -1098,10 +1098,10 @@
             this.updateCurrentRanges();
         };
         Editor.prototype.getPreviousCharacterNode = function (span) {
-            return span.previousElementSibling;
+            return span && span.previousElementSibling;
         };
         Editor.prototype.getNextCharacterNode = function (span) {
-            return span.nextElementSibling;
+            return span && span.nextElementSibling;
         };
         Editor.prototype.getPropertyTypeNameFromShortcutKey = function (key) {
             for (var propertyTypeName in this.propertyType) {
@@ -1516,6 +1516,14 @@
         Editor.prototype.populateContainer = function (text) {
             var frag = this.textToDocumentFragment(text);
             this.container.appendChild(frag);
+            if (this.onCharacterAdded) {
+                var _this = this;                
+                var start = this.container.firstChild;
+                var end = this.container.lastChild;                
+                whileNext(start, end, (span) => {
+                    _this.onCharacterAdded(span, _this);
+                });
+            }
         };
         Editor.prototype.textToDocumentFragment = function (text) {
             var len = text.length, i = 0;
