@@ -1,4 +1,4 @@
-define(["speedy/arabic-shaping-data", "speedy/arabic-nonspacing-data"], function (arabicShapingData, arabicNonspacingData) {
+define(["./arabic-shaping-data", "./arabic-nonspacing-data"], function (arabicShapingData, arabicNonspacingData) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Public functions
@@ -27,52 +27,92 @@ define(["speedy/arabic-shaping-data", "speedy/arabic-nonspacing-data"], function
     }
 
     /**
+     * Returns true if the specified character is an Arabic non-diacritic character.
+     *
+     * @param char the character to be tested.
+     * @returns {boolean}
+     */
+    function isArabicNonDiacritic(char) {
+        return isArabicChar(char) && !arabicDiacritics.has(charToCodePointStr(char));
+    }
+
+    /**
      * Returns true if the specified character is an Arabic diacritic.
      *
      * @param char the character to be tested.
      * @returns {boolean}
      */
     function isArabicDiacritic(char) {
-        if (!isArabicChar(char)) {
-            return false;
-        } else {
-            return arabicDiacritics.has(charToCodePointStr(char));
-        }
+        return isArabicChar(char) && arabicDiacritics.has(charToCodePointStr(char));
     }
 
     /**
      * Given a character group C (i.e. a letter, possibly followed by one or more
      * diacritics), as well as the previous character group and the following
      * one, returns C with any necessary ZWJ added. If charGroup does not contain an
-     * Arabic letter, it is returned unchanged.
+     * Arabic letter, it is returned unchanged. If charGroup already contains ZWJ,
+     * the existing ZWJ is removed and recalculated.
      *
      * @param charGroup the character group that may need zero-width joining characters.
      * @param previousCharGroup the previous character group, or null if this is the beginning
      *        of the text.
      * @param nextCharGroup the next character group, or null if this is this is the end of the
      *        text.
-     * @returns charGroup with any necessary zero-width joining characters added.
+     * @returns {string}
      */
     function addZwj(charGroup, previousCharGroup, nextCharGroup) {
-        const char = removeDiacritics(charGroup);
-        const previousChar = removeDiacritics(previousCharGroup);
-        const nextChar = removeDiacritics(nextCharGroup);
+        if (charGroup === undefined || charGroup === null || charGroup === "") {
+            return charGroup;
+        }
+
+        const charGroupWithoutZwj = removeZwj(charGroup);
+        const char = removeDiacritics(charGroupWithoutZwj);
+
+        const previousChar = removeDiacritics(removeZwj(previousCharGroup));
+        const nextChar = removeDiacritics(removeZwj(nextCharGroup));
 
         const zwjInstruction = getZwjInstruction(char, previousChar, nextChar);
 
         switch (zwjInstruction) {
             case ZwjInstructions.ZwjBefore:
-                return ZWJ + charGroup;
+                return ZWJ + charGroupWithoutZwj;
 
             case ZwjInstructions.ZwjAfter:
-                return charGroup + ZWJ;
+                return charGroupWithoutZwj + ZWJ;
 
             case ZwjInstructions.ZwjBoth:
-                return ZWJ + charGroup + ZWJ;
+                return ZWJ + charGroupWithoutZwj + ZWJ;
 
             default:
-                return charGroup;
+                return charGroupWithoutZwj;
         }
+    }
+
+    /**
+     * Removes all ZWJ from a string.
+     *
+     * @param str a string that may contain ZWJ.
+     * @returns {string}
+     */
+    function removeZwj(str) {
+        if (str === undefined || str === null || str === "") {
+            return str;
+        }
+
+        let result = "";
+        let pos = 0;
+
+        while (pos < str.length) {
+            const char = String.fromCodePoint(str.codePointAt(pos));
+
+            if (char !== ZWJ) {
+                result += char;
+            }
+
+            pos += char.length;
+        }
+
+        return result;
     }
 
     /**
@@ -144,7 +184,7 @@ define(["speedy/arabic-shaping-data", "speedy/arabic-nonspacing-data"], function
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Private functions
 
-    const ZWJ = "&zwj;";
+    const ZWJ = "\u200D";
 
     function removeDiacritics(str) {
         if (str === undefined || str === null || str === "") {
@@ -246,8 +286,10 @@ define(["speedy/arabic-shaping-data", "speedy/arabic-nonspacing-data"], function
 
     return {
         isArabicChar: isArabicChar,
+        isArabicNonDiacritic: isArabicNonDiacritic,
         isArabicDiacritic: isArabicDiacritic,
         addZwj: addZwj,
+        removeZwj: removeZwj,
         getNextCharGroup: getNextCharGroup,
         makeCharGroupsWithZwj: makeCharGroupsWithZwj
     };

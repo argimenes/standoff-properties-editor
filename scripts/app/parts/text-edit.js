@@ -1125,20 +1125,24 @@
                     blacklist = blacklist.split(",").map(x => x.trim());
                     json.properties = json.properties.filter(x => blacklist.indexOf(x.type) == -1);
                 }
-                var containsArabic = (file.indexOf("arabic") >= 0); // A crude temporary check. We will check for a meta-data property later.
-                if (containsArabic) {                    
-                    _this.setupEditor({
-                        container: _this.cloneNode(_this.container),
-                        // monitor: _this.cloneNode(_this.monitor),
-                        direction: "RTL",
-                        interpolateZeroWidthJoiningCharacter: true
-                    });
-                } else {
-                    _this.setupEditor({
-                        container: _this.cloneNode(_this.container),
-                        // monitor: _this.cloneNode(_this.monitor)
-                    });
-                }
+                // var containsArabic = (file.indexOf("arabic") >= 0); // A crude temporary check. We will check for a meta-data property later.
+                // if (containsArabic) {                    
+                //     _this.setupEditor({
+                //         container: _this.cloneNode(_this.container),
+                //         // monitor: _this.cloneNode(_this.monitor),
+                //         direction: "RTL",
+                //         interpolateZeroWidthJoiningCharacter: true
+                //     });
+                // } else {
+                //     _this.setupEditor({
+                //         container: _this.cloneNode(_this.container),
+                //         // monitor: _this.cloneNode(_this.monitor)
+                //     });
+                // }
+                _this.setupEditor({
+                    container: _this.cloneNode(_this.container),
+                    // monitor: _this.cloneNode(_this.monitor)
+                });
                 _this.editor.bind(json);        
                 _this.viewer(null);
             });
