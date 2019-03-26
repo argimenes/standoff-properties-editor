@@ -65,6 +65,7 @@
                 }
                 var range = this.newSpan();
                 range.style.marginRight = "10px";
+                range.style.display = "inline";
                 var labelRenderer = propertyType.labelRenderer;
                 var label = labelRenderer ? labelRenderer(prop) : prop.type;
                 var type = this.newSpan(label);
@@ -231,21 +232,22 @@
                     });
                 }
                 range.appendChild(type);
+                var options = document.createElement("SPAN");
                 if (link) {
-                    range.appendChild(link);
+                    options.appendChild(link);
                 }
-                range.appendChild(layer);
-                range.appendChild(comment);
-                range.appendChild(shiftLeft);
-                range.appendChild(shiftRight);
-                range.appendChild(expand);
-                range.appendChild(contract);
-                range.appendChild(del);
+                options.appendChild(layer);
+                options.appendChild(comment);
+                options.appendChild(shiftLeft);
+                options.appendChild(shiftRight);
+                options.appendChild(expand);
+                options.appendChild(contract);
+                options.appendChild(del);
                 if (prop.isZeroPoint) {
-                    range.appendChild(zeroPointLabel);
+                    options.appendChild(zeroPointLabel);
                 }
                 if (showConvertToZeroPoint) {
-                    range.appendChild(toZeroPoint);
+                    options.appendChild(toZeroPoint);
                 }
                 if (hasProperties(propertyType.attributes)) {
                     var attrs = [];
@@ -271,9 +273,40 @@
                         attrs.push(attr);
                     }
                     attrs.forEach(function (attr) {
-                        range.appendChild(attr);
+                        options.appendChild(attr);
                     });
                 }
+                var openArrow = document.createElement("SPAN");
+                openArrow.speedy = {
+                    options: options
+                };
+                openArrow.style.marginLeft = "5px";
+                openArrow.innerHTML = "<span style='font-size: 1.5em;' data-toggle='tooltip' data-original-title='Open' class='fa fa-chevron-circle-right'></span>";                
+                openArrow.addEventListener("click", function (e) {
+                    var button = e.target.parentElement;
+                    button.style.display = "none";
+                    button.speedy.closeArrow.style.display = "inline";
+                    button.speedy.options.style.display = "inline";
+                });
+                var closeArrow = document.createElement("SPAN");
+                closeArrow.speedy = {
+                    options: options
+                };
+                closeArrow.style.marginLeft = "5px";
+                closeArrow.innerHTML = "<span style='font-size: 1.5em;' data-toggle='tooltip' data-original-title='Close' class='fa fa-chevron-circle-left'></span>";
+                closeArrow.style.display = "none";
+                closeArrow.addEventListener("click", function (e) {
+                    var button = e.target.parentElement;
+                    button.speedy.openArrow.style.display = "inline";
+                    button.style.display = "none";
+                    button.speedy.options.style.display = "none";
+                });
+                openArrow.speedy.closeArrow = closeArrow;
+                closeArrow.speedy.openArrow = openArrow;
+                options.style.display = "none";
+                range.appendChild(closeArrow);
+                range.appendChild(openArrow);
+                range.appendChild(options);                
                 this.monitor.appendChild(range);
                 //if (this.onMonitorUpdated) {
                 //    this.onMonitorUpdated(select(props, function (p) { return { type: p.type, format: _.propertyType[p.type].format }; }));
