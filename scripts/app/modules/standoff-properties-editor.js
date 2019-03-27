@@ -6,6 +6,7 @@
     var each = utils.each;
     var find = utils.find;
     var select = utils.select;
+    var maxWhile = 10000;
 
     Array.prototype.where = function (func) {
         return where(this, func);
@@ -21,7 +22,8 @@
     const ELEMENT_ROLE = {
         CHAR: 0,
         BLOCK: 1,
-        ROOT: 2
+        ROOT: 2,
+        OVERLAY: 3
     };
 
     const BACKSPACE = 8,
@@ -56,11 +58,20 @@
 
     function getParent(startNode, func) {
         var s = startNode, loop = true;
+        var c = 0;
         while (loop) {
             if (func(s)) {
                 return s;
             }
-            s = s.parentElement;
+            if (s) {
+                s = s.parentElement;
+            } else {
+                loop = false;
+            }
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", { method: "editor.getParent", s });
+                return s;
+            }
         }
         return null;
     }
@@ -74,7 +85,11 @@
     }
 
     function whileNext(startNode, endNode, func) {
+        var c = 0;
         var loop = true;
+        if (!startNode || !endNode) {
+            return;
+        }
         startNode = (startNode.speedy ? startNode : getParent(startNode, n => n.speedy));
         endNode = (endNode.speedy ? endNode : getParent(endNode, n => n.speedy));
         var node = startNode;
@@ -88,7 +103,6 @@
                 continue;
             }
             if (isOutOfTextStream(node)) {
-                node.speedy.index = i;
                 node = node.nextElementSibling
                 continue;
             }
@@ -109,10 +123,17 @@
                 }
             }
             node = node.nextElementSibling;
+            if (c++ > maxWhile) {
+                console.log("Exceeded maximum iterations", {
+                    method: "whileNext", startNode, endNode, node
+                });
+                return node;
+            }
         };
     }
 
     function isAfter(start, node) {
+        var c = 0;
         var found = false;
         var loop = true;
         var temp = node;
@@ -131,11 +152,18 @@
                 }
             }
             temp = temp.previousElementSibling;
+            if (c++ > maxWhile) {
+                console.log("Exceeded maximum iterations", {
+                    method: "isAfter", start, node
+                });
+                return found;
+            }
         }
         return found;
     }
 
     function isBefore(start, node) {
+        var c = 0;
         var found = false;
         var loop = true;
         var cursor = node;
@@ -154,6 +182,12 @@
                 }
             }
             cursor = cursor.nextElementSibling;
+            if (c++ > maxWhile) {
+                console.log("Exceeded maximum iterations", {
+                    method: "isBefore", start, node
+                });
+                return found;
+            }
         }
         return found;
     }
@@ -199,6 +233,7 @@
 
     function markNodesWithIndexes(node) {
         var i = 0;
+        var c = 0;
         var text = "";
         var loop = true;
         node = (node.speedy ? node : getParent(node, n => n.speedy));
@@ -230,17 +265,104 @@
                 }
             }
             node = node.nextElementSibling;
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", {
+                    method: "markNodesWithIndexes", i, node
+                });
+                return node;
+            }
         };
         return text;
     }
 
+    function previousUntil(start, func) {
+        var loop = true;
+        var node = start;
+        var c = 0;
+        while (loop) {
+            var previous = node.previousElementSibling;
+            if (!previous) {
+                if (node.speedy.role == ELEMENT_ROLE.BLOCK) {
+                    node = node.lastChild;
+                }
+                else {
+                    var parent = node.parentElement;
+                    if (parent.speedy.role == ELEMENT_ROLE.BLOCK) {
+                        node = parent.previousElementSibling;
+                        continue;
+                    }
+                }
+            } else {
+                node = previous;
+            }
+            if (func(node)) {
+                loop = false;
+                continue;
+            }
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", {
+                    method: "previousUntil", start, node
+                });
+                return node;
+            }
+        }
+        return node;
+    }
+
+    function nextUntil(start, func) {
+        var loop = true;
+        var node = start;
+        var c = 0;
+        while (loop) {
+            var next = node.nextElementSibling;
+            if (!next) {
+                var parent = node.parentElement;
+                if (parent.speedy.role == ELEMENT_ROLE.BLOCK) {
+                    node = parent.nextElementSibling;
+                    continue;
+                }
+            } else {
+                node = next;
+            }
+            if (func(node)) {
+                loop = false;
+                continue;
+            }
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", {
+                    method: "nextUntil", start, node
+                });
+                return node;
+            }
+        }
+        return node;
+    }
+
+    function firstPreviousChar(start) {
+        var char = previousUntil(start, node => {
+            return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN;
+        });
+        return char;
+    }
+
+    function firstNextChar(start) {
+        var char = nextUntil(start, node => {
+            return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN;
+        });
+        return char;
+    }
+
     function nodeIndex(node) {
         var i = -1;
+        var c = 0;
+        if (!node) {
+            return i;
+        }
         node = (node.speedy ? node : getParent(node, n => n && n.speedy));
         while (node) {
             if (isInTextStream(node)) {
                 i++;
-            }
+            }            
             if (isChar(node)) {
                 var previous = node.previousElementSibling;
                 if (previous == null) {
@@ -253,7 +375,15 @@
             if (isBlock(node)) {
                 node = node.lastChild;
             }
-
+            if (node && node.speedy.role == ELEMENT_ROLE.OVERLAY) {
+                node = node.parentElement;
+            }
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", {
+                    method: "nodeIndex", i, node
+                });
+                return node;
+            }
         };
         return i;
     }
@@ -261,6 +391,7 @@
     function indexNode(start, index) {
         var i = 0;
         var node = start;
+        var c = 0;
         while (i != index) {
             if (isInTextStream(node)) {
                 i++;
@@ -276,6 +407,12 @@
             }
             if (isBlock(node)) {
                 node = node.firstChild;
+            }
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", {
+                    method: "indexNode", i, node
+                });
+                return node;
             }
         };
         return node;
@@ -337,6 +474,7 @@
     var propCounter = 0;
     var Property = (function () {
         function Property(cons) {
+            cons = cons || {};
             this.editor = cons.editor;
             this.guid = cons.guid;
             this.index = cons.index;
@@ -347,10 +485,39 @@
             this.text = cons.text;
             this.startNode = cons.startNode;
             this.endNode = cons.endNode;
+            this.bracket = {
+                left: null,
+                right: null
+            };
             this.attributes = cons.attributes || {};
             this.isZeroPoint = cons.isZeroPoint || false;
             this.isDeleted = cons.isDeleted;
         }
+        Property.prototype.addLeftBracket = function (node) {
+            this.bracket.left = node;
+        };
+        Property.prototype.addRightBracket = function (node) {
+            this.bracket.right = node;
+        };
+        Property.prototype.showBrackets = function () {
+            if (this.bracket.left) {
+                this.bracket.left.style.display = "inline";
+            }
+            if (this.bracket.right) {
+                this.bracket.right.style.display = "inline";
+            }
+        };
+        Property.prototype.hideBrackets = function () {
+            if (this.bracket.left) {
+                this.bracket.left.style.display = "none";
+            }
+            if (this.bracket.right) {
+                this.bracket.right.style.display = "none";
+            }
+        };
+        Property.prototype.bracketsVisible = function () {
+            return false;
+        };
         Property.prototype.overRange = function (func) {
             whileNext(this.startNode, this.endNode, func);
         };
@@ -433,32 +600,90 @@
             remove(from.endProperties, this);
             to.endProperties.push(this);
         };
+        Property.prototype.shiftNodeLeft = function (node) {
+            /*
+            Needs sibling boundary checks (out of stream, etc.).
+            */
+            if (!node) {
+                return;
+            }
+            var previous = node.previousElementSibling;
+            if (!previous) {
+                return;
+            }
+            node.parentElement.insertBefore(node, previous);
+        };
+        Property.prototype.shiftNodeRight = function (node) {
+            /*
+            Needs sibling boundary checks (out of stream, etc.).
+            */
+            if (!node) {
+                return;
+            }
+            var nextOneOver = node.nextElementSibling.nextElementSibling;
+            if (!nextOneOver) {
+                return;
+            }
+            node.parentElement.insertBefore(node, nextOneOver);
+        };
+        Property.prototype.shiftBracketsLeft = function () {
+            this.shiftNodeLeft(this.bracket.left);
+            this.shiftNodeLeft(this.bracket.right);
+        };
+        Property.prototype.shiftBracketsRight = function () {
+            this.shiftNodeRight(this.bracket.left);
+            this.shiftNodeRight(this.bracket.right);
+        };
+        Property.prototype.getPreviousCharNode = function (node) {
+            /**
+             * To do: rewrite to handle out of stream, etc.
+             */
+            return firstPreviousChar(node);
+            // return node.previousElementSibling;
+        };
+        Property.prototype.getNextCharNode = function (node) {
+            /**
+             * To do: rewrite to handle out of stream, etc.
+             */
+            return firstNextChar(node);
+            // return node.nextElementSibling;
+        };
         Property.prototype.shiftLeft = function () {
             this.unsetSpanRange();
-            this.shiftStartProperties(this.startNode, this.startNode.previousElementSibling);
-            this.shiftEndProperties(this.endNode, this.endNode.previousElementSibling);
-            this.startNode = this.startNode.previousElementSibling;
-            this.endNode = this.endNode.previousElementSibling;
+            var previousStartNode = this.getPreviousCharNode(this.startNode);
+            var previousEndNode = this.getPreviousCharNode(this.endNode);
+            this.shiftStartProperties(this.startNode, previousStartNode);
+            this.shiftEndProperties(this.endNode, previousEndNode);
+            this.startNode = previousStartNode;
+            this.endNode = previousEndNode;
+            this.shiftBracketsLeft();
             this.setSpanRange();
         };
         Property.prototype.shiftRight = function () {
             this.unsetSpanRange();
-            this.shiftStartProperties(this.startNode, this.startNode.nextElementSibling);
-            this.shiftEndProperties(this.endNode, this.endNode.nextElementSibling);
-            this.startNode = this.startNode.nextElementSibling;
-            this.endNode = this.endNode.nextElementSibling;
+            var nextStartNode = this.getNextCharNode(this.startNode);
+            var nextEndNode = this.getNextCharNode(this.endNode);
+            this.shiftStartProperties(this.startNode, nextStartNode);
+            this.shiftEndProperties(this.endNode, nextEndNode);
+            this.startNode = nextStartNode;
+            this.endNode = nextEndNode;
+            this.shiftBracketsRight();
             this.setSpanRange();
         };
         Property.prototype.expand = function () {
             this.unsetSpanRange();
-            this.shiftEndProperties(this.endNode, this.endNode.nextElementSibling);
-            this.endNode = this.endNode.nextElementSibling;
+            var nextEndNode = this.getNextCharNode(this.endNode);
+            this.shiftEndProperties(this.endNode, nextEndNode);
+            this.endNode = nextEndNode;
+            this.shiftNodeRight(this.bracket.right);
             this.setSpanRange();
         };
         Property.prototype.contract = function () {
             this.unsetSpanRange();
-            this.shiftEndProperties(this.endNode, this.endNode.previousElementSibling);
-            this.endNode = this.endNode.previousElementSibling;
+            var previousEndNode = this.getPreviousCharNode(this.endNode);
+            this.shiftEndProperties(this.endNode, previousEndNode);
+            this.endNode = previousEndNode;
+            this.shiftNodeLeft(this.bracket.right);
             this.setSpanRange();
         };
         Property.prototype.getPropertyType = function () {
@@ -514,11 +739,18 @@
             }
             var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
+                if (s.speedy.role != ELEMENT_ROLE.CHAR || s.speedy.stream != TEXT_STREAM.IN) {
+                    return;
+                }
                 var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPoint.className : propertyType.className);
                 if (format == "decorate" || _this.isZeroPoint) {
                     s.classList.add(className);
                 } else if (format == "overlay" && !_this.isZeroPoint) {
-                    var inner = document.createElement("DIV");
+                    var inner = document.createElement("SPAN");
+                    inner.speedy = {
+                        role: ELEMENT_ROLE.OVERLAY,
+                        stream: TEXT_STREAM.OUT
+                    };
                     inner.setAttribute("data-layer", this.layer);
                     inner.classList.add("overlaid");
                     inner.classList.add(className);
@@ -549,6 +781,7 @@
             if (this.isZeroPoint) {
                 this.startNode.remove();
             }
+            this.hideBrackets();
             if (!this.guid) {
                 remove(this.editor.data.properties, this);
             }
@@ -612,7 +845,7 @@
 
     var Editor = (function () {
         function Editor(cons) {
-            this.container = (cons.container instanceof HTMLElement) ? cons.container : document.getElementById(cons.container);            
+            this.container = (cons.container instanceof HTMLElement) ? cons.container : document.getElementById(cons.container);
             if (cons.direction == "RTL") {
                 this.container.style.direction = "RTL";
             }
@@ -728,15 +961,16 @@
             this.monitors.push(monitor);
         };
         Editor.prototype.updateCurrentRanges = function (span) {
+            var _this = this;
             window.setTimeout(function () {
                 if (!span) {
-                    span = this.getCurrent();
+                    span = _this.getCurrent();
                 }
-                this.setMonitor([]);
+                _this.setMonitor([]);
                 var props = where(this.data.properties, function (prop) {
                     return !prop.isDeleted && prop.startNode && prop.endNode && isWithin(prop.startNode, prop.endNode, span);
                 });
-                this.setMonitor(props || []);
+                _this.setMonitor(props || []);
             }.bind(this), 1);
         };
         Editor.prototype.deleteAnnotation = function (type) {
@@ -750,7 +984,10 @@
             enclosing[0].remove();
         };
         Editor.prototype.setMonitor = function (props) {
-            this.monitors.forEach(x => x.setProperties(props));
+            var _this = this;
+            window.setTimeout(function () {
+                _this.monitors.forEach(x => x.setProperties(props));
+            }, 1);
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
             this.updateCurrentRanges();
@@ -943,12 +1180,19 @@
             return current;
         };
         Editor.prototype.deleteRange = function (range) {
+            var c = 0;
             var node = range.end;
             if (node != range.start) {
                 while (node != range.start) {
                     var prev = node.previousElementSibling;
                     this.handleBackspace(node);
                     node = prev;
+                    if (c++ > maxWhile) {
+                        console.log("Exceeded max iterations", {
+                            method: "deleteRange", node, range
+                        });
+                        return;
+                    }
                 }
             }
             this.handleBackspace(range.start, true);
@@ -965,6 +1209,9 @@
                 endIndex: nodeIndex(range.end)
             };
         };
+        Editor.prototype.canDelete = function (node) {
+            return true;
+        };
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
             var canEdit = !!!this.lockText;
@@ -974,31 +1221,37 @@
             var key = evt.which || evt.keyCode;
             var range = this.getSelectionNodes();
             var hasSelection = !!range;
-            if (key == BACKSPACE) {
-                if (canEdit) {
-                    if (hasSelection) {
-                        this.deleteRange(range);
+            if (key == BACKSPACE || key == DELETE) {
+                if (key == BACKSPACE) {
+                    if (canEdit) {
+                        if (hasSelection) {
+                            this.deleteRange(range);
+                        }
+                        else {
+                            this.handleBackspace(current, true);
+                        }
+                        this.updateCurrentRanges();
                     }
-                    else {
-                        this.handleBackspace(current, true);
+                    evt.preventDefault();
+                    return;
+                } else if (key == DELETE) {
+                    if (canEdit) {
+                        if (hasSelection) {
+                            this.deleteRange(range);
+                        }
+                        else {
+                            this.handleDelete(current);
+                        }
+                        this.updateCurrentRanges();
                     }
-                    this.updateCurrentRanges();
+                    evt.preventDefault();
+                    return;
                 }
-                evt.preventDefault();
-                return;
-            } else if (key == DELETE) {
-                if (canEdit) {
-                    if (hasSelection) {
-                        this.deleteRange(range);
-                    }
-                    else {
-                        this.handleDelete(current);
-                    }
-                    this.updateCurrentRanges();
+                else {
+                    // not handled
                 }
-                evt.preventDefault();
-                return;
-            } else if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
+            }
+            if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
                 this.updateCurrentRanges();
                 return true;
             } else if (key == HOME || key == END) {
@@ -1096,9 +1349,12 @@
             return null;
         };
         Editor.prototype.handleSpecialChars = function (span, charCode) {
-            //if (charCode == SPACE) {
-            //    //span.textContent = String.fromCharCode(160);
-            //}
+            if (charCode == SPACE) {
+                // span.textContent = String.fromCharCode(160);
+                //span.style.width = "10px";
+                //span.style.top = "5px";
+                //span.style.display = "inline-block";
+            }
             if (charCode == ENTER) {
                 //span.speedy.role = ELEMENT_ROLE.CHAR;
                 span.textContent = String.fromCharCode(13);
@@ -1121,8 +1377,15 @@
             selection.addRange(range);
         };
         Editor.prototype.getParentSpan = function (node) {
+            var c = 0;
             while (false == (node instanceof HTMLSpanElement)) {
                 node = this.getParentSpan(node.parentElement);
+                if (c++ > maxWhile) {
+                    console.log("Exceeded max iterations", {
+                        method: "getParentSpan", node
+                    });
+                    return;
+                }
             }
             return node;
         };
@@ -1131,18 +1394,21 @@
             if (range.collapsed) {
                 return null;
             }
-            var sn = getParent(range.startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
-            var en = getParent(range.endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);;
-            //if (en instanceof HTMLSpanElement) {
-            //    if (range.endOffset == 0) {
-            //        en = en.previousElementSibling;
-            //    }
-            //}
-            //var startSpan = this.getParentSpan(sn);
-            //var endSpan = this.getParentSpan(en);
+            console.log({ range });
+            var startContainer = range.startContainer;
+            var endContainer = range.endContainer;
+            if (range.startOffset == 1) {
+                startContainer = range.startContainer.parentElement.nextElementSibling;
+            }
+            if (range.endOffset == 0) {
+                endContainer = range.endContainer.previousElementSibling;
+            }
+            var startNode = getParent(startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+            var endNode = getParent(endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+            console.log({ startContainer, endContainer, startNode, endNode });
             return {
-                start: sn,
-                end: en
+                start: startNode,
+                end: endNode
             };
         };
         Editor.prototype.createSelection = function (sn, en) {
@@ -1171,6 +1437,7 @@
             //return node;
         };
         Editor.prototype.addProperty = function (p) {
+            var propertyType = this.propertyType[p.type];
             var nodes = this.container.children;
             var sn = this.spanAtIndex(p.startIndex);
             var en = this.spanAtIndex(p.endIndex);
@@ -1188,6 +1455,18 @@
             prop.text = p.text;
             sn.startProperties.push(prop);
             en.endProperties.push(prop);
+            if (propertyType) {
+                if (propertyType.bracket) {
+                    if (propertyType.bracket.left) {
+                        var left = this.createBracketNode(propertyType.bracket.left, sn.parentElement, sn);
+                        prop.addLeftBracket(left);
+                    }
+                    if (propertyType.bracket.right) {
+                        var right = this.createBracketNode(propertyType.bracket.right, en.parentElement, en.nextElementSibling);
+                        prop.addRightBracket(right);
+                    }
+                }
+            }
             prop.setSpanRange();
             this.data.properties.push(prop);
             if (this.onPropertyCreated) {
@@ -1287,6 +1566,16 @@
                 startNode: range.start,
                 endNode: range.end
             });
+            if (type.bracket) {
+                if (type.bracket.left) {
+                    var left = this.createBracketNode(type.bracket.left, range.start.parentElement, range.start);
+                    prop.addLeftBracket(left);
+                }
+                if (type.bracket.right) {
+                    var right = this.createBracketNode(type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
+                    prop.addRightBracket(right);
+                }
+            }
             prop.text = getRangeText(range);
             if (value) {
                 prop.value = value;
@@ -1330,7 +1619,11 @@
             if (propertyType.format == "decorate") {
                 s.classList.add(propertyType.className);
             } else if (propertyType.format == "overlay") {
-                var inner = document.createElement("DIV");
+                var inner = document.createElement("SPAN");
+                inner.speedy = {
+                    role: ELEMENT_ROLE.OVERLAY,
+                    stream: TEXT_STREAM.OUT
+                };
                 inner.setAttribute("data-layer", this.layer);
                 inner.classList.add("overlaid");
                 inner.classList.add(propertyType.className);
@@ -1394,12 +1687,14 @@
                     continue;
                 }
                 var isMetadata = (p.startIndex == null && p.endIndex == null);
-                var startNode = (isMetadata ? null : this.container.children[p.startIndex]);
+                var startNode = (isMetadata ? null : this.indexNode(p.startIndex));
+                // var startNode = (isMetadata ? null : this.container.children[p.startIndex]);
                 if (!isMetadata && startNode == null) {
                     console.warn("Start node not found.", p);
                     continue;
                 }
-                var endNode = (isMetadata ? null : this.container.children[p.endIndex]);
+                var endNode = (isMetadata ? null : this.indexNode(p.endIndex));
+                // var endNode = (isMetadata ? null : this.container.children[p.endIndex]);
                 if (!isMetadata && endNode == null) {
                     console.warn("End node not found.", p);
                     continue;
@@ -1426,6 +1721,18 @@
                 if (endNode) {
                     endNode.endProperties.push(prop);
                 }
+                if (type) {
+                    if (type.bracket) {
+                        if (type.bracket.left) {
+                            var left = this.createBracketNode(type.bracket.left, startNode.parentElement, startNode);
+                            prop.addLeftBracket(left);
+                        }
+                        if (type.bracket.right) {
+                            var right = this.createBracketNode(type.bracket.right, endNode.parentElement, endNode.nextElementSibling);
+                            prop.addRightBracket(right);
+                        }
+                    }
+                }
                 prop.setSpanRange();
                 this.data.properties.push(prop);
                 propCounter = this.data.properties.length;
@@ -1433,13 +1740,26 @@
             this.handleZeroLengthAnnotations(model);
             this.handleBlocks(properties);
         };
+        Editor.prototype.createBracketNode = function (bracket, parent, next) {
+            var bracketNode = this.newSpan(bracket.content);
+            bracketNode.speedy.stream = TEXT_STREAM.OUT;
+            if (bracket.className) {
+                bracketNode.classList.add(bracket.className);
+            }
+            parent.insertBefore(bracketNode, next);
+            return bracketNode;
+        };
         Editor.prototype.handleBlocks = function (properties) {
             var _this = this;
             var blocks = properties.filter(item => !item.isDeleted && _this.propertyType[item.type] && _this.propertyType[item.type].format == "block")
                 .sort((a, b) => a.startIndex > b.startIndex ? -1 : a.startIndex < b.startIndex ? 1 : 0);
             if (blocks.length) {
-                blocks.forEach(p => _this.createBlock(_this.container.children[p.startIndex], _this.container.children[p.endIndex], p.type));
+                // blocks.forEach(p => _this.createBlock(_this.container.children[p.startIndex], _this.container.children[p.endIndex], p.type));
+                blocks.forEach(p => _this.createBlock(_this.indexNode(p.startIndex), _this.indexNode(p.endIndex), p.type));
             }
+        };
+        Editor.prototype.indexNode = function (index) {
+            return indexNode(this.container.firstChild, index);
         };
         Editor.prototype.handleZeroLengthAnnotations = function (model) {
             var len = model.text.length;
@@ -1466,7 +1786,8 @@
                     console.warn("EndIndex out of bounds.", p);
                     continue;
                 }
-                var node = this.container.children[p.startIndex - 1];
+                var node = this.indexNode(p.startIndex - 1);
+                // var node = this.container.children[p.startIndex - 1];
                 if (!node) {
                     console.warn("ZPA node not found.", p);
                     continue;
@@ -1500,9 +1821,9 @@
             var frag = this.textToDocumentFragment(text);
             this.container.appendChild(frag);
             if (this.onCharacterAdded) {
-                var _this = this;                
+                var _this = this;
                 var start = this.container.firstChild;
-                var end = this.container.lastChild;                
+                var end = this.container.lastChild;
                 whileNext(start, end, (span) => {
                     _this.onCharacterAdded(span, _this);
                 });

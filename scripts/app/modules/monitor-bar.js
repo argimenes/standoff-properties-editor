@@ -2,6 +2,8 @@
     define("speedy/monitor-bar", [], factory);
 }(function () {
 
+    var maxWhile = 10000;
+
     function hasProperties(obj) {
         if (!obj) {
             return false;
@@ -11,11 +13,20 @@
 
     function getParent(startNode, func) {
         var s = startNode, loop = true;
+        var c = 0;
         while (loop) {
             if (func(s)) {
                 return s;
             }
-            s = s.parentElement;
+            if (s) {
+                s = s.parentElement;
+            } else {
+                loop = false;
+            }
+            if (c++ > maxWhile) {
+                console.log("Exceeded max iterations", { method: "monitor-bar/getParent", s });
+                return s;
+            }
         }
         return null;
     }
@@ -280,8 +291,8 @@
                 openArrow.speedy = {
                     options: options
                 };
-                openArrow.style.marginLeft = "5px";
-                openArrow.innerHTML = "<span style='font-size: 1.5em;' data-toggle='tooltip' data-original-title='Open' class='fa fa-chevron-circle-right'></span>";                
+                openArrow.classList.add("monitor-arrow");
+                openArrow.innerHTML = "<span data-toggle='tooltip' data-original-title='Open' class='fa fa-chevron-circle-right monitor-arrow-icon'></span>";
                 openArrow.addEventListener("click", function (e) {
                     var button = e.target.parentElement;
                     button.style.display = "none";
@@ -292,8 +303,8 @@
                 closeArrow.speedy = {
                     options: options
                 };
-                closeArrow.style.marginLeft = "5px";
-                closeArrow.innerHTML = "<span style='font-size: 1.5em;' data-toggle='tooltip' data-original-title='Close' class='fa fa-chevron-circle-left'></span>";
+                closeArrow.classList.add("monitor-arrow");
+                closeArrow.innerHTML = "<span data-toggle='tooltip' data-original-title='Close' class='fa fa-chevron-circle-left monitor-arrow-icon'></span>";
                 closeArrow.style.display = "none";
                 closeArrow.addEventListener("click", function (e) {
                     var button = e.target.parentElement;
@@ -306,7 +317,7 @@
                 options.style.display = "none";
                 range.appendChild(closeArrow);
                 range.appendChild(openArrow);
-                range.appendChild(options);                
+                range.appendChild(options);
                 this.monitor.appendChild(range);
                 //if (this.onMonitorUpdated) {
                 //    this.onMonitorUpdated(select(props, function (p) { return { type: p.type, format: _.propertyType[p.type].format }; }));
