@@ -6,7 +6,7 @@
     var each = utils.each;
     var find = utils.find;
     var select = utils.select;
-    var maxWhile = 10000;
+    var maxWhile = 10000000;
 
     Array.prototype.where = function (func) {
         return where(this, func);
@@ -27,10 +27,14 @@
     };
 
     const BACKSPACE = 8,
-        DELETE = 46, HOME = 36, END = 35,
+        CAPSLOCK = 20, PAGE_UP = 33, PAGE_DOWN = 34,
+        DELETE = 46, HOME = 36, END = 35, INSERT = 45, PRINT_SCREEN = 44, PAUSE = 19, SELECT_KEY = 93, NUM_LOCK = 144,
         LEFT_ARROW = 37, RIGHT_ARROW = 39, UP_ARROW = 38, DOWN_ARROW = 40, SPACE = 32,
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, LINE_FEED = 10, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
         RIGHT_WINDOW_KEY = 92, F1 = 112;
+
+    const PASSTHROUGH_CHARS = [CAPSLOCK, PAGE_UP, PAGE_DOWN, HOME, END, PRINT_SCREEN, PAUSE, SELECT_KEY, NUM_LOCK, SCROLL_LOCK, LEFT_WINDOW_KEY, RIGHT_WINDOW_KEY,
+        LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW];
 
     function hasProperties(obj) {
         if (!obj) {
@@ -362,7 +366,7 @@
         while (node) {
             if (isInTextStream(node)) {
                 i++;
-            }            
+            }
             if (isChar(node)) {
                 var previous = node.previousElementSibling;
                 if (previous == null) {
@@ -408,7 +412,7 @@
             if (isBlock(node)) {
                 node = node.firstChild;
             }
-            if (c++ > maxWhile) {
+            if (maxWhile && c++ > maxWhile) {
                 console.log("Exceeded max iterations", {
                     method: "indexNode", i, node
                 });
@@ -739,8 +743,10 @@
             }
             var format = propertyType.format;
             whileNext(this.startNode, this.endNode, function (s) {
-                if (s.speedy.role != ELEMENT_ROLE.CHAR || s.speedy.stream != TEXT_STREAM.IN) {
-                    return;
+                if (!_this.isZeroPoint) {
+                    if (s.speedy.role != ELEMENT_ROLE.CHAR || s.speedy.stream != TEXT_STREAM.IN) {
+                        return;
+                    }
                 }
                 var className = _this.className || (_this.isZeroPoint ? propertyType.zeroPoint.className : propertyType.className);
                 if (format == "decorate" || _this.isZeroPoint) {
@@ -865,6 +871,7 @@
             this.lockText = cons.lockText || false;
             this.lockProperties = cons.lockProperties || false;
             this.css = cons.css || {};
+            this.marked = false;
             this.data = {
                 text: null,
                 properties: []
@@ -967,8 +974,24 @@
                     span = _this.getCurrent();
                 }
                 _this.setMonitor([]);
+                if (!_this.marked) {
+                    markNodesWithIndexes(_this.container.firstChild);
+                    _this.marked = true;
+                }
                 var props = where(this.data.properties, function (prop) {
-                    return !prop.isDeleted && prop.startNode && prop.endNode && isWithin(prop.startNode, prop.endNode, span);
+                    if (prop.isDeleted || !prop.startNode || !prop.endNode || !span.speedy) {
+                        return false;
+                    }
+                    var si = prop.startIndex(), ei = prop.endIndex(), i = span.speedy.index;
+                    return si <= i && i <= ei;
+                }).sort((a, b) => {
+                    var asi = a.startIndex(), bsi = b.startIndex();
+                    if (asi > bsi) return 1;
+                    if (asi < bsi) return -1;
+                    var aei = a.endIndex(), bei = b.endIndex();
+                    if (aei > bei) return 1;
+                    if (aei < bei) return -1;
+                    return 0;
                 });
                 _this.setMonitor(props || []);
             }.bind(this), 1);
@@ -1019,6 +1042,7 @@
                     _this.onCharacterAdded(span, _this);
                 });
             }
+            this.marked = false;
             this.setCarotByNode(e.target);
             this.updateCurrentRanges();
         };
@@ -1038,6 +1062,7 @@
                 this.paint(span);
                 this.setCarotByNode(atFirst ? current : span);
             }
+            this.marked = false;
             this.updateCurrentRanges();
         };
         Editor.prototype.erase = function () {
@@ -1078,6 +1103,7 @@
                     _this.paint(span);
                 });
             });
+            this.marked = false;
         };
         Editor.prototype.getPropertiesTraversingRange = function (startNode, endNode) {
             var traversing = [];
@@ -1230,6 +1256,7 @@
                         else {
                             this.handleBackspace(current, true);
                         }
+                        this.marked = false;
                         this.updateCurrentRanges();
                     }
                     evt.preventDefault();
@@ -1242,6 +1269,7 @@
                         else {
                             this.handleDelete(current);
                         }
+                        this.marked = false;
                         this.updateCurrentRanges();
                     }
                     evt.preventDefault();
@@ -1251,10 +1279,7 @@
                     // not handled
                 }
             }
-            if (key >= LEFT_ARROW && key <= DOWN_ARROW) {
-                this.updateCurrentRanges();
-                return true;
-            } else if (key == HOME || key == END) {
+            if (PASSTHROUGH_CHARS.indexOf(key) >= 0) {
                 this.updateCurrentRanges();
                 return true;
             }
@@ -1285,11 +1310,12 @@
             //}
 
             if (hasSelection) {
+                this.marked = false;
                 if (range.start == range.end) {
                     range.start.textContent = evt.key;
                     evt.preventDefault();
                     this.paint(range.start);
-                    this.updateCurrentRanges();
+                    //this.updateCurrentRanges();
                     return;
                 }
                 else {
@@ -1331,6 +1357,7 @@
             if (this.onCharacterAdded) {
                 this.onCharacterAdded(span, this);
             }
+            this.marked = false;
             this.updateCurrentRanges();
         };
         Editor.prototype.getPreviousCharacterNode = function (span) {
@@ -1349,12 +1376,6 @@
             return null;
         };
         Editor.prototype.handleSpecialChars = function (span, charCode) {
-            if (charCode == SPACE) {
-                // span.textContent = String.fromCharCode(160);
-                //span.style.width = "10px";
-                //span.style.top = "5px";
-                //span.style.display = "inline-block";
-            }
             if (charCode == ENTER) {
                 //span.speedy.role = ELEMENT_ROLE.CHAR;
                 span.textContent = String.fromCharCode(13);
@@ -1782,7 +1803,7 @@
                     console.warn("StartIndex less than zero.", p);
                     continue;
                 }
-                if (p.endIndex > len - 1) {
+                if (p.endIndex > len) {
                     console.warn("EndIndex out of bounds.", p);
                     continue;
                 }
@@ -1820,14 +1841,6 @@
         Editor.prototype.populateContainer = function (text) {
             var frag = this.textToDocumentFragment(text);
             this.container.appendChild(frag);
-            if (this.onCharacterAdded) {
-                var _this = this;
-                var start = this.container.firstChild;
-                var end = this.container.lastChild;
-                whileNext(start, end, (span) => {
-                    _this.onCharacterAdded(span, _this);
-                });
-            }
         };
         Editor.prototype.textToDocumentFragment = function (text) {
             var len = text.length, i = 0;
@@ -1840,6 +1853,12 @@
                     continue;
                 }
                 var span = this.newSpan(c);
+                //if (this.onCharacterAdded) {
+                //    this.onCharactedAdded(span, this);
+                //}
+                if (code == SPACE) {
+                    // span.textContent = String.fromCharCode(160);
+                }
                 this.handleSpecialChars(span, code);
                 frag.appendChild(span);
             }

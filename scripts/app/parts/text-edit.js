@@ -280,9 +280,9 @@
                     hyphen: {
                         format: "decorate",
                         zeroPoint: {
-                            className: "hyphen"
+                            className: "zwa-hyphen"
                         },
-                        className: "hyphen",
+                        className: "zwa-hyphen",
                         content: "-"
                     },
                     expansion: {
