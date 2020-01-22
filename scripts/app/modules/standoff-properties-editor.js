@@ -1,19 +1,9 @@
 ﻿(function (factory) {
     define("speedy/editor", ["app/utils"], factory);
 }(function (utils) {
-
-    var where = utils.where;
-    var each = utils.each;
-    var find = utils.find;
-    var select = utils.select;
+    
+    const find = utils.find;
     var maxWhile = 10000000;
-
-    Array.prototype.where = function (func) {
-        return where(this, func);
-    };
-    Array.prototype.each = function (func) {
-        return each(this, func);
-    };
 
     const TEXT_STREAM = {
         IN: 0,
@@ -240,7 +230,7 @@
         var c = 0;
         var text = "";
         var loop = true;
-        node = (node.speedy ? node : getParent(node, n => n.speedy));
+        node = (node && node.speedy ? node : getParent(node, n => n.speedy));
         if (isBlock(node)) {
             node = node.firstChild;
         }
@@ -525,16 +515,27 @@
         Property.prototype.overRange = function (func) {
             whileNext(this.startNode, this.endNode, func);
         };
-        Property.prototype.highlight = function () {
+        Property.prototype.scrollTo = function () {
+            this.startNode.scrollIntoView();
+        };
+        Property.prototype.highlight = function (style) {
             var _this = this;
             if (this.isZeroPoint) {
+                return;
+            }
+            if (style) {
+                this.overRange(s => s.style.backgroundColor = style);
                 return;
             }
             var css = this.editor.css.highlight || "text-highlight";
             this.overRange(s => s.classList.add(css));
         };
-        Property.prototype.unhighlight = function () {
+        Property.prototype.unhighlight = function (style) {
             if (this.isZeroPoint) {
+                return;
+            }
+            if (style) {
+                this.overRange(s => s.style.backgroundColor = style);
                 return;
             }
             var css = this.editor.css.highlight || "text-highlight";
@@ -888,8 +889,8 @@
         };
         Editor.prototype.setLayerVisibility = function (layer, show) {
             this.data.properties
-                .where(function (prop) { return prop.layer == layer; })
-                .each(function (prop) {
+                .filter(function (prop) { return prop.layer == layer; })
+                .forEach(function (prop) {
                     if (show) {
                         prop.showSpanRange();
                     } else {
@@ -901,7 +902,7 @@
             this.publisher.layerAdded.push(handler);
         };
         Editor.prototype.layerAdded = function (e) {
-            each(this.publisher.layerAdded, function (handler) {
+            this.publisher.layerAdded.forEach(function (handler) {
                 try {
                     handler(e);
                 }
@@ -919,7 +920,7 @@
         Editor.prototype.getPropertyAtCursor = function () {
             var _this = this;
             var node = this.getCurrent();
-            var enclosing = this.data.properties.where(function (prop) {
+            var enclosing = this.data.properties.filter(function (prop) {
                 return isWithin(prop.startNode, prop.endNode, node);
             });
             if (!enclosing.length) {
@@ -934,9 +935,12 @@
             var nearest = ordered[0];
             return nearest;
         };
+        Editor.prototype.nodeAtIndex = function (index) {
+            return indexNode(this.container.firstChild, index);
+        };
         Editor.prototype.handleDoubleClickEvent = function (e) {
             var _this = this;
-            var props = this.data.properties.where(function (prop) {
+            var props = this.data.properties.filter(function (prop) {
                 var propertyType = prop.getPropertyType();
                 return propertyType && propertyType.propertyValueSelector && isWithin(prop.startNode, prop.endNode, e.target);
             });
@@ -976,19 +980,24 @@
                 _this.setMonitor([]);
                 if (!_this.marked) {
                     markNodesWithIndexes(_this.container.firstChild);
+                    _this.data.properties.sort((a, b) => a.startIndex() > b.endIndex() ? 1 : a.startIndex() == b.startIndex() ? -1 : 0);
                     _this.marked = true;
                 }
-                var props = where(this.data.properties, function (prop) {
+                var props = this.data.properties.filter(function (prop) {
                     if (prop.isDeleted || !prop.startNode || !prop.endNode || !span.speedy) {
                         return false;
                     }
-                    var si = prop.startIndex(), ei = prop.endIndex(), i = span.speedy.index;
+                    const si = prop.startIndex();
+                    const ei = prop.endIndex();
+                    const i = span.speedy.index;
                     return si <= i && i <= ei;
                 }).sort((a, b) => {
-                    var asi = a.startIndex(), bsi = b.startIndex();
+                    const asi = a.startIndex();
+                    const bsi = b.startIndex();
                     if (asi > bsi) return 1;
                     if (asi < bsi) return -1;
-                    var aei = a.endIndex(), bei = b.endIndex();
+                    const aei = a.endIndex();
+                    const bei = b.endIndex();
                     if (aei > bei) return 1;
                     if (aei < bei) return -1;
                     return 0;
@@ -998,7 +1007,7 @@
         };
         Editor.prototype.deleteAnnotation = function (type) {
             var current = this.getCurrent();
-            var enclosing = where(this.data.properties, function (prop) {
+            var enclosing = this.data.properties.filter(function (prop) {
                 return !prop.isDeleted && prop.type == type && isWithin(prop.startNode, prop.endNode, current);
             });
             if (enclosing.length != 1) {
@@ -1134,7 +1143,7 @@
             }
             if (current) {
                 if (current.startProperties.length) {
-                    current.startProperties.each(function (prop) {
+                    current.startProperties.forEach(function (prop) {
                         prop.startNode = next;
                         if (next) {
                             next.startProperties.push(prop);
@@ -1143,7 +1152,7 @@
                     current.startProperties.length = 0;
                 }
                 if (current.endProperties.length) {
-                    current.endProperties.each(function (prop) {
+                    current.endProperties.forEach(function (prop) {
                         prop.endNode = previous;
                         if (previous) {
                             previous.endProperties.push(prop);
@@ -1155,8 +1164,8 @@
             if (previous) {
                 if (previous.endProperties.length) {
                     previous.endProperties
-                        .where(function (ep) { return ep.startNode == next && ep.endNode == previous; })
-                        .each(function (single) { remove(_.data.properties, single); });
+                        .filter(function (ep) { return ep.startNode == next && ep.endNode == previous; })
+                        .forEach(function (single) { remove(_.data.properties, single); });
                 }
             }
             current.remove();
@@ -1178,22 +1187,22 @@
             }
             if (next.startProperties.length) {
                 var forward = next.nextElementSibling;
-                next.startProperties.each(function (prop) {
+                next.startProperties.forEach(function (prop) {
                     prop.startNode = forward;
                     forward.startProperties.push(prop);
                 });
                 next.startProperties.length = 0;
             }
             if (next.endProperties.length) {
-                next.endProperties.each(function (prop) {
+                next.endProperties.forEach(function (prop) {
                     prop.endNode = current;
                     current.endProperties.push(prop);
                 });
                 next.endProperties.length = 0;
             }
             next.startProperties
-                .where(function (sp) { return sp.endNode == current && sp.startNode == next; })
-                .each(function (single) { remove(_.data.properties, single); });
+                .filter(function (sp) { return sp.endNode == current && sp.startNode == next; })
+                .forEach(function (single) { remove(_.data.properties, single); });
             next.remove();
             this.setCarotByNode(current);
         };
@@ -1351,8 +1360,8 @@
                     this.container.appendChild(span);
                     this.setCarotByNode(span);
                 }
-                this.paint(span);
                 this.setCarotByNode(atFirst ? current : span);
+                this.paint(span);
             }
             if (this.onCharacterAdded) {
                 this.onCharacterAdded(span, this);
@@ -1390,7 +1399,7 @@
             if (!node) {
                 return;
             }
-            var selection = window.getSelection();
+            var selection = document.getSelection();
             var range = document.createRange();
             range.setStart(node.firstChild, 1); // The first child in this case is the TEXT NODE of the span; must set it to this.
             range.collapse(true);
@@ -1442,7 +1451,7 @@
         };
         Editor.prototype.addProperties = function (props) {
             var _this = this;
-            each(props, function (prop) {
+            props.forEach(function (prop) {
                 _this.addProperty(prop);
             });
         };
@@ -1560,7 +1569,7 @@
             this.container.insertBefore(block, dummy);
             this.container.removeChild(dummy);
         };
-        Editor.prototype.createProperty = function (propertyTypeName, value) {
+        Editor.prototype.createProperty = function (propertyTypeName, value, propertyRange) {
             var _this = this;
             if (propertyTypeName == "erase") {
                 this.erase();
@@ -1577,7 +1586,7 @@
                     return;
                 }
             }
-            var range = this.getSelectionNodes();
+            var range = propertyRange || this.getSelectionNodes();
             var prop = new Property({
                 editor: this,
                 guid: null,
@@ -1625,12 +1634,12 @@
         };
         Editor.prototype.paint = function (s) {
             var _ = this;
+            var i = nodeIndex(s);
             window.setTimeout(function () {
                 var properties = this.data.properties
-                    .where(function (prop) { return !prop.isDeleted; })
-                    .where(function (prop) { return isWithin(prop.startNode, prop.endNode, s); })
+                    .filter(function (prop) { return !prop.isDeleted && (prop.startIndex() <= i && i <= prop.endIndex()); })
                     .sort(function (a, b) { return a.index > b.index ? 1 : a.index == b.index ? 0 : -1; });
-                each(properties, function (prop) {
+                properties.forEach(function (prop) {
                     _.paintSpanWithProperty(s, prop);
                 });
             }.bind(this), 1);
