@@ -1,7 +1,7 @@
 ﻿(function (factory) {
     define("speedy/editor", ["app/utils"], factory);
 }(function (utils) {
-    
+
     const find = utils.find;
     var maxWhile = 10000000;
 
@@ -1353,15 +1353,16 @@
             else {
                 var atFirst = !current;
                 var next = atFirst ? this.container.firstChild : current.nextElementSibling;
+                var index = next.speedy.index ? next.speedy.index : nodeIndex(next);
+                this.paint(span, index);
                 if (next) {
                     var container = next.parentElement;
                     container.insertBefore(span, next);
+                    this.setCarotByNode(atFirst ? current : span);
                 } else {
                     this.container.appendChild(span);
                     this.setCarotByNode(span);
                 }
-                this.setCarotByNode(atFirst ? current : span);
-                this.paint(span);
             }
             if (this.onCharacterAdded) {
                 this.onCharacterAdded(span, this);
@@ -1403,8 +1404,12 @@
             var range = document.createRange();
             range.setStart(node.firstChild, 1); // The first child in this case is the TEXT NODE of the span; must set it to this.
             range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
+            if (selection.setBaseAndExtent) {
+                selection.setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset);
+            } else {
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
         };
         Editor.prototype.getParentSpan = function (node) {
             var c = 0;
@@ -1632,17 +1637,15 @@
                 process(prop);
             }
         };
-        Editor.prototype.paint = function (s) {
+        Editor.prototype.paint = function (s, i) {
             var _ = this;
-            var i = nodeIndex(s);
-            window.setTimeout(function () {
-                var properties = this.data.properties
-                    .filter(function (prop) { return !prop.isDeleted && (prop.startIndex() <= i && i <= prop.endIndex()); })
-                    .sort(function (a, b) { return a.index > b.index ? 1 : a.index == b.index ? 0 : -1; });
-                properties.forEach(function (prop) {
-                    _.paintSpanWithProperty(s, prop);
-                });
-            }.bind(this), 1);
+            i = i || nodeIndex(s);
+            var properties = this.data.properties
+                .filter(function (prop) { return !prop.isDeleted && (prop.startIndex() <= i && i <= prop.endIndex()); })
+                .sort(function (a, b) { return a.index > b.index ? 1 : a.index == b.index ? 0 : -1; });
+            properties.forEach(function (prop) {
+                _.paintSpanWithProperty(s, prop);
+            });
         };
         Editor.prototype.paintSpanWithProperty = function (s, prop) {
             var propertyType = prop.getPropertyType();
