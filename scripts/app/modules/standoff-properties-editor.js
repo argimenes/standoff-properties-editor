@@ -1436,7 +1436,7 @@
                 startContainer = range.startContainer.parentElement.nextElementSibling;
             }
             if (range.endOffset == 0) {
-                endContainer = range.endContainer.previousElementSibling;
+                endContainer = range.endContainer.parentElement.previousElementSibling;
             }
             var startNode = getParent(startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
             var endNode = getParent(endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
