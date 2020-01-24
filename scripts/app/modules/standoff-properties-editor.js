@@ -753,6 +753,9 @@
                 if (format == "decorate" || _this.isZeroPoint) {
                     s.classList.add(className);
                 } else if (format == "overlay" && !_this.isZeroPoint) {
+                    if (s.classList.contains("line-break")) {
+                        return;
+                    }
                     var inner = document.createElement("SPAN");
                     inner.speedy = {
                         role: ELEMENT_ROLE.OVERLAY,
@@ -873,6 +876,7 @@
             this.lockProperties = cons.lockProperties || false;
             this.css = cons.css || {};
             this.marked = false;
+            this.characterCount = 0;
             this.data = {
                 text: null,
                 properties: []
@@ -1018,7 +1022,7 @@
         Editor.prototype.setMonitor = function (props) {
             var _this = this;
             window.setTimeout(function () {
-                _this.monitors.forEach(x => x.setProperties(props));
+                _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount }));
             }, 1);
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
@@ -1652,6 +1656,9 @@
             if (propertyType.format == "decorate") {
                 s.classList.add(propertyType.className);
             } else if (propertyType.format == "overlay") {
+                if (s.classList.contains("line-break")) {
+                    return;
+                }
                 var inner = document.createElement("SPAN");
                 inner.speedy = {
                     role: ELEMENT_ROLE.OVERLAY,

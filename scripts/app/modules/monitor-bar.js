@@ -61,11 +61,12 @@
             }
             this.monitor.textContent = "";
         };
-        MonitorBar.prototype.setProperties = function (props) {
+        MonitorBar.prototype.update = function (data) {
             if (!this.monitor) {
                 return;
             }
             var _ = this;
+            const props = data.properties;
             this.properties = props;
             this.monitor.textContent = "";
             for (var i = 0; i < props.length; i++) {
