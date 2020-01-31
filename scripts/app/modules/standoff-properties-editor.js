@@ -16,6 +16,16 @@
         OVERLAY: 3
     };
 
+    const distinct = (list) => {
+        var results = [];
+        list.forEach((item) => {
+            if (results.indexOf(item) == -1) {
+                results.push(item);
+            }
+        });
+        return results;
+    };
+
     const BACKSPACE = 8,
         CAPSLOCK = 20, PAGE_UP = 33, PAGE_DOWN = 34,
         DELETE = 46, HOME = 36, END = 35, INSERT = 45, PRINT_SCREEN = 44, PAUSE = 19, SELECT_KEY = 93, NUM_LOCK = 144,
@@ -311,7 +321,7 @@
             var next = node.nextElementSibling;
             if (!next) {
                 var parent = node.parentElement;
-                if (parent.speedy.role == ELEMENT_ROLE.BLOCK) {
+                if (parent.speedy && parent.speedy.role == ELEMENT_ROLE.BLOCK) {
                     node = parent.nextElementSibling;
                     continue;
                 }
@@ -891,6 +901,26 @@
         Editor.prototype.clearMonitors = function () {
             this.monitors.forEach(x => x.clear());
         };
+        Editor.prototype.shiftPropertiesLeftFromNode = function (node) {
+            var i = nodeIndex(node);
+            var properties = this.data.properties
+                .filter(x => x.startIndex() > i);
+            properties.forEach(x => x.shiftLeft());
+        };
+        Editor.prototype.shiftPropertiesRightFromNode = function (node) {
+            var i = nodeIndex(node);
+            var properties = this.data.properties
+                .filter(x => x.startIndex() > i);
+            properties.forEach(x => x.shiftRight());
+        };
+        Editor.prototype.shiftPropertiesLeftFromCaret = function (node) {
+            var node = this.getCurrent();
+            this.shiftPropertiesLeftFromNode(node);
+        };
+        Editor.prototype.shiftPropertiesRightFromCaret = function (node) {
+            var node = this.getCurrent();
+            this.shiftPropertiesRightFromNode(node);
+        };
         Editor.prototype.setLayerVisibility = function (layer, show) {
             this.data.properties
                 .filter(function (prop) { return prop.layer == layer; })
@@ -975,6 +1005,18 @@
         Editor.prototype.addMonitor = function (monitor) {
             this.monitors.push(monitor);
         };
+        Editor.prototype.getCurrentRanges = function (span) {
+            var props = this.data.properties.filter(function (prop) {
+                if (prop.isDeleted || !prop.startNode || !prop.endNode || !span.speedy) {
+                    return false;
+                }
+                const si = prop.startIndex();
+                const ei = prop.endIndex();
+                const i = span.speedy.index;
+                return si <= i && i <= ei;
+            });
+            return props;
+        };
         Editor.prototype.updateCurrentRanges = function (span) {
             var _this = this;
             window.setTimeout(function () {
@@ -987,15 +1029,8 @@
                     _this.data.properties.sort((a, b) => a.startIndex() > b.endIndex() ? 1 : a.startIndex() == b.startIndex() ? -1 : 0);
                     _this.marked = true;
                 }
-                var props = this.data.properties.filter(function (prop) {
-                    if (prop.isDeleted || !prop.startNode || !prop.endNode || !span.speedy) {
-                        return false;
-                    }
-                    const si = prop.startIndex();
-                    const ei = prop.endIndex();
-                    const i = span.speedy.index;
-                    return si <= i && i <= ei;
-                }).sort((a, b) => {
+                var props = this.getCurrentRanges(span);
+                props.sort((a, b) => {
                     const asi = a.startIndex();
                     const bsi = b.startIndex();
                     if (asi > bsi) return 1;
@@ -1357,8 +1392,11 @@
             else {
                 var atFirst = !current;
                 var next = atFirst ? this.container.firstChild : current.nextElementSibling;
-                var index = next.speedy.index ? next.speedy.index : nodeIndex(next);
-                this.paint(span, index);
+                if (!atFirst) {
+                    var prev = this.getPreviousCharacterNode(current);
+                    var index = current && current.speedy ? current.speedy.index : nodeIndex(prev);
+                    this.paint(span, index);
+                }
                 if (next) {
                     var container = next.parentElement;
                     container.insertBefore(span, next);
@@ -1645,7 +1683,7 @@
             var _ = this;
             i = i || nodeIndex(s);
             var properties = this.data.properties
-                .filter(function (prop) { return !prop.isDeleted && (prop.startIndex() <= i && i <= prop.endIndex()); })
+                .filter(function (prop) { return !prop.isDeleted && (prop.startIndex() <= i && i < prop.endIndex()); })
                 .sort(function (a, b) { return a.index > b.index ? 1 : a.index == b.index ? 0 : -1; });
             properties.forEach(function (prop) {
                 _.paintSpanWithProperty(s, prop);
