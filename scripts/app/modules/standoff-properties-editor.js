@@ -64,6 +64,7 @@
         var s = startNode, loop = true;
         var c = 0;
         while (loop) {
+            console.log({ c, s });
             if (func(s)) {
                 return s;
             }
@@ -1474,12 +1475,13 @@
             console.log({ range });
             var startContainer = range.startContainer;
             var endContainer = range.endContainer;
-            if (range.startOffset == 1) {
+            if (range.startOffset == 1 && !range.startContainer.speedy) {
                 startContainer = range.startContainer.parentElement.nextElementSibling;
             }
-            if (range.endOffset == 0) {
+            if (range.endOffset == 0 && !range.endContainer.speedy) {
                 endContainer = range.endContainer.parentElement.previousElementSibling;
             }
+            console.log({ range, startContainer, endContainer });
             var startNode = getParent(startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
             var endNode = getParent(endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
             console.log({ startContainer, endContainer, startNode, endNode });
