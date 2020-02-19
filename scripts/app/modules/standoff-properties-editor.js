@@ -623,7 +623,8 @@
             if (!node) {
                 return;
             }
-            var previous = node.previousElementSibling;
+            // var previous = node.previousElementSibling;
+            var previous = firstPreviousChar(node);
             if (!previous) {
                 return;
             }
@@ -636,7 +637,8 @@
             if (!node) {
                 return;
             }
-            var nextOneOver = node.nextElementSibling.nextElementSibling;
+            // var nextOneOver = node.nextElementSibling.nextElementSibling;
+            var nextOneOver = firstNextChar(firstNextChar(node));
             if (!nextOneOver) {
                 return;
             }
@@ -1106,7 +1108,7 @@
             }
             else {
                 var atFirst = !current;
-                var next = atFirst ? this.container.firstChild : current.nextElementSibling;
+                var next = atFirst ? this.container.firstChild : this.getNextCharacterNode(current);
                 this.container.insertBefore(span, next);
                 this.paint(span);
                 this.setCarotByNode(atFirst ? current : span);
@@ -1392,7 +1394,7 @@
             }
             else {
                 var atFirst = !current;
-                var next = atFirst ? this.container.firstChild : current.nextElementSibling;
+                var next = atFirst ? this.container.firstChild : this.getNextCharacterNode(current);
                 if (!atFirst) {
                     var prev = this.getPreviousCharacterNode(current);
                     var index = current && current.speedy ? current.speedy.index : nodeIndex(prev);
@@ -1414,10 +1416,12 @@
             this.updateCurrentRanges();
         };
         Editor.prototype.getPreviousCharacterNode = function (span) {
-            return span && span.previousElementSibling;
+            // return span && span.previousElementSibling;
+            return span && firstPreviousChar(span);
         };
         Editor.prototype.getNextCharacterNode = function (span) {
-            return span && span.nextElementSibling;
+            // return span && span.nextElementSibling;
+            return span && firstNextChar(span);
         };
         Editor.prototype.getPropertyTypeNameFromShortcutKey = function (key) {
             for (var propertyTypeName in this.propertyType) {
@@ -1475,12 +1479,12 @@
             console.log({ range });
             var startContainer = range.startContainer;
             var endContainer = range.endContainer;
-            if (range.startOffset == 1 && !range.startContainer.speedy) {
-                startContainer = range.startContainer.parentElement.nextElementSibling;
-            }
-            if (range.endOffset == 0 && !range.endContainer.speedy) {
-                endContainer = range.endContainer.parentElement.previousElementSibling;
-            }
+            //if (range.startOffset == 1 && !range.startContainer.speedy) {
+            //    startContainer = range.startContainer.parentElement.nextElementSibling;
+            //}
+            //if (range.endOffset == 0 && !range.endContainer.speedy) {
+            //    endContainer = range.endContainer.parentElement.previousElementSibling;
+            //}
             console.log({ range, startContainer, endContainer });
             var startNode = getParent(startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
             var endNode = getParent(endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
