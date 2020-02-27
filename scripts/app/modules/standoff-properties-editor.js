@@ -1397,7 +1397,7 @@
                 var next = atFirst ? this.container.firstChild : this.getNextCharacterNode(current);
                 if (!atFirst) {
                     var prev = this.getPreviousCharacterNode(current);
-                    var index = current && current.speedy ? current.speedy.index : nodeIndex(prev);
+                    var index = current ? nodeIndex(current) : nodeIndex(prev);
                     this.paint(span, index);
                 }
                 if (next) {
