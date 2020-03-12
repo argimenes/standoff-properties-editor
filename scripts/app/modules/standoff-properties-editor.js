@@ -237,6 +237,9 @@
     }
 
     function markNodesWithIndexes(node) {
+        if (!node) {
+            return null;
+        }
         var i = 0;
         var c = 0;
         var text = "";
@@ -284,6 +287,9 @@
         var loop = true;
         var node = start;
         var c = 0;
+        if (!node.speedy) {
+            return node;
+        }
         while (loop) {
             var previous = node.previousElementSibling;
             if (!previous) {
@@ -292,6 +298,9 @@
                 }
                 else {
                     var parent = node.parentElement;
+                    if (!parent.speedy) {
+                        return node;
+                    }
                     if (parent.speedy.role == ELEMENT_ROLE.BLOCK) {
                         node = parent.previousElementSibling;
                         continue;
@@ -321,6 +330,7 @@
         while (loop) {
             var next = node.nextElementSibling;
             if (!next) {
+                //console.log({ m: "nextUntil", branch: 0, node, next });
                 var parent = node.parentElement;
                 if (parent.speedy && parent.speedy.role == ELEMENT_ROLE.BLOCK) {
                     node = parent.nextElementSibling;
@@ -351,7 +361,9 @@
     }
 
     function firstNextChar(start) {
+        //console.log({ m: "firstNextChar", start });
         var char = nextUntil(start, node => {
+            //console.log({ m: "firstNextChar", node });
             return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN;
         });
         return char;
@@ -1391,22 +1403,31 @@
             if (isFirst) {
                 this.container.appendChild(span);
                 this.setCarotByNode(span);
+                //console.log({ branch: 0, isFirst, span, key: String.fromCharCode(key) });
             }
             else {
                 var atFirst = !current;
                 var next = atFirst ? this.container.firstChild : this.getNextCharacterNode(current);
+                //console.log({ branch: 0.5, atFirst, next, key: String.fromCharCode(key) });
                 if (!atFirst) {
-                    var prev = this.getPreviousCharacterNode(current);
-                    var index = current ? nodeIndex(current) : nodeIndex(prev);
+                    var index = current ? nodeIndex(current) : nodeIndex(this.getPreviousCharacterNode(current));
                     this.paint(span, index);
+                    //console.log({ branch: 1, atFirst, span, index, key: String.fromCharCode(key)});
                 }
                 if (next) {
-                    var container = next.parentElement;
-                    container.insertBefore(span, next);
+                    var container = this.getContainer(next);
+                    if (next == current) {
+                        this.container.appendChild(span);
+                    }
+                    else {
+                        container.insertBefore(span, next);
+                    }                    
                     this.setCarotByNode(atFirst ? current : span);
+                    //console.log({ branch: 2, atFirst, current, span, next, key: String.fromCharCode(key) });
                 } else {
                     this.container.appendChild(span);
                     this.setCarotByNode(span);
+                    //console.log({ branch: 3, atFirst, span, key: String.fromCharCode(key) });
                 }
             }
             if (this.onCharacterAdded) {
@@ -1414,6 +1435,9 @@
             }
             this.marked = false;
             this.updateCurrentRanges();
+        };
+        Editor.prototype.getContainer = function (span) {
+            return span.parentElement;
         };
         Editor.prototype.getPreviousCharacterNode = function (span) {
             // return span && span.previousElementSibling;
@@ -1449,14 +1473,28 @@
             }
             var selection = document.getSelection();
             var range = document.createRange();
-            range.setStart(node.firstChild, 1); // The first child in this case is the TEXT NODE of the span; must set it to this.
+            var textNode = this.getTextNode(node);
+            range.setStart(textNode, 1);
             range.collapse(true);
+            //console.log({ node, range });
             if (selection.setBaseAndExtent) {
-                selection.setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset);
+                var startOffset = 1;    // range.startOffset;
+                var endOffset = 1;      // range.endOffset;
+                selection.setBaseAndExtent(range.startContainer, startOffset, range.endContainer, endOffset);
             } else {
                 selection.removeAllRanges();
                 selection.addRange(range);
             }
+        };
+        //
+        // Get the first TEXT NODE of the element
+        //
+        Editor.prototype.getTextNode = function (element) {
+            var node = element.firstChild;
+            while (node.nodeType != 3) {
+                node = node.firstChild;
+            }
+            return node;
         };
         Editor.prototype.getParentSpan = function (node) {
             var c = 0;
