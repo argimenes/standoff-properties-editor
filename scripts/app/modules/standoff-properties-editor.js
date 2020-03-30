@@ -1,6 +1,6 @@
-﻿(function (factory) {
+(function (factory) {
     define("speedy/editor", ["app/utils"], factory);
-}(function (utils) {   
+}(function (utils) {
 
     const find = utils.find;
     var maxWhile = 10000000;
