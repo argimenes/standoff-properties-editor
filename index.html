@@ -39,12 +39,13 @@
 
         .block-indent {
             padding: 0 40px;
-            margin: 0;            
+            margin: 0;
         }
 
         .block-justify {
             text-align: justify;
         }
+
         /**
         Overrides Bootstrap modal CSS to ensure dynamic vertical positioning.
         */
@@ -58,7 +59,8 @@
             display: inline-block;
             height: 100%;
             vertical-align: middle;
-            margin-right: -4px; /* Adjusts for spacing */
+            margin-right: -4px;
+            /* Adjusts for spacing */
         }
 
         .modal-dialog {
@@ -140,16 +142,92 @@
             user-select: none;
         }
 
+        .leiden__expansion {
+            color: blue;
+        }
+
+        .leiden__emphasis {
+            color: red;
+        }
+
+        .leiden__supra_lineam {
+            color: orange;
+        }
+
+        .leiden__marginalia {
+            color: purple;
+        }
+
+        .leiden__striked_out {
+            text-decoration: line-through;
+        }
+
+        .leiden__commentary {
+            color: blue;
+        }
+
+        .leiden__repetition {
+            position: absolute;
+            display: inline;
+            width: 100%;
+            border-bottom: 3px solid brown;
+            left: 0px;
+            bottom: -1px;
+            opacity: 1;
+        }
+
+        .leiden__sic {
+            position: absolute;
+            display: inline;
+            width: 100%;
+            border-bottom: 3px solid green;
+            left: 0px;
+            bottom: -1px;
+            opacity: 1;
+        }
+
+        .leiden__rewritten {
+            position: absolute;
+            display: inline;
+            width: 100%;
+            border-bottom: 3px solid yellow;
+            left: 0px;
+            bottom: -1px;
+            opacity: 1;
+        }
+
+        .leiden__correction {
+            position: absolute;
+            display: inline;
+            width: 100%;
+            border-bottom: 3px solid red;
+            left: 0px;
+            bottom: -1px;
+            opacity: 1;
+        }
+
+        .leiden__transposition {
+            position: absolute;
+            display: inline;
+            width: 100%;
+            border-bottom: 3px solid pink;
+            left: 0px;
+            bottom: -1px;
+            opacity: 1;
+        }
+
         .monitor-arrow {
             margin-left: 5px;
             position: relative;
         }
+
         .monitor-arrow-icon {
             font-size: 1.5em;
             top: 3px;
             position: relative;
         }
-        .hyphen {
+
+        .zwa-hyphen {
             color: red;
         }
     </style>
@@ -334,6 +412,11 @@
                                     <button class="btn btn-default" data-bind="click: $data.teiSelected">Apply</button>
                                 </span>
                             </div>
+                            
+                        </div>
+                        <div class="col-md-2" style="padding-top: 20px; padding-left: 40px;">
+                            <label>Expansions</label>
+                            <input data-bind="checked: $data.checkbox.expansions" type="checkbox">
                         </div>
                     </div>                    
                     <div class="row" style="margin-top: 10px;">
@@ -426,9 +509,10 @@
                 editor.applyBindings(node);
             });
 
-            
+
 
         });
     </script>
 </body>
+
 </html>

@@ -123,7 +123,18 @@
             this.userGuid = "abcd-efgh-ijkl-mnop";
             this.viewer = ko.observable();
             this.editor = null; // Instantiated in setupEditor()
+            this.checkbox = {
+                expansions: ko.observable(true)
+            };
+            this.checkbox.expansions.subscribe(function () {
+                return _this.showHideExpansions();
+            });
         }
+        Model.prototype.showHideExpansions = function () {
+            var show = this.checkbox.expansions();
+            var expansions = this.editor.data.properties.filter(p => p.type == "expansion" || p.type == "line" || p.type == "leiden/expansion" || p.type == "leiden/line");
+            expansions.forEach(p => show ? p.showBrackets() : p.hideBrackets());
+        };
         Model.prototype.applyBindings = function(node) {
             ko.applyBindings(this, node);
             this.setupEditor();
@@ -231,6 +242,103 @@
                         },
                         labelRenderer: function () {
                             return "tab";
+                        }
+                    },
+                    "leiden/expansion": {
+                        format: "decorate",
+                        className: "leiden__expansion",
+                        labelRenderer: function () {
+                            return "<span style='expansion'>leiden/expansion</span>";
+                        }
+                    },
+                    "leiden/emphasis": {
+                        format: "decorate",
+                        className: "leiden__emphasis",
+                        labelRenderer: function () {
+                            return "<span style='leiden__emphasis'>leiden/emphasis</span>";
+                        }
+                    },
+                    "leiden/sic": {
+                        format: "overlay",
+                        className: "leiden__sic",
+                        labelRenderer: function () {
+                            return "<span style='leiden__sic'>leiden/sic</span>";
+                        }
+                    },
+                    "leiden/repetition": {
+                        format: "overlay",
+                        className: "leiden__repetition",
+                        labelRenderer: function () {
+                            return "<span style='leiden__repetition'>leiden/repetition</span>";
+                        }
+                    },
+                    "leiden/rewritten": {
+                        format: "overlay",
+                        className: "leiden__rewritten",
+                        labelRenderer: function () {
+                            return "<span style='leiden__rewritten'>leiden/rewritten</span>";
+                        }
+                    },
+                    "leiden/supra-lineam": {
+                        format: "decorate",
+                        className: "leiden__supra_lineam",
+                        labelRenderer: function () {
+                            return "<span style='leiden__supra_lineam'>leiden/supra-lineam</span>";
+                        }
+                    },
+                    "leiden/marginalia": {
+                        format: "decorate",
+                        className: "leiden__marginalia",
+                        labelRenderer: function () {
+                            return "<span style='leiden__marginalia'>leiden/marginalia</span>";
+                        }
+                    },
+                    "leiden/correction": {
+                        format: "overlay",
+                        className: "leiden__correction",
+                        labelRenderer: function () {
+                            return "<span style='leiden__correction'>leiden/correction</span>";
+                        }
+                    },
+                    "leiden/striked-out": {
+                        format: "decorate",
+                        className: "leiden__striked_out",
+                        labelRenderer: function () {
+                            return "<span style='leiden__striked_out'>leiden/striked-out</span>";
+                        }
+                    },
+                    "leiden/striked-out": {
+                        format: "decorate",
+                        className: "leiden__striked_out",
+                        labelRenderer: function () {
+                            return "<span style='leiden__striked_out'>leiden/striked-out</span>";
+                        }
+                    },
+                    "leiden/commentary": {
+                        format: "decorate",
+                        className: "leiden__commentary",
+                        labelRenderer: function () {
+                            return "<span style='leiden__commentary'>leiden/commentary</span>";
+                        }
+                    },
+                    "leiden/line": {
+                        format: "decorate",
+                        bracket: {
+                            right: {
+                                className: "expansion-bracket",
+                                content: "/"
+                            }
+                        },
+                        labelRenderer: function (prop) {
+                            return "line " + prop.value;
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var defaultValue = prop.value || !!_.lastLineNumber ? _.lastLineNumber + 1 : 1;
+                            var num = prompt("Line number?", defaultValue);
+                            if (!!num) {
+                                num = _.lastLineNumber = parseInt(num);
+                            }
+                            process(num);
                         }
                     },
                     "alignment/indent": {
@@ -886,7 +994,7 @@
                     },
                     paragraph: {
                         format: "decorate",
-                        className: "paragraph"
+                        //className: "paragraph"
                     },
                     person: {
                         format: "overlay",
