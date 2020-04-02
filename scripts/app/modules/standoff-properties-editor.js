@@ -1,4 +1,4 @@
-﻿(function (factory) {
+(function (factory) {
     define("speedy/editor", ["app/utils"], factory);
 }(function (utils) {
 
