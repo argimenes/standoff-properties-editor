@@ -131,9 +131,22 @@
                 return _this.showHideExpansions();
             });
         }
+        Model.prototype.dropClicked = function () {
+            var p = this.editor.createProperty("drop");
+            var drop = this.editor.propertyType.drop;
+            drop.animation.init(p, this.editor);
+            drop.animation.start(p, this.editor);
+        };
+        Model.prototype.rectangleClicked = function () {
+            var p = this.editor.createProperty("rectangle");
+            var rectangle = this.editor.propertyType.rectangle;
+            rectangle.animation.init(p);
+            rectangle.animation.start(p, this.editor);
+        };
         Model.prototype.showHideExpansions = function () {
             var show = this.checkbox.expansions();
-            var expansions = this.editor.data.properties.filter(p => p.type == "expansion" || p.type == "line" || p.type == "leiden/expansion" || p.type == "leiden/line");
+            var types = ["expansion", "line", "leiden/expansion", "leiden/line", "page"];
+            var expansions = this.editor.data.properties.filter(p => types.indexOf(p.type) >= 0);
             expansions.forEach(p => show ? p.showBrackets() : p.hideBrackets());
         };
         Model.prototype.applyBindings = function(node) {
@@ -340,6 +353,346 @@
                                 num = _.lastLineNumber = parseInt(num);
                             }
                             process(num);
+                        }
+                    },
+                    wink: {
+                        format: "decorate",
+                        labelRenderer: function (prop) {
+                            return "wink";
+                        },
+                        zeroPoint: {
+                            className: "wink"
+                        },
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    index: 0,
+                                    stop: false,
+                                    chars: ["😊", "😏", "😉"]
+                                };
+                            },
+                            draw: function (p) {
+                                var chars = p.animation.chars;
+                                var index = Math.floor(Math.random() * (chars.length));
+                                var c = chars[index];
+                                p.startNode.style.fontFamily = "monospace";
+                                p.startNode.innerHTML = c;
+                            },
+                            start: (p) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation.timer = setInterval(function () {
+                                    if (p.animation.stop) {
+                                        // clearInterval(p.animation.timer);
+                                        return;
+                                    }
+                                    p.schema.animation.draw(p);
+                                }, 1000);
+                            },
+                            stop: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            }
+                        }
+                    },
+                    flip: {
+                        format: "block",
+                        className: "flip",
+                        labelRenderer: (p) => {
+                            return "flip";
+                        }
+                    },
+                    "upside-down": {
+                        format: "block",
+                        className: "upside-down",
+                        labelRenderer: (p) => {
+                            return "upside down";
+                        }
+                    },
+                    pulsate: {
+                        format: "block",
+                        labelRenderer: function (prop) {
+                            return "pulsate";
+                        },
+                        className: "pulsate",
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    zoom: 100,
+                                    step: 10,
+                                    stop: false
+                                };
+                            },
+                            draw: function (p) {
+                                var block = p.startNode.parentNode;
+                                p.animation.zoom += p.animation.step;
+                                if (p.animation.zoom >= 150) {
+                                    p.animation.step = -5;
+                                }
+                                if (p.animation.zoom <= 50) {
+                                    p.animation.step = 5;
+                                }
+                                block.style.zoom = p.animation.zoom + "%";
+                            },
+                            start: (p) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation.timer = setInterval(function () {
+                                    if (p.animation.stop) {
+                                        // clearInterval(p.animation.timer);
+                                        return;
+                                    }
+                                    p.schema.animation.draw(p);
+                                }, 125);
+                            },
+                            stop: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            }
+                        }
+                    },
+                    clock: {
+                        format: "block",
+                        labelRenderer: function (prop) {
+                            return "clock";
+                        },
+                        className: "clock",
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    degrees: 0,
+                                    stop: false
+                                };
+                            },
+                            draw: function (p) {
+                                var block = p.startNode.parentNode;
+                                p.animation.degrees += 2;
+                                if (p.animation.degrees >= 360) {
+                                    p.animation.degrees = 0;
+                                }
+                                block.style.transform = "rotate(" + p.animation.degrees + "deg)";
+                            },
+                            start: (p) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation.timer = setInterval(function () {
+                                    if (p.animation.stop) {
+                                        // clearInterval(p.animation.timer);
+                                        return;
+                                    }
+                                    p.schema.animation.draw(p);
+                                }, 125);
+                            },
+                            stop: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            }
+                        }
+                    },
+                    spinner: {
+                        format: "decorate",
+                        labelRenderer: function (prop) {
+                            return "spinner";
+                        },
+                        zeroPoint: {
+                            className: "speedy__line"
+                        },
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    index: 0,
+                                    stop: false,
+                                    chars: ["|", "/", "&mdash;", "\\"]
+                                };
+                            },
+                            draw: function (p) {
+                                var chars = p.animation.chars;
+                                var c = chars[p.animation.index++];
+                                if (p.animation.index >= chars.length) {
+                                    p.animation.index = 0;
+                                }
+                                p.startNode.style.fontFamily = "monospace";
+                                p.startNode.innerHTML = c;
+                            },
+                            start: (p) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation.timer = setInterval(function () {
+                                    if (p.animation.stop) {
+                                        // clearInterval(p.animation.timer);
+                                        return;
+                                    }
+                                    p.schema.animation.draw(p);
+                                }, 250);
+                            },
+                            stop: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            }
+                        }
+                    },
+                    scramble: {
+                        format: "decorate",
+                        labelRenderer: function (prop) {
+                            return "scramble";
+                        },
+                        zeroPoint: {
+                            className: "scramble"
+                        },
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    originalCells: [],
+                                    cells: []
+                                };
+                            },
+                            draw: function (p) {
+                                var chars = p.animation.chars;
+                                var c = chars[p.animation.index++];
+                                if (p.animation.index >= chars.length) {
+                                    p.animation.index = 0;
+                                }
+                                p.startNode.style.fontFamily = "monospace";
+                                p.startNode.innerHTML = c;
+                            },
+                            start: (p) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation.timer = setInterval(function () {
+                                    if (p.animation.stop) {
+                                        // clearInterval(p.animation.timer);
+                                        return;
+                                    }
+                                    p.schema.animation.draw(p);
+                                }, 250);
+                            },
+                            stop: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            }
+                        }
+                    },
+                    rectangle: {
+                        format: "decorate",
+                        className: "rectangle",
+                        labelRenderer: (p) => {
+                            return "rectangle";
+                        },
+                        animation: {
+                            init: (p) => {
+                                p.animation = {
+                                    element: null
+                                };
+                            },
+                            start: (p, editor) => {
+                                var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                                var x = p.startNode.offsetLeft - 10;
+                                var y = p.startNode.offsetTop - 10;
+                                var w = (p.endNode.offsetLeft + p.endNode.offsetWidth) - p.startNode.offsetLeft + 10;
+                                var h = p.endNode.offsetHeight + 10;
+                                svg.speedy = {
+                                    stream: 1
+                                };
+                                svg.style.position = "absolute";
+                                svg.style.marginLeft = "-5px";
+                                var svgNS = svg.namespaceURI;
+                                var rect = document.createElementNS(svgNS, 'rect');
+                                rect.setAttributeNS(null, 'x', 0);
+                                rect.setAttributeNS(null, 'y', 5);
+                                rect.setAttributeNS(null, 'width', w);
+                                rect.setAttributeNS(null, 'height', h);
+                                rect.setAttributeNS(null, 'fill', 'transparent');
+                                svg.appendChild(rect);
+                                editor.container.insertBefore(svg, p.startNode);
+                                p.animation.element = svg;
+                            },
+                            update: (p, editor) => {
+                                // 
+                            },
+                            stop: (p, editor) => {
+
+                            },
+                            delete: (p, editor) => {
+                                delete p.animation.element.remove();
+                            }
+                        }
+                    },
+                    drop: {
+                        format: "decorate",
+                        className: "drop",
+                        labelRenderer: function (prop) {
+                            return "drop";
+                        },
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode || !p.endNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    initialTop: p.startNode.offsetTop,
+                                    top: p.startNode.offsetTop,
+                                    stop: false
+                                };
+                            },
+                            draw: function (p, nodes) {
+                                var top = p.animation.top += 2;
+                                nodes.forEach(n => {
+                                    n.style.top = (top - n.offsetTop) + "px";
+                                    n.style.position = "relative";
+                                });
+                            },
+                            start: (p, editor) => {
+                                p.animation.timer = setInterval(function () {
+                                    if (p.startNode.offsetTop >= 2000) {
+                                        clearInterval(timer); // finish the animation after 2 seconds
+                                        return;
+                                    }
+                                    if (!p.animation.stop) {
+                                        var nodes = p.allInStreamNodes();
+                                        p.schema.animation.draw(p, nodes);
+                                    }
+                                }, 125);
+                            },
+                            stop: (p, editor) => {
+                                p.animation.stop = true;
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                                var nodes = p.allInStreamNodes();
+                                nodes.forEach(n => {
+                                    n.style.top = 0;
+                                });
+                            }
                         }
                     },
                     "alignment/indent": {
@@ -988,6 +1341,32 @@
                         labelRenderer: function (prop) {
                             return "page " + prop.value;
                         },
+                        onRequestAnimationFrame: (p, type, editor) => {
+                            if (!p.startNode) {
+                                return;
+                            }
+                            var content = "p. " + (p.value || "?");
+                            console.log({ content, startNode: p.startNode, endNode: p.endNode });
+                            var label = p.labelNode || document.createElement("SPAN");
+                            label.innerHTML = content;
+                            label.style.position = "absolute";
+                            var top = p.startNode.offsetTop;
+                            var bottom = p.endNode.offsetTop;
+                            var h = bottom - top + p.endNode.offsetHeight;
+                            label.style.top = (top - 10) + "px";
+                            label.style.left = "40px";
+                            label.style.fontSize = "1rem";
+                            //label.style.height = h + "px";
+                            //label.style.opacity = 0.5;
+                            //label.style.width = "2px";
+                            //label.style.border = "2px solid purple";
+                            if (!p.labelNodeHooked) {
+                                label.speedy = { stream: 1 };
+                                editor.container.appendChild(label);
+                                p.labelNode = label;
+                                p.labelNodeHooked = true;
+                            }
+                        },
                         propertyValueSelector: function (prop, process) {
                             var num = prompt("Page number?", prop.value || "");
                             process(num);
@@ -1115,11 +1494,56 @@
                 updateCurrentRanges: this.editor.updateCurrentRanges                
             });            
             this.editor.addMonitor(monitorBar);
+            var animations = this.editor.data.properties.filter(p => !p.isDeleted && p.schema && p.schema.animation);
+            if (animations.length) {
+                animations.forEach(p => {
+                    p.schema.animation.init(p, this.editor);
+                    p.schema.animation.start(p, this.editor);
+                });
+            }
         }
         Model.prototype.layerClicked = function (layer) {
             var selected = layer.selected();
             this.editor.setLayerVisibility(layer.name, selected);
             return true;
+        };
+        Model.prototype.spinnerClicked = function () {
+            var p = this.editor.createZeroPointProperty("spinner");
+            var spinner = this.editor.propertyType.spinner;
+            spinner.animation.init(p);
+            spinner.animation.start(p);
+        };
+        Model.prototype.clockClicked = function () {
+            var p = this.editor.createBlockProperty("clock");
+            var clock = this.editor.propertyType.clock;
+            clock.animation.init(p);
+            clock.animation.start(p);
+        };
+        Model.prototype.pulsateClicked = function () {
+            var p = this.editor.createBlockProperty("pulsate");
+            var pulsate = this.editor.propertyType.pulsate;
+            pulsate.animation.init(p);
+            pulsate.animation.start(p);
+        };
+        Model.prototype.flipClicked = function () {
+            this.editor.createBlockProperty("flip");
+        };
+        Model.prototype.upsideDownClicked = function () {
+            this.editor.createBlockProperty("upside-down");
+        };
+        Model.prototype.winkClicked = function () {
+            var p = this.editor.createZeroPointProperty("wink");
+            var wink = this.editor.propertyType.wink;
+            wink.animation.init(p);
+            wink.animation.start(p);
+        };
+        Model.prototype.pauseClicked = function () {
+            var props = this.editor.data.properties.filter(p => !!p.animation);
+            props.forEach(p => {
+                if (p.animation) {
+                    p.animation.stop = !p.animation.stop;
+                }
+            });
         };
         Model.prototype.isActiveMode = function (mode) {
             var modes = this.currentModes();
@@ -1254,7 +1678,17 @@
                 });
                 _this.editor.bind(json);        
                 _this.viewer(null);
+                _this.startAnimations(_this.editor);
             });
+        };
+        Model.prototype.startAnimations = function(editor) {
+            var animations = editor.data.properties.filter(p => !p.isDeleted && p.schema && p.schema.animation);
+            if (animations.length) {
+                animations.forEach(p => {
+                    p.schema.animation.init(p, editor);
+                    p.schema.animation.start(p, editor);
+                });
+            }
         };
         Model.prototype.cloneNode = function (node) {
             var clone = node.cloneNode(true);
@@ -1271,6 +1705,7 @@
                 text: data.text,
                 properties: data.properties
             });
+            this.startAnimations(this.editor);
         }
         return Model;
     })();

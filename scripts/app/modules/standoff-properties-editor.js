@@ -1,4 +1,4 @@
-(function (factory) {
+﻿(function (factory) {
     define("speedy/editor", ["app/utils"], factory);
 }(function (utils) {
 
@@ -395,6 +395,9 @@
             if (node && node.speedy.role == ELEMENT_ROLE.OVERLAY) {
                 node = node.parentElement;
             }
+            if (false == isInTextStream(node)) {
+                node = node.previousElementSibling;
+            }
             if (c++ > maxWhile) {
                 console.log("Exceeded max iterations", {
                     method: "nodeIndex", i, node
@@ -500,6 +503,7 @@
             this.value = cons.value;
             this.layer = cons.layer;
             this.text = cons.text;
+            this.schema = cons.schema;
             this.startNode = cons.startNode;
             this.endNode = cons.endNode;
             this.bracket = {
@@ -515,6 +519,12 @@
         };
         Property.prototype.addRightBracket = function (node) {
             this.bracket.right = node;
+        };
+        Property.prototype.hideZeroWidth = function () {
+            this.startNode.style.display = "none";
+        };
+        Property.prototype.showZeroWidth = function () {
+            this.startNode.style.display = "inline";
         };
         Property.prototype.showBrackets = function () {
             if (this.bracket.left) {
@@ -722,6 +732,9 @@
                 return key == _.type;
             });
         };
+        Property.prototype.allInStreamNodes = function () {
+            return allNodesBetween(this.startNode, this.endNode);
+        };
         Property.prototype.unsetSpanRange = function () {
             var _this = this;
             var propertyType = this.getPropertyType();
@@ -820,6 +833,11 @@
             if (!this.guid) {
                 remove(this.editor.data.properties, this);
             }
+            if (this.schema.animation) {
+                if (this.schema.animation.delete) {
+                    this.schema.animation.delete(this);
+                }
+            }
         };
         Property.prototype.clone = function () {
             var clone = new Property(this);
@@ -885,6 +903,7 @@
                 this.container.style.direction = "RTL";
             }
             this.monitors = [];
+            this.selectors = [];
             this.temp = {
                 text: null
             };
@@ -961,10 +980,22 @@
             });
         };
         Editor.prototype.setupEventHandlers = function () {
+            var _this = this;
             this.container.addEventListener("dblclick", this.handleDoubleClickEvent.bind(this));
             this.container.addEventListener("keydown", this.handleKeyDownEvent.bind(this));
             this.container.addEventListener("mouseup", this.handleMouseUpEvent.bind(this));
             this.container.addEventListener("paste", this.handleOnPasteEvent.bind(this));
+        };
+        Editor.prototype.setAnimationFrame = function () {
+            var _this = this;
+            window.requestAnimationFrame(function () {
+                var properties = _this.data.properties.filter(p => !!_this.propertyType[p.type].onRequestAnimationFrame);
+                if (!properties.length) {
+                    return;
+                }
+                console.log({ method: "requestAnimationFrame", properties })
+                properties.forEach(p => _this.propertyType[p.type].onRequestAnimationFrame(p, _this.propertyType[p.type], _this));
+            });
         };
         Editor.prototype.getPropertyAtCursor = function () {
             var _this = this;
@@ -1020,6 +1051,9 @@
         Editor.prototype.addMonitor = function (monitor) {
             this.monitors.push(monitor);
         };
+        Editor.prototype.addSelector = function (selector) {
+            this.selectors.push(selector);
+        };
         Editor.prototype.getCurrentRanges = function (span) {
             var props = this.data.properties.filter(function (prop) {
                 if (prop.isDeleted || !prop.startNode || !prop.endNode || !span.speedy) {
@@ -1029,6 +1063,23 @@
                 const ei = prop.endIndex();
                 const i = span.speedy.index;
                 return si <= i && i <= ei;
+            });
+            return props;
+        };
+        Editor.prototype.getPropertiesWithin = function (start, end) {
+            if (!start || !start.speedy || !end || !end.speedy) {
+                return [];
+            }
+            var props = this.data.properties.filter(function (prop) {
+                if (prop.isDeleted || !prop.startNode || !prop.endNode) {
+                    return false;
+                }
+                const s = prop.startIndex();
+                const e = prop.endIndex();
+                const a = start.speedy.index;
+                const b = end.speedy.index;
+                //return s <= a && b <= e;
+                return s <= b && a <= e;
             });
             return props;
         };
@@ -1080,6 +1131,14 @@
         };
         Editor.prototype.handleMouseUpEvent = function (evt) {
             this.updateCurrentRanges(evt.target);
+            var selection = this.getSelectionNodes();
+            if (selection) {
+                var properties = this.getPropertiesWithin(selection.start, selection.end);
+                console.log({ evt, selection, properties });
+                if (this.selectors) {
+                    this.selectors.forEach(s => s({ editor: this, properties, selection }));
+                }
+            }
         };
         // https://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser
         Editor.prototype.handleOnPasteEvent = function (e) {
@@ -1322,6 +1381,7 @@
                         this.marked = false;
                         this.updateCurrentRanges();
                     }
+                    this.setAnimationFrame();
                     evt.preventDefault();
                     return;
                 } else if (key == DELETE) {
@@ -1335,6 +1395,7 @@
                         this.marked = false;
                         this.updateCurrentRanges();
                     }
+                    this.setAnimationFrame();
                     evt.preventDefault();
                     return;
                 }
@@ -1421,7 +1482,7 @@
                     }
                     else {
                         container.insertBefore(span, next);
-                    }                    
+                    }
                     this.setCarotByNode(atFirst ? current : span);
                     //console.log({ branch: 2, atFirst, current, span, next, key: String.fromCharCode(key) });
                 } else {
@@ -1435,6 +1496,7 @@
             }
             this.marked = false;
             this.updateCurrentRanges();
+            this.setAnimationFrame();
         };
         Editor.prototype.getContainer = function (span) {
             return span.parentElement;
@@ -1579,11 +1641,11 @@
             if (propertyType) {
                 if (propertyType.bracket) {
                     if (propertyType.bracket.left) {
-                        var left = this.createBracketNode(propertyType.bracket.left, sn.parentElement, sn);
+                        var left = this.createBracketNode(prop, propertyType.bracket.left, sn.parentElement, sn);
                         prop.addLeftBracket(left);
                     }
                     if (propertyType.bracket.right) {
-                        var right = this.createBracketNode(propertyType.bracket.right, en.parentElement, en.nextElementSibling);
+                        var right = this.createBracketNode(prop, propertyType.bracket.right, en.parentElement, en.nextElementSibling);
                         prop.addRightBracket(right);
                     }
                 }
@@ -1623,6 +1685,7 @@
             }
             content = content || type.content;
             var prop = this.addZeroPoint(propertyTypeName, content, this.getCurrent());
+            prop.schema = type;
             if (type.propertyValueSelector) {
                 type.propertyValueSelector(prop, function (value, name) {
                     if (value) {
@@ -1631,12 +1694,14 @@
                     }
                 });
             }
+            return prop;
         };
         Editor.prototype.createBlockProperty = function (propertyTypeName) {
             var selection = this.getSelectionNodes();
             this.createBlock(selection.start, selection.end, propertyTypeName);
             var property = new Property({
                 editor: this,
+                schema: this.propertyType[propertyTypeName],
                 guid: null,
                 layer: null,
                 index: propCounter++,
@@ -1645,6 +1710,7 @@
                 endNode: selection.end
             });
             this.data.properties.push(property);
+            return property;
         };
         Editor.prototype.createBlock = function (startNode, endNode, type) {
             var dummy = document.createElement("SPAN");
@@ -1687,13 +1753,14 @@
                 startNode: range.start,
                 endNode: range.end
             });
+            prop.schema = type;
             if (type.bracket) {
                 if (type.bracket.left) {
-                    var left = this.createBracketNode(type.bracket.left, range.start.parentElement, range.start);
+                    var left = this.createBracketNode(prop, type.bracket.left, range.start.parentElement, range.start);
                     prop.addLeftBracket(left);
                 }
                 if (type.bracket.right) {
-                    var right = this.createBracketNode(type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
+                    var right = this.createBracketNode(prop, type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
                     prop.addRightBracket(right);
                 }
             }
@@ -1722,6 +1789,7 @@
             else {
                 process(prop);
             }
+            return prop;
         };
         Editor.prototype.paint = function (s, i) {
             var _ = this;
@@ -1823,6 +1891,7 @@
                 }
                 var prop = new Property({
                     editor: this,
+                    schema: type,
                     layer: p.layer,
                     guid: p.guid,
                     index: p.index,
@@ -1846,11 +1915,11 @@
                 if (type) {
                     if (type.bracket) {
                         if (type.bracket.left) {
-                            var left = this.createBracketNode(type.bracket.left, startNode.parentElement, startNode);
+                            var left = this.createBracketNode(prop, type.bracket.left, startNode.parentElement, startNode);
                             prop.addLeftBracket(left);
                         }
                         if (type.bracket.right) {
-                            var right = this.createBracketNode(type.bracket.right, endNode.parentElement, endNode.nextElementSibling);
+                            var right = this.createBracketNode(prop, type.bracket.right, endNode.parentElement, endNode.nextElementSibling);
                             prop.addRightBracket(right);
                         }
                     }
@@ -1861,9 +1930,11 @@
             }
             this.handleZeroLengthAnnotations(model);
             this.handleBlocks(properties);
+            this.setAnimationFrame();
         };
-        Editor.prototype.createBracketNode = function (bracket, parent, next) {
-            var bracketNode = this.newSpan(bracket.content);
+        Editor.prototype.createBracketNode = function (prop, bracket, parent, next) {
+            var content = typeof bracket.content == "function" ? bracket.content(prop, this) : bracket.content;
+            var bracketNode = this.newSpan(content);
             bracketNode.speedy.stream = TEXT_STREAM.OUT;
             if (bracket.className) {
                 bracketNode.classList.add(bracket.className);

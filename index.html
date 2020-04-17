@@ -230,6 +230,51 @@
         .zwa-hyphen {
             color: red;
         }
+
+        .flip {
+            -moz-transform: scaleX(-1); /* Gecko */
+            -o-transform: scaleX(-1); /* Opera */
+            -webkit-transform: scaleX(-1); /* Webkit */
+            transform: scaleX(-1); /* Standard */
+            filter: FlipH; /* IE 6/7/8 */
+            display: inline-block;
+        }
+
+        .upside-down {
+            -webkit-transform: rotate(-180deg);
+            -moz-transform: rotate(-180deg);
+            -o-transform: rotate(-180deg);
+            transform: rotate(-180deg);
+            ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
+            filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+            display: inline-block;
+        }
+
+        .clock {            
+            display: inline-block;
+        }
+
+        .pulsate {
+            display: inline-block;
+        }
+
+        rect {
+            fill: none;
+            stroke: #000;
+            stroke-width: 1px;
+            vector-effect: non-scaling-stroke;
+            stroke-dasharray: 4px;
+            animation: stroke 0.2s linear infinite;
+            shape-rendering: geometricPrecision;
+            stroke-dashoffset: 8px;        
+            stroke-width: 2px;
+        }
+
+        @keyframes stroke {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
     </style>
     <script src="scripts/require.js"></script>
     <script src="scripts/app/app.require.config.js"></script>
@@ -418,7 +463,24 @@
                             <label>Expansions</label>
                             <input data-bind="checked: $data.checkbox.expansions" type="checkbox">
                         </div>
-                    </div>                    
+                    </div>     
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-md-12">
+                            <label>Animations</label>
+                            <div class="annotation-block">
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="drop" data-bind="click: $data.dropClicked"><span class="fa fa-arrow-down"></span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="spinner" data-bind="click: $data.spinnerClicked">*</button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="spinner" data-bind="click: $data.pauseClicked"><span class="fa fa-pause"></span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="rectangle" data-bind="click: $data.rectangleClicked"><span>rect</span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="wink" data-bind="click: $data.winkClicked"><span>😉</span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="flip" data-bind="click: $data.flipClicked"><span>flip</span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="invert" data-bind="click: $data.upsideDownClicked"><span>invert</span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="clock" data-bind="click: $data.clockClicked"><span class="fa fa-clock-o"></span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="pulsate" data-bind="click: $data.pulsateClicked"><span>pulsate</span></button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row" style="margin-top: 10px;">
                         <div class="col-md-12">
                             <div data-role="editor" spellcheck="false" contenteditable="true" class="editor"></div>
