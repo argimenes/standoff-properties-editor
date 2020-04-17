@@ -86,6 +86,7 @@
                 { text: "TEI-XML -> SPEEDY (IV)", value: "xml2spo3a.json" },
                 { text: "Michelangelo letter with text alignment", value: "michelangelo-text-block.json" },
                 { text: "Arabic script (RTL and ligature test)", value: "arabic.json" },
+                { text: "Marllarmé: A Throw of the Dice [ animated ]", value: "mallarme.json" },
             ]);
             this.TEI = ko.observable();
             this.list = {
