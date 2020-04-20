@@ -15,6 +15,10 @@
         ROOT: 2,
         OVERLAY: 3
     };
+    const SELECTION_DIRECTION = {
+        LEFT: 0,
+        RIGHT: 1
+    };
 
     const distinct = (list) => {
         var results = [];
@@ -355,7 +359,7 @@
 
     function firstPreviousChar(start) {
         var char = previousUntil(start, node => {
-            return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN;
+            return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN && !node.speedy.isLineBreak;
         });
         return char;
     }
@@ -364,7 +368,7 @@
         //console.log({ m: "firstNextChar", start });
         var char = nextUntil(start, node => {
             //console.log({ m: "firstNextChar", node });
-            return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN;
+            return node.speedy.role == ELEMENT_ROLE.CHAR && node.speedy.stream == TEXT_STREAM.IN && !node.speedy.isLineBreak;
         });
         return char;
     }
@@ -928,6 +932,13 @@
             this.publisher = {
                 layerAdded: []
             };
+            this.mode = {
+                selection: {
+                    direction: null,
+                    start: null,
+                    end: null
+                }
+            };
             this.propertyType = cons.propertyType;
             this.commentManager = cons.commentManager;
             this.setupEventHandlers();
@@ -1129,16 +1140,24 @@
         Editor.prototype.handleMouseClickEvent = function (evt) {
             this.updateCurrentRanges();
         };
-        Editor.prototype.handleMouseUpEvent = function (evt) {
-            this.updateCurrentRanges(evt.target);
+        Editor.prototype.updateSelectors = function (evt) {
             var selection = this.getSelectionNodes();
             if (selection) {
+                this.mode.selection.start = selection.start;
+                this.mode.selection.end = selection.end;
                 var properties = this.getPropertiesWithin(selection.start, selection.end);
                 console.log({ evt, selection, properties });
                 if (this.selectors) {
                     this.selectors.forEach(s => s({ editor: this, properties, selection }));
                 }
+            } else {
+                this.mode.selection.start = null;
+                this.mode.selection.end = null;
             }
+        };
+        Editor.prototype.handleMouseUpEvent = function (evt) {
+            this.updateCurrentRanges(evt.target);
+            this.updateSelectors(evt);
         };
         // https://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser
         Editor.prototype.handleOnPasteEvent = function (e) {
@@ -1360,6 +1379,82 @@
         Editor.prototype.canDelete = function (node) {
             return true;
         };
+        Editor.prototype.clearSelectionMode = function () {
+            this.mode.selection.start = null;
+            this.mode.selection.end = null;
+        };
+        Editor.prototype.rightSelection = function (evt, current) {
+            if (this.mode.selection.direction == null) {
+                this.mode.selection.direction = SELECTION_DIRECTION.RIGHT;
+            }
+            if (this.mode.selection.direction == SELECTION_DIRECTION.RIGHT) {
+                if (!this.mode.selection.start) {
+                    this.mode.selection.start = current;
+                }
+                if (!this.mode.selection.end) {
+
+                    var next = this.getNextCharacterNode(current);
+                    this.mode.selection.end = next;
+                }
+                else {
+                    var next = this.getNextCharacterNode(this.mode.selection.end);
+                    this.mode.selection.end = next;
+                }
+            } else if (this.mode.selection.direction == SELECTION_DIRECTION.LEFT) {
+                var node = this.mode.selection.start;
+                var next = this.getNextCharacterNode(node);
+                if (next == this.mode.selection.end) {
+                    this.mode.selection.start = this.getNextCharacterNode(next);
+                    this.mode.selection.end = next;
+                    this.mode.selection.direction = SELECTION_DIRECTION.RIGHT;
+                }
+                if (nodeIndex(next) > nodeIndex(this.mode.selection.end)) {
+                    var end = this.mode.selection.end;
+                    this.mode.selection.end = next;
+                    this.mode.selection.start = end;
+                } else {
+                    this.mode.selection.start = next;
+                }
+            }
+            this.createSelection(this.mode.selection.start, this.mode.selection.end);
+            this.updateSelectors();
+        };
+        Editor.prototype.leftSelection = function (evt, current) {
+            if (this.mode.selection.direction == null) {
+                this.mode.selection.direction = SELECTION_DIRECTION.LEFT;
+            }
+            if (this.mode.selection.direction == SELECTION_DIRECTION.LEFT) {
+                if (!this.mode.selection.end) {
+                    this.mode.selection.end = current;
+                }
+                if (!this.mode.selection.start) {
+                    var previous = this.getPreviousCharacterNode(current);
+                    this.mode.selection.start = previous;
+                }
+                else {
+                    var previous = this.getPreviousCharacterNode(this.mode.selection.start);
+                    this.mode.selection.start = previous;
+                }
+            }
+            else if (this.mode.selection.direction == SELECTION_DIRECTION.RIGHT) {
+                var node = this.mode.selection.end;
+                var previous = this.getPreviousCharacterNode(node);
+                if (previous == this.mode.selection.start) {
+                    this.mode.selection.start = this.getPreviousCharacterNode(previous);
+                    this.mode.selection.end = previous;
+                    this.mode.selection.direction = SELECTION_DIRECTION.LEFT;
+                }
+                if (nodeIndex(previous) < nodeIndex(this.mode.selection.start)) {
+                    var start = this.mode.selection.start;
+                    this.mode.selection.start = previous;
+                    this.mode.selection.end = start;
+                } else {
+                    this.mode.selection.end = previous;
+                }
+            }
+            this.createSelection(this.mode.selection.start, this.mode.selection.end);
+            this.updateSelectors();
+        };
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
             var canEdit = !!!this.lockText;
@@ -1402,6 +1497,66 @@
                 else {
                     // not handled
                 }
+            }
+            if (key == RIGHT_ARROW) {
+                if (evt.shiftKey) {
+                    this.rightSelection(evt, current);
+                }
+                else {
+                    var node = this.mode.selection.end ? this.mode.selection.end : current;
+                    var next = this.getNextCharacterNode(node);
+                    this.clearSelectionMode();
+                    this.setCarotByNode(next);
+                    this.updateCurrentRanges();
+                }
+                evt.preventDefault();
+                return;
+            }
+            if (key == LEFT_ARROW) {
+                if (evt.shiftKey) {
+                    this.leftSelection(evt, current);
+                }
+                else {
+                    var node = this.mode.selection.start ? this.mode.selection.start : current;
+                    var previous = this.getPreviousCharacterNode(node);
+                    this.clearSelectionMode();
+                    this.setCarotByNode(previous);
+                    this.updateCurrentRanges();
+                }
+                evt.preventDefault();
+                return;
+            }
+            if (key == UP_ARROW) {
+                //var rect = current.getBoundingClientRect();
+                //var x = rect.left;
+                //var lineHeight = parseFloat(document.defaultView.getComputedStyle(current, null).getPropertyValue("line-height").replace("px", ""));
+                //var y = rect.top - lineHeight;
+                //var nodes = document.elementsFromPoint(x, y);
+                //var container = this.container;
+                //var node = nodes.find(n => container.contains(n));
+                //console.log({ current, node, nodes, x, y });
+                //if (node) {
+                //    this.setCarotByNode(node);
+                //    this.updateCurrentRanges();
+                //}
+                //evt.preventDefault();
+                //return;
+            }
+            if (key == DOWN_ARROW) {
+                //var rect = current.getBoundingClientRect();
+                //var x = rect.left;
+                //var lineHeight = parseFloat(document.defaultView.getComputedStyle(current, null).getPropertyValue("line-height").replace("px", ""));
+                //var y = rect.top + lineHeight;
+                //var nodes = document.elementsFromPoint(x, y);
+                //var container = this.container;
+                //var node = nodes.find(n => container.contains(n));
+                //console.log({ current, node, nodes, x, y });
+                //if (node && this.container.contains(node) && this.container != node) {
+                //    this.setCarotByNode(node);
+                //    this.updateCurrentRanges();
+                //}                
+                //evt.preventDefault();
+                //return;
             }
             if (PASSTHROUGH_CHARS.indexOf(key) >= 0) {
                 this.updateCurrentRanges();
@@ -1523,10 +1678,25 @@
                 //span.speedy.role = ELEMENT_ROLE.CHAR;
                 span.textContent = String.fromCharCode(13);
                 span.classList.add("line-break");
+                span.speedy.isLineBreak = true;
             }
             if (charCode == TAB) {
                 span.textContent = String.fromCharCode(TAB);
                 span.classList.add("tab");
+            }
+        };
+        Editor.prototype.createSelection = function (start, end) {
+            var selection = document.getSelection();
+            var range = document.createRange();
+            range.setStart(this.getTextNode(start), 1);
+            range.setEnd(this.getTextNode(end), 1)
+            if (selection.setBaseAndExtent) {
+                var startOffset = 1;    // range.startOffset;
+                var endOffset = 1;      // range.endOffset;
+                selection.setBaseAndExtent(range.startContainer, startOffset, range.endContainer, endOffset);
+            } else {
+                selection.removeAllRanges();
+                selection.addRange(range);
             }
         };
         Editor.prototype.setCarotByNode = function (node) {
@@ -1594,14 +1764,14 @@
                 end: endNode
             };
         };
-        Editor.prototype.createSelection = function (sn, en) {
-            var range = document.createRange();
-            range.setStart(sn, 0);
-            range.setEnd(en, 1);
-            var selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-        };
+        //Editor.prototype.createSelection = function (sn, en) {
+        //    var range = document.createRange();
+        //    range.setStart(sn, 0);
+        //    range.setEnd(en, 1);
+        //    var selection = window.getSelection();
+        //    selection.removeAllRanges();
+        //    selection.addRange(range);
+        //};
         Editor.prototype.addProperties = function (props) {
             var _this = this;
             props.forEach(function (prop) {
