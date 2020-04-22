@@ -1336,6 +1336,109 @@
                             }
                         }
                     },
+                    peekaboo: {
+                        format: "block",
+                        labelRenderer: function (prop) {
+                            return "peekaboo";
+                        },
+                        className: "peekaboo",
+                        animation: {
+                            init: (p, editor) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation = {
+                                    x: 0,
+                                    step: 4,
+                                    stop: false
+                                };
+                                p.startNode.parentNode.style.top = "16px";
+                                p.startNode.parentNode.style.marginTop = "-16px";
+                            },
+                            draw: function (p) {
+                                var nodes = p.allInStreamNodes();
+                                var width = (p.endNode.offsetLeft - p.startNode.offsetLeft) + p.endNode.offsetWidth;
+                                p.animation.x += p.animation.step;
+                                if (p.animation.x >= width || p.animation.x <= (0 - width)) {
+                                    p.animation.step = p.animation.step * -1;
+                                }
+                                nodes.forEach(n => {
+                                    n.style.left = p.animation.x + "px";
+                                });
+                            },
+                            start: (p) => {
+                                if (!p.startNode) {
+                                    return;
+                                }
+                                p.animation.timer = setInterval(function () {
+                                    if (p.animation.stop) {
+                                        // clearInterval(p.animation.timer);
+                                        return;
+                                    }
+                                    p.schema.animation.draw(p);
+                                }, 65);
+                            },
+                            stop: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            },
+                            delete: (p, editor) => {
+                                clearInterval(p.animation.timer);
+                            }
+                        }
+                    },
+                    domain: {
+                        format: "decorate",
+                        className: "domain",
+                        labelRenderer: function (prop) {
+                            return prop.guid ? "<span class='output-domain'>domain<span> (" + prop.text + ")" : "<span class='output-domain'>domain<span>";
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var note = prompt("Note:");
+                            process(note);
+                            prop.text = note;
+                            prop.schema.onRequestAnimationFrame(prop);
+                        },
+                        onRequestAnimationFrame: (p) => {
+                            console.log({ p });
+                            if (!p.startNode || !p.endNode || p.isDeleted) {
+                                return;
+                            }
+                            var margin = p.node || document.createElement("SPAN");
+                            margin.speedy = {
+                                role: 3,
+                                stream: 1
+                            };
+                            margin.innerHTML = null;
+                            margin.innerText = p.text;
+                            var line = document.createElement("SPAN");
+                            line.speedy = {
+                                role: 3,
+                                stream: 1
+                            };
+                            margin.style.fontSize = "2rem";
+                            margin.style.position = "absolute";                            
+                            margin.style.transform = "rotate(-90deg)";  
+                            margin.style.transformOrigin = "0 0";                                             
+                            var w = p.endNode.offsetTop - p.startNode.offsetTop + p.endNode.offsetHeight;
+                            margin.title = p.text;
+                            margin.style.top = p.endNode.offsetTop + p.endNode.offsetHeight + "px"; // have to halve width as the region is rotated 90 degrees
+                            margin.style.left = "4px";
+                            margin.style.width = w + "px";
+                            line.style.position = "absolute";
+                            line.style.top = "33px";
+                            line.style.left = 0;                            
+                            line.style.opacity = 0.5;
+                            line.style.width = w + "px";
+                            line.style.backgroundColor = "purple";
+                            line.style.height = "4px";                            
+                            margin.appendChild(line);
+                            if (!p.nodeHooked) {
+                                p.editor.container.appendChild(margin);
+                                p.node = margin;
+                                p.nodeHooked = true;
+                            }
+                        }
+                    },
                     page: {
                         format: "decorate",
                         className: "page",
@@ -1514,6 +1617,18 @@
             spinner.animation.init(p);
             spinner.animation.start(p);
         };
+        Model.counterClicked = function () {
+            var p = this.editor.createZeroPointProperty("counter");
+            var type = this.editor.propertyType.counter;
+            type.animation.init(p);
+            type.animation.start(p);
+        };
+        Model.prototype.peekabooClicked = function () {
+            var p = this.editor.createBlockProperty("peekaboo");
+            var type = this.editor.propertyType.peekaboo;
+            type.animation.init(p);
+            type.animation.start(p);
+        };
         Model.prototype.clockClicked = function () {
             var p = this.editor.createBlockProperty("clock");
             var clock = this.editor.propertyType.clock;
@@ -1626,6 +1741,9 @@
         };
         Model.prototype.textClicked = function () {
             this.editor.createProperty("text");
+        };
+        Model.prototype.domainClicked = function () {
+            this.editor.createProperty("domain");
         };
         Model.prototype.webLinkClicked = function () {
             this.editor.createProperty("webLink");

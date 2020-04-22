@@ -169,45 +169,113 @@
                 var shiftLeft = this.newSpan(this.monitorButton.shiftLeft || "<-");
                 shiftLeft.property = prop;
                 shiftLeft.style.marginLeft = "5px";
+                shiftLeft.addEventListener("mouseover", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.highlight();
+                });
+                shiftLeft.addEventListener("mouseout", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.unhighlight();
+                });
                 shiftLeft.addEventListener("click", function (e) {
                     var span = getParent(e.target, function (x) { return !!x.property; });
                     if (!span) {
                         return;
                     }
                     var p = span.property;
+                    p.unhighlight();
                     p.shiftLeft();
                 });
                 var shiftRight = this.newSpan(this.monitorButton.shiftRight || "->");
                 shiftRight.property = prop;
                 shiftRight.style.marginLeft = "5px";
+                shiftRight.addEventListener("mouseover", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.highlight();
+                });
+                shiftRight.addEventListener("mouseout", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.unhighlight();
+                });
                 shiftRight.addEventListener("click", function (e) {
                     var span = getParent(e.target, function (x) { return !!x.property; });
                     if (!span) {
                         return;
                     }
                     var p = span.property;
+                    p.unhighlight();
                     p.shiftRight();
                 });
                 var expand = this.newSpan(this.monitorButton.expand || "[+]");
                 expand.property = prop;
                 expand.style.marginLeft = "5px";
+                expand.addEventListener("mouseover", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.highlight();
+                });
+                expand.addEventListener("mouseout", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.unhighlight();
+                });
                 expand.addEventListener("click", function (e) {
                     var span = getParent(e.target, function (x) { return !!x.property; });
                     if (!span) {
                         return;
                     }
                     var p = span.property;
+                    p.unhighlight();
                     p.expand();
                 });
                 var contract = this.newSpan(this.monitorButton.contract || "[-]");
                 contract.property = prop;
                 contract.style.marginLeft = "5px";
+                contract.addEventListener("mouseover", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.highlight();
+                });
+                contract.addEventListener("mouseout", (e) =>{
+                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    if (!span) {
+                        return;
+                    }
+                    var p = span.property;
+                    p.unhighlight();
+                });
                 contract.addEventListener("click", function (e) {
                     var span = getParent(e.target, function (x) { return !!x.property; });
                     if (!span) {
                         return;
                     }
                     var p = span.property;
+                    p.unhighlight();
                     p.contract();
                 });
                 if (prop.isZeroPoint) {

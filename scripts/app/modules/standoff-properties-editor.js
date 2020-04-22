@@ -702,6 +702,12 @@
             this.endNode = previousEndNode;
             this.shiftBracketsLeft();
             this.setSpanRange();
+            this.flashHighlight();
+        };
+        Property.prototype.flashHighlight = function () {
+            var _this = this;
+            this.highlight();
+            setTimeout(() => _this.unhighlight(), 125);            
         };
         Property.prototype.shiftRight = function () {
             this.unsetSpanRange();
@@ -713,6 +719,7 @@
             this.endNode = nextEndNode;
             this.shiftBracketsRight();
             this.setSpanRange();
+            this.flashHighlight();
         };
         Property.prototype.expand = function () {
             this.unsetSpanRange();
@@ -721,6 +728,7 @@
             this.endNode = nextEndNode;
             this.shiftNodeRight(this.bracket.right);
             this.setSpanRange();
+            this.flashHighlight();
         };
         Property.prototype.contract = function () {
             this.unsetSpanRange();
@@ -729,6 +737,7 @@
             this.endNode = previousEndNode;
             this.shiftNodeLeft(this.bracket.right);
             this.setSpanRange();
+            this.flashHighlight();
         };
         Property.prototype.getPropertyType = function () {
             var _ = this;
@@ -812,6 +821,12 @@
             if (propertyType.styleRenderer) {
                 propertyType.styleRenderer(allNodesBetween(this.startNode, this.endNode), this);
             }
+            if (this.schema) {
+                if (this.schema.onRequestAnimationFrame) {
+                    this.schema.onRequestAnimationFrame(this);
+                }
+            }
+            
         };
         Property.prototype.getText = function () {
             return getRangeText({ start: this.startNode, end: this.endNode });
@@ -2157,6 +2172,7 @@
                 }
                 var prop = this.addZeroPoint(p.type, pt.content || p.text, node);
                 prop.guid = p.guid;
+                prop.schema = pt;
                 prop.layer = p.layer;
                 prop.attributes = p.attributes;
                 prop.index = p.index;

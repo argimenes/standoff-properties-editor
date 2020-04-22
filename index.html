@@ -37,6 +37,21 @@
             text-align: center;
         }
 
+        .flip {
+            -moz-transform: scaleX(-1); /* Gecko */
+            -o-transform: scaleX(-1); /* Opera */
+            -webkit-transform: scaleX(-1); /* Webkit */
+            transform: scaleX(-1); /* Standard */
+            filter: FlipH; /* IE 6/7/8 */
+            display: inline-block;
+        }
+
+        .peekaboo {
+            overflow: hidden;
+            display: inline-block;   
+            position: relative;
+        }   
+
         .block-indent {
             padding: 0 40px;
             margin: 0;
@@ -433,7 +448,7 @@
             <div class="row" style="margin-top: 20px;">
                 <div class="col-md-12">
                     <div class="row">                        
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div>
                                 <label>
                                     Annotations
@@ -456,6 +471,7 @@
                                     class="fa fa-link"></span></button>
                             <button style="border-bottom: 3px solid yellow;" data-toggle="tooltip" data-original-title="Footnotes"
                                 class="btn btn-default tip" data-bind="click: $data.footnoteClicked"><span style="font-weight: 600;">f</span></button>
+                            <button style="border-bottom: 3px solid purple;" data-toggle="tooltip" data-original-title="Domain" class="btn btn-default tip" data-bind="click: $data.domainClicked"><span>|</span></button>
                         </div>
                         <div class="col-md-3">
                             <div>
@@ -488,7 +504,8 @@
                                 <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="flip" data-bind="click: $data.flipClicked"><span>flip</span></button>
                                 <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="invert" data-bind="click: $data.upsideDownClicked"><span>invert</span></button>
                                 <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="clock" data-bind="click: $data.clockClicked"><span class="fa fa-clock-o"></span></button>
-                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="pulsate" data-bind="click: $data.pulsateClicked"><span>pulsate</span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="pulse" data-bind="click: $data.pulsateClicked"><span>pulse</span></button>
+                                <button class="btn btn-default tip" data-toggle="tooltip" data-original-title="peek" data-bind="click: $data.peekabooClicked"><span>peek</span></button>                                
                             </div>
                         </div>
                     </div>
