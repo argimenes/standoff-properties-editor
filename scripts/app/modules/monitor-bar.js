@@ -186,13 +186,18 @@
                     p.unhighlight();
                 });
                 shiftLeft.addEventListener("click", function (e) {
-                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    var span = getParent(e.target, x => !!x.property);
                     if (!span) {
                         return;
                     }
                     var p = span.property;
                     p.unhighlight();
-                    p.shiftLeft();
+                    if (e.shiftKey) {
+                        p.shiftLeft();
+                        p.expand();
+                    } else {
+                        p.shiftLeft();
+                    }         
                 });
                 var shiftRight = this.newSpan(this.monitorButton.shiftRight || "->");
                 shiftRight.property = prop;
@@ -214,13 +219,18 @@
                     p.unhighlight();
                 });
                 shiftRight.addEventListener("click", function (e) {
-                    var span = getParent(e.target, function (x) { return !!x.property; });
+                    var span = getParent(e.target, x => !!x.property);
                     if (!span) {
                         return;
                     }
                     var p = span.property;
                     p.unhighlight();
-                    p.shiftRight();
+                    if (e.shiftKey) {
+                        p.shiftRight(true);
+                        p.contract();
+                    } else {
+                        p.shiftRight();
+                    }            
                 });
                 var expand = this.newSpan(this.monitorButton.expand || "[+]");
                 expand.property = prop;

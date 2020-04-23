@@ -692,7 +692,7 @@
             return firstNextChar(node);
             // return node.nextElementSibling;
         };
-        Property.prototype.shiftLeft = function () {
+        Property.prototype.shiftLeft = function (suppressFlash) {
             this.unsetSpanRange();
             var previousStartNode = this.getPreviousCharNode(this.startNode);
             var previousEndNode = this.getPreviousCharNode(this.endNode);
@@ -702,14 +702,16 @@
             this.endNode = previousEndNode;
             this.shiftBracketsLeft();
             this.setSpanRange();
-            this.flashHighlight();
+            if (!suppressFlash) {
+                this.flashHighlight();
+            }
         };
         Property.prototype.flashHighlight = function () {
             var _this = this;
             this.highlight();
             setTimeout(() => _this.unhighlight(), 125);            
         };
-        Property.prototype.shiftRight = function () {
+        Property.prototype.shiftRight = function (suppressFlash) {
             this.unsetSpanRange();
             var nextStartNode = this.getNextCharNode(this.startNode);
             var nextEndNode = this.getNextCharNode(this.endNode);
@@ -719,7 +721,9 @@
             this.endNode = nextEndNode;
             this.shiftBracketsRight();
             this.setSpanRange();
-            this.flashHighlight();
+            if (!suppressFlash) {
+                this.flashHighlight();
+            }
         };
         Property.prototype.expand = function () {
             this.unsetSpanRange();
