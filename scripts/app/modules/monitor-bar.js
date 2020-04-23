@@ -11,6 +11,25 @@
         return Object.getOwnPropertyNames(obj).length;
     }
 
+    const newSpan = (config) => {
+        var el = document.createElement("SPAN");
+        el.property = config.property;
+        if (config.content) {
+            el.innerHTML = config.content;
+        }
+        if (config.style) {
+            for (var key in config.style) {
+                el.style[key] = config.style[key];
+            }
+        }
+        if (config.handler) {
+            for (var key in config.handler) {
+                el.addEventListener(key, config.handler[key]);
+            }
+        }
+        return el;
+    };
+
     function getParent(startNode, func) {
         var s = startNode, loop = true;
         var c = 0;
@@ -165,6 +184,32 @@
                     }
                     var p = span.property;
                     _.commentManager(p);
+                });
+                const redraw = newSpan({
+                    content: this.monitorButton.redraw || ">.",
+                    property: prop,
+                    style: {
+                        marginLeft: "5px"
+                    },
+                    handler: {
+                        click: (e) => {
+                            var span = getParent(e.target, x => !!x.property);
+                            if (!span) {
+                                return;
+                            }
+                            var p = span.property;
+                            var editor = data.editor;
+                            var container = editor.container;
+                            var temp = () => {
+                                container.removeEventListener("mouseup", temp, true);
+                                var sel = editor.getSelectionNodes();
+                                if (sel) {
+                                    p.switchTo(sel.start, sel.end);
+                                }
+                            };
+                            container.addEventListener("mouseup", temp, true);
+                        }
+                    }
                 });
                 var shiftLeft = this.newSpan(this.monitorButton.shiftLeft || "<-");
                 shiftLeft.property = prop;
@@ -328,6 +373,7 @@
                 }
                 options.appendChild(layer);
                 options.appendChild(comment);
+                options.appendChild(redraw);
                 options.appendChild(shiftLeft);
                 options.appendChild(shiftRight);
                 options.appendChild(expand);

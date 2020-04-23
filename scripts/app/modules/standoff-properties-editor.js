@@ -711,6 +711,12 @@
             this.highlight();
             setTimeout(() => _this.unhighlight(), 125);            
         };
+        Property.prototype.switchTo = function (start, end) {
+            this.unsetSpanRange();
+            this.startNode = start;
+            this.endNode = end;
+            this.setSpanRange();
+        };
         Property.prototype.shiftRight = function (suppressFlash) {
             this.unsetSpanRange();
             var nextStartNode = this.getNextCharNode(this.startNode);
@@ -1153,7 +1159,7 @@
         Editor.prototype.setMonitor = function (props) {
             var _this = this;
             window.setTimeout(function () {
-                _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount }));
+                _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount, editor: _this }));
             }, 1);
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
