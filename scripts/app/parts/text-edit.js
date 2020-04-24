@@ -84,7 +84,7 @@
                 { text: "TEI-XML -> SPEEDY (II)", value: "xml2spo2.json" },
                 { text: "TEI-XML -> SPEEDY (III)", value: "xml2spo3.json" },
                 { text: "TEI-XML -> SPEEDY (IV)", value: "xml2spo3a.json" },
-                { text: "Michelangelo letter with text alignment", value: "michelangelo-text-block.json" },
+                { text: "Michelangelo letter [ text alignment + image ]", value: "mich1.json" },
                 { text: "Arabic script (RTL and ligature test)", value: "arabic.json" },
                 { text: "Marllarmé: A Throw of the Dice [ animated ]", value: "mallarme.json" },
             ]);
@@ -257,6 +257,168 @@
                         },
                         labelRenderer: function () {
                             return "tab";
+                        }
+                    },
+                    video: {
+                        format: "decorate",
+                        labelRenderer: function (prop) {
+                            return "video: " + prop.value;
+                        },
+                        zeroPoint: {
+                            className: "video"
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var defaultValue = prop.value;
+                            var src = prompt("URL", defaultValue);
+                            process(src);
+                        },
+                        attributes: {
+                            "width": {
+                                renderer: function (prop) {
+                                    return "width (" + (prop.attributes.width || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("width", prop.attributes["width"]);
+                                    process(value);
+                                }
+                            },
+                            "height": {
+                                renderer: function (prop) {
+                                    return "height (" + (prop.attributes.width || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("height", prop.attributes["height"]);
+                                    process(value);
+                                }
+                            },
+                            "start": {
+                                renderer: function (prop) {
+                                    return "start (" + (prop.attributes.start || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("start", prop.attributes["start"]);
+                                    process(value);
+                                }
+                            },
+                            "end": {
+                                renderer: function (prop) {
+                                    return "end (" + (prop.attributes.end || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("end", prop.attributes["end"]);
+                                    process(value);
+                                }
+                            }
+                        },
+                        animation: {
+                            init: (p) => {
+
+                            },
+                            start: (p) => {
+                                var iframe = document.createElement("IFRAME");
+                                iframe.setAttribute("width", "560");
+                                iframe.setAttribute("height", "315");
+                                iframe.setAttribute("src", p.value);
+                                iframe.setAttribute("frameborder", "0");
+                                iframe.speedy = {
+                                    stream: 1
+                                };
+                                iframe.setAttribute("src", p.value);
+                                p.startNode.style.float = "left";
+                                p.startNode.style.marginRight = "20px";
+                                p.startNode.appendChild(iframe);
+                            },
+                            delete: (p) => {
+                                p.startNode.remove();
+                            }
+                        }
+                    },
+                    image: {
+                        format: "decorate",
+                        labelRenderer: function (prop) {
+                            return "image: " + prop.value;
+                        },
+                        zeroPoint: {
+                            className: "image"
+                        },
+                        propertyValueSelector: function (prop, process) {
+                            var defaultValue = prop.value;
+                            var src = prompt("URL", defaultValue);
+                            process(src);
+                        },
+                        attributes: {
+                            "scale": {
+                                renderer: function (prop) {
+                                    return "scale (" + (prop.attributes.scale || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("scale", prop.attributes["scale"]);
+                                    process(value);
+                                }
+                            },
+                            "alignment": {
+                                renderer: function (prop) {
+                                    return "alignment (" + (prop.attributes.alignment || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("alignment", prop.attributes["alignment"]);
+                                    process(value);
+                                }
+                            },
+                            "right-margin": {
+                                renderer: function (prop) {
+                                    return "right margin (" + (prop.attributes["right-margin"] || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("right margin", prop.attributes["right-margin"]);
+                                    process(value);
+                                }
+                            },
+                            "width": {
+                                renderer: function (prop) {
+                                    return "width (" + (prop.attributes.width || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("width", prop.attributes["width"]);
+                                    process(value);
+                                }
+                            },
+                            "height": {
+                                renderer: function (prop) {
+                                    return "height (" + (prop.attributes.height || "none") + ")";
+                                },
+                                selector: function (prop, process) {
+                                    var value = prompt("height", prop.attributes["height"]);
+                                    process(value);
+                                }
+                            }
+                        },
+                        animation: {
+                            init: (p) => {
+                                p.attributes.alignment = "left";
+                                p.attributes["right-margin"] = "20px";
+                                // p.attributes.scale = 100;
+                            },
+                            start: (p) => {
+                                var img = document.createElement("IMG");
+                                var i = p.getPreviousCharNode(p.startNode).speedy.index;
+                                img.speedy = {
+                                    stream: 1,
+                                    index: i
+                                };
+                                img.setAttribute("src", p.value);
+                                img.style.float = p.attributes.alignment;
+                                img.style.marginRight = p.attributes["right-margin"];
+                                if (p.attributes["scale"]) {
+                                    img.style.width = p.attributes["scale"] + "%";
+                                    img.style.height = "auto";
+                                }
+                                p.startNode.speedy.index = p.startNode.speedy.index || i;
+                                p.startNode.appendChild(img);
+                            },
+                            delete: (p) => {
+                                p.startNode.remove();
+                            }
                         }
                     },
                     "leiden/expansion": {
@@ -1409,7 +1571,7 @@
                                 stream: 1
                             };
                             margin.innerHTML = null;
-                            margin.innerText = p.text;
+                            margin.innerText = p.value;
                             var line = document.createElement("SPAN");
                             line.speedy = {
                                 role: 3,
@@ -1809,6 +1971,18 @@
                     p.schema.animation.start(p, editor);
                 });
             }
+        };
+        Model.prototype.imageClicked = function () {
+            var p = this.editor.createZeroPointProperty("image");
+            var image = this.editor.propertyType.image;
+            image.animation.init(p);
+            image.animation.start(p);
+        };
+        Model.prototype.videoClicked = function () {
+            var p = this.editor.createZeroPointProperty("video");
+            var video = this.editor.propertyType.video;
+            video.animation.init(p);
+            video.animation.start(p);
         };
         Model.prototype.cloneNode = function (node) {
             var clone = node.cloneNode(true);
