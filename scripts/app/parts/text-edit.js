@@ -84,7 +84,7 @@
                 { text: "TEI-XML -> SPEEDY (II)", value: "xml2spo2.json" },
                 { text: "TEI-XML -> SPEEDY (III)", value: "xml2spo3.json" },
                 { text: "TEI-XML -> SPEEDY (IV)", value: "xml2spo3a.json" },
-                { text: "Michelangelo letter [ text alignment + image ]", value: "mich1.json" },
+                { text: "Michelangelo letter [ text alignment + image + video ]", value: "mich1.json" },
                 { text: "Arabic script (RTL and ligature test)", value: "arabic.json" },
                 { text: "Marllarmé: A Throw of the Dice [ animated ]", value: "mallarme.json" },
             ]);
