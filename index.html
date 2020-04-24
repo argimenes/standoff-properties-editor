@@ -594,9 +594,10 @@
             $("body").tooltip({
                 selector: '[data-toggle="tooltip"]'
             });
-
+            var urlParams = new URLSearchParams(window.location.search);
+            var file = urlParams.get("file") || "ReggF3-H19-316.json";
             var node = document.getElementById("main-template");
-            $.get("ReggF3-H19-316.json", function (json) {
+            $.get(file, function (json) {
                 var editor = new Editor({
                     template: node,
                     editor: json
