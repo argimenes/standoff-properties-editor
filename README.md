@@ -192,3 +192,10 @@ interface IGuid {} // 32 character UUID string
 
 ## Demo-Page from DTA
 http://www.deutschestextarchiv.de/book/view/patzig_msgermfol841842_1828/?hl=welcher;p=11
+
+## Related publications
+
+* Neill, I. and Kuczera, A. (2019). The Codex – an Atlas of Relations. ZfdG - Zeitschrift für digitale Geisteswissenschaften. Sonderband 4. http://www.zfdg.de/sb004_008
+* Neill, I. and Schmidt, D. (2020). SPEEDy A practical editor for texts annotated with standoff properties. GraphSDE2019: Workshop on Scholarly Digital Editions, Graph Data-Models and Semantic Web Technologies. Draft available at https://www.researchgate.net/publication/340006851
+
+
