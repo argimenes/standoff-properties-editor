@@ -2066,10 +2066,13 @@
             if(speedy === null) {
               return null;
             }
-            //console.log('selection range:', range);
 
-            let startNode = getParent(range.startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
-            let endNode = getParent(range.endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+            let startNode = getParent(range.startContainer, x => x && x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+            let endNode = getParent(range.endContainer, x => x && x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+
+            if(!startNode || !endNode) {
+              return null;
+            }
 
             if(range.startOffset === 1) {
               startNode = startNode.nextElementSibling;
