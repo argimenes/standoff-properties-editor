@@ -2051,23 +2051,35 @@
             return node;
         };
         Editor.prototype.getSelectionNodes = function () {
-            var range = window.getSelection().getRangeAt(0);
+            const selection = window.getSelection();
+            if(selection.rangeCount === 0) {
+                return null;
+            }
+
+            const range = selection.getRangeAt(0);
             if (range.collapsed) {
                 return null;
             }
-            console.log({ range });
-            var startContainer = range.startContainer;
-            var endContainer = range.endContainer;
-            //if (range.startOffset == 1 && !range.startContainer.speedy) {
-            //    startContainer = range.startContainer.parentElement.nextElementSibling;
-            //}
-            //if (range.endOffset == 0 && !range.endContainer.speedy) {
-            //    endContainer = range.endContainer.parentElement.previousElementSibling;
-            //}
-            console.log({ range, startContainer, endContainer });
-            var startNode = getParent(startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
-            var endNode = getParent(endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
-            console.log({ startContainer, endContainer, startNode, endNode });
+
+            // check if selection is completely inside speedy
+            const speedy = getParent(range.commonAncestorContainer, x => x === this.container);
+            if(speedy === null) {
+              return null;
+            }
+            //console.log('selection range:', range);
+
+            let startNode = getParent(range.startContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+            let endNode = getParent(range.endContainer, x => x.speedy && x.speedy.role == ELEMENT_ROLE.CHAR);
+
+            if(range.startOffset === 1) {
+              startNode = startNode.nextElementSibling;
+            }
+            if(range.endOffset === 0) {
+              endNode = endNode.previousElementSibling;
+            }
+
+            //console.log({ range, startContainer, endContainer });
+            //console.log({ startContainer, endContainer, startNode, endNode });
             return {
                 start: startNode,
                 end: endNode
