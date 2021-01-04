@@ -1473,47 +1473,7 @@
                 }
             }
         };
-        Editor.prototype.handleDelete = function (current) {
-            var next = firstNextCharOrLineBreak(current);
-            if (!next) {
-                return;
-            }
-            if(current) {
 
-            var previous = firstPreviousCharOrLineBreak(current);
-            //console.log({ current, previous, next });
-            var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
-            if (outOfStream) {
-                next.startProperties[0].remove();
-                next.style.display = "none";
-                if (current) {
-                    this.setCarotByNode(current);
-                }
-                return;
-            }
-            if (next.startProperties.length) {
-                var forward = this.getNextCharacterNode(next);
-                next.startProperties.forEach(function (prop) {
-                    prop.startNode = forward;
-                    forward.startProperties.push(prop);
-                });
-                next.startProperties.length = 0;
-            }
-            if (next.endProperties.length) {
-                next.endProperties.forEach(function (prop) {
-                    prop.endNode = current;
-                    current.endProperties.push(prop);
-                });
-                next.endProperties.length = 0;
-            }
-            next.startProperties
-                .filter(function (sp) { return sp.endNode == current && sp.startNode == next; })
-                .forEach(function (single) { remove(_.data.properties, single); });
-            next.remove();
-          }
-
-            this.setCarotByNode(current);
-        };
         Editor.prototype.getCurrent = function () {
             var sel = window.getSelection();
             var current = sel.anchorNode.parentElement;
@@ -1522,6 +1482,39 @@
             }
             return current;
         };
+
+        Editor.prototype.getCurrentNEW = function () {
+            var sel = window.getSelection();
+            if(this.container.children.length === 0) {
+              return null;
+            }
+            var current = sel.anchorNode === this.container ? this.container.firstChild : this.getParentSpan(sel.anchorNode);
+            if (sel.anchorOffset == 0 && !current.previousElementSibling) {
+              return null;
+            }
+            if (sel.anchorOffset == 0 && current.previousElementSibling)  {
+                current = current.previousElementSibling;
+            }
+            return current;
+        };
+
+        Editor.prototype.getNextNEW = function () {
+            var sel = window.getSelection();
+            if(this.container.children.length === 0) {
+              return null;
+            }
+            var current = sel.anchorNode === this.container ? this.container.firstChild : this.getParentSpan(sel.anchorNode);
+
+            if (sel.anchorOffset == 1 && !current.nextElementSibling) {
+              return null;
+            }
+            if (sel.anchorOffset == 1 && current.nextElementSibling)  {
+                current = current.nextElementSibling;
+            }
+
+            return current;
+        };
+
         Editor.prototype.getCurrentTEST = function () {
             var sel = window.getSelection();
             // var current = sel.anchorNode.parentElement;
@@ -1540,6 +1533,7 @@
                 node: current
             };
         };
+
         Editor.prototype.deleteRange = function (range) {
             var c = 0;
             var node = range.end;
@@ -1655,9 +1649,11 @@
             var sub = this.subscriber;
             var range = data.range;
             var current = data.current;
-            var offset = data.selectionOffset;
+            var next = data.next;
+
             var _range = null;
             var _current = null;
+            var _next = null;
             if (sub) {
                 if (range) {
                     _range = {
@@ -1666,6 +1662,7 @@
                     };
                 }
                 _current = indexNode(sub.container.firstChild, nodeIndex(current));
+                _next = indexNode(sub.container.firstChild, nodeIndex(next));
             }
             if (data.key == BACKSPACE) {
                 if (canEdit) {
@@ -1692,17 +1689,11 @@
                             this.deleteRange(_range);
                         }
                     }
-                    else {
-                        if (offset == 1) {
-                            var offsetNode = firstNextCharOrLineBreak(current);
-                            if (offsetNode == current) {
-                                return;
-                            }
-                        }
-                        this.handleDelete(current);
-                        if (sub) {
-                            this.handleDelete(_current);
-                        }
+                    else if(next !== current) {
+                      this.handleBackspace(next, true);
+                      if (sub) {
+                          this.handleBackspace(_next);
+                      }
                     }
                     this.marked = false;
                     this.updateCurrentRanges();
@@ -1873,8 +1864,9 @@
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
             var canEdit = !!!this.lockText;
-            var tmp = this.getCurrentTEST();                    // get the currently selected SPAN for the cursor
-            var current = tmp.node;
+
+            var current = this.getCurrentNEW();                 // get the SPAN before the cursor
+            var next = this.getNextNEW();                       // get the SPAN after the cursor
             var key = (evt.which || evt.keyCode);               // get the inputted key
             var range = this.getSelectionNodes();               // get the mouse selection range, if any
             var hasSelection = !!range;
@@ -1899,7 +1891,7 @@
                 return;
             }
             if (key == BACKSPACE || key == DELETE) {
-                this.processDelete({ key, current, range, selectionOffset: tmp.offset });
+                this.processDelete({ key, current, next, range });
                 this.setAnimationFrame();
                 evt.preventDefault();
                 return;
