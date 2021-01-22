@@ -1000,7 +1000,19 @@
                   return false;
                 }
               };
-
+            this.handleSpecialChars = cons.handleSpecialChars ||
+              function (span, charCode) {
+                if (charCode == ENTER) {
+                    //span.speedy.role = ELEMENT_ROLE.CHAR;
+                    span.textContent = String.fromCharCode(13);
+                    span.classList.add("line-break");
+                    span.speedy.isLineBreak = true;
+                }
+                if (charCode == TAB) {
+                    span.textContent = String.fromCharCode(TAB);
+                    span.classList.add("tab");
+                }
+              };
             this.unbinding = cons.unbinding || {};
             this.lockText = cons.lockText || false;
             this.lockProperties = cons.lockProperties || false;
@@ -1948,18 +1960,7 @@
             }
             return null;
         };
-        Editor.prototype.handleSpecialChars = function (span, charCode) {
-            if (charCode == ENTER) {
-                //span.speedy.role = ELEMENT_ROLE.CHAR;
-                span.textContent = String.fromCharCode(13);
-                span.classList.add("line-break");
-                span.speedy.isLineBreak = true;
-            }
-            if (charCode == TAB) {
-                span.textContent = String.fromCharCode(TAB);
-                span.classList.add("tab");
-            }
-        };
+
         Editor.prototype.createSelection = function (start, end) {
             var selection = document.getSelection();
             var range = document.createRange();
