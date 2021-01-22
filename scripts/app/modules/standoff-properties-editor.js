@@ -1198,30 +1198,27 @@
         };
         Editor.prototype.updateCurrentRanges = function (span) {
             var _this = this;
-            window.setTimeout(function () {
-                if (!span) {
-                    span = _this.getCurrent();
-                }
-                _this.setMonitor([]);
-                if (!_this.marked) {
-                    markNodesWithIndexes(_this.container.firstChild);
-                    _this.data.properties.sort((a, b) => a.startIndex() > b.endIndex() ? 1 : a.startIndex() == b.startIndex() ? -1 : 0);
-                    _this.marked = true;
-                }
-                var props = this.getCurrentRanges(span);
-                props.sort((a, b) => {
-                    const asi = a.startIndex();
-                    const bsi = b.startIndex();
-                    if (asi > bsi) return 1;
-                    if (asi < bsi) return -1;
-                    const aei = a.endIndex();
-                    const bei = b.endIndex();
-                    if (aei > bei) return 1;
-                    if (aei < bei) return -1;
-                    return 0;
-                });
-                _this.setMonitor(props || []);
-            }.bind(this), 1);
+            if (!span) {
+                span = _this.getCurrent();
+            }
+            if (!_this.marked) {
+                markNodesWithIndexes(_this.container.firstChild);
+                _this.data.properties.sort((a, b) => a.startIndex() > b.endIndex() ? 1 : a.startIndex() == b.startIndex() ? -1 : 0);
+                _this.marked = true;
+            }
+            var props = this.getCurrentRanges(span);
+            props.sort((a, b) => {
+                const asi = a.startIndex();
+                const bsi = b.startIndex();
+                if (asi > bsi) return 1;
+                if (asi < bsi) return -1;
+                const aei = a.endIndex();
+                const bei = b.endIndex();
+                if (aei > bei) return 1;
+                if (aei < bei) return -1;
+                return 0;
+            });
+            _this.setMonitor(props || []);
         };
         Editor.prototype.deleteAnnotation = function (type) {
             var current = this.getCurrent();
@@ -1235,9 +1232,7 @@
         };
         Editor.prototype.setMonitor = function (props) {
             var _this = this;
-            window.setTimeout(function () {
-                _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount, editor: _this }));
-            }, 1);
+            _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount, editor: _this }));
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
             this.updateCurrentRanges();
@@ -1766,7 +1761,7 @@
                 //if (node && this.container.contains(node) && this.container != node) {
                 //    this.setCarotByNode(node);
                 //    this.updateCurrentRanges();
-                //}                
+                //}
                 //evt.preventDefault();
                 //return;
             }
@@ -1832,7 +1827,7 @@
                     this.createProperty(propertyTypeName);
                     processed = true;
                 }
-            }            
+            }
             return processed;
         };
         Editor.prototype.processSelectionOverwrite = function (data) {
@@ -1888,7 +1883,7 @@
                 var processed = this.processControlOrMeta({ event: evt, current });
                 if (processed) {
                     evt.preventDefault();
-                }   
+                }
                 return;
             }
             if (false == canEdit) {
