@@ -2212,7 +2212,8 @@
                 }
             }
             var range = propertyRange || this.getSelectionNodes();
-            var prop = new Property({
+            if(range) {
+              var prop = new Property({
                 editor: this,
                 guid: null,
                 layer: null,
@@ -2220,44 +2221,47 @@
                 type: propertyTypeName,
                 startNode: range.start,
                 endNode: range.end
-            });
-            prop.schema = type;
-            if (type.bracket) {
+              });
+              prop.schema = type;
+              if (type.bracket) {
                 if (type.bracket.left) {
-                    var left = this.createBracketNode(prop, type.bracket.left, range.start.parentElement, range.start);
-                    prop.addLeftBracket(left);
+                  var left = this.createBracketNode(prop, type.bracket.left, range.start.parentElement, range.start);
+                  prop.addLeftBracket(left);
                 }
                 if (type.bracket.right) {
-                    var right = this.createBracketNode(prop, type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
-                    prop.addRightBracket(right);
+                  var right = this.createBracketNode(prop, type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
+                  prop.addRightBracket(right);
                 }
-            }
-            prop.text = getRangeText(range);
-            if (value) {
+              }
+              prop.text = getRangeText(range);
+              if (value) {
                 prop.value = value;
-            }
-            var process = function (p) {
+              }
+              var process = function (p) {
                 p.startNode.startProperties.push(p);
                 p.endNode.endProperties.push(p);
                 _this.data.properties.push(p);
                 p.setSpanRange();
                 if (_this.onPropertyCreated) {
-                    _this.onPropertyCreated(p);
+                  _this.onPropertyCreated(p);
                 }
-            }
-            if (type.propertyValueSelector) {
+              }
+              if (type.propertyValueSelector) {
                 type.propertyValueSelector(prop, function (value, name) {
-                    if (value) {
-                        prop.value = value;
-                        prop.name = name;
-                        process(prop);
-                    }
+                  if (value) {
+                    prop.value = value;
+                    prop.name = name;
+                    process(prop);
+                  }
                 });
-            }
-            else {
+              }
+              else {
                 process(prop);
+              }
+              return prop;
+            } else {
+              return null;
             }
-            return prop;
         };
         Editor.prototype.paint = function (s, i) {
             var _ = this;
