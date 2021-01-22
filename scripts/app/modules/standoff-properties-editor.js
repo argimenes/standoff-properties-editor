@@ -1108,25 +1108,23 @@
             this.container.addEventListener("keydown", this.handleKeyDownEvent.bind(this));
             this.container.addEventListener("mouseup", this.handleMouseUpEvent.bind(this));
             this.container.addEventListener("paste", this.handleOnPasteEvent.bind(this));
-            this.container.addEventListener("contextmenu", e => {
+            if(this.event.contextMenuActivated && this.event.contextMenuDeactivated) {
+              this.container.addEventListener("contextmenu", e => {
                 e.preventDefault();
                 const origin = {
-                    left: e.pageX,
-                    top: e.pageY
+                  left: e.pageX,
+                  top: e.pageY
                 };
-                if (_this.event.contextMenuActivated) {
-                    var range = this.getSelectionNodes();
-                    _this.event.contextMenuActivated({ editor: _this, e, range });
-                }
+                var range = this.getSelectionNodes();
+                _this.event.contextMenuActivated({ editor: _this, e, range });
                 return false;
-            });
-            window.addEventListener("click", e => {
+              });
+              window.addEventListener("click", e => {
                 if (_this.mode.contextMenu.active) {
-                    if (_this.event.contextMenuDeactivated) {
-                        _this.event.contextMenuDeactivated({ editor: _this, e });
-                    }
+                  _this.event.contextMenuDeactivated({ editor: _this, e });
                 }
-            });
+              });
+            }
         };
         Editor.prototype.setAnimationFrame = function () {
             var _this = this;
