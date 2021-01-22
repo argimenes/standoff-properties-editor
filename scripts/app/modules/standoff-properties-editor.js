@@ -1312,6 +1312,7 @@
         };
         // https://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser
         Editor.prototype.handleOnPasteEvent = function (e) {
+            var caretSpan = this.getCurrent();
             var _this = this;
             e.stopPropagation();
             e.preventDefault();
@@ -1319,14 +1320,15 @@
             var text = clipboardData.getData('text');
             var len = text.length;
             var frag = this.textToDocumentFragment(text);
+            var lastInsertedSpan = frag.lastChild;
             if (this.container.children.length) {
-                this.container.insertBefore(frag, e.target.nextElementSibling);
+                this.container.insertBefore(frag, caretSpan.nextElementSibling);
             } else {
                 this.container.appendChild(frag);
             }
             if (this.onCharacterAdded) {
-                var start = e.target;
-                var end = e.target;
+                var start = caretSpan;
+                var end = caretSpan;
                 while (len--) {
                     end = this.getNextCharacterNode(end);
                 }
@@ -1335,7 +1337,7 @@
                 });
             }
             this.marked = false;
-            this.setCarotByNode(e.target);
+            this.setCarotByNode(lastInsertedSpan);
             this.updateCurrentRanges();
         };
         Editor.prototype.insertCharacterAtCarot = function (c) {
@@ -2012,18 +2014,24 @@
             }
         };
         Editor.prototype.setCarotByNode = function (node) {
+            let offset = 0;
             if (!node) {
                 return;
+            }
+            if(node.nextElementSibling) {
+              node = node.nextElementSibling;
+            } else {
+              offset = 1;
             }
             var selection = document.getSelection();
             var range = document.createRange();
             var textNode = this.getTextNode(node);
-            range.setStart(textNode, 1);
+            range.setStart(textNode, offset);
             range.collapse(true);
             // console.log('setCarotByNode:', { node, range });
             if (selection.setBaseAndExtent) {
-                var startOffset = 1;    // range.startOffset;
-                var endOffset = 1;      // range.endOffset;
+                var startOffset = offset;    // range.startOffset;
+                var endOffset = offset;      // range.endOffset;
                 selection.setBaseAndExtent(range.startContainer, startOffset, range.endContainer, endOffset);
             } else {
                 selection.removeAllRanges();
