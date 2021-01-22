@@ -68,7 +68,7 @@
         var s = startNode, loop = true;
         var c = 0;
         while (loop) {
-            console.log({ c, s });
+            //console.log({ c, s });
             if (func(s)) {
                 return s;
             }
@@ -1100,7 +1100,7 @@
                 if (!properties.length) {
                     return;
                 }
-                console.log({ method: "requestAnimationFrame", properties })
+                //console.log({ method: "requestAnimationFrame", properties })
                 properties.forEach(p => _this.propertyType[p.type].onRequestAnimationFrame(p, _this.propertyType[p.type], _this));
             });
         };
@@ -1248,7 +1248,7 @@
                 this.mode.selection.start = selection.start;
                 this.mode.selection.end = selection.end;
                 var properties = this.getPropertiesWithin(selection.start, selection.end);
-                console.log({ evt, selection, properties });
+                //console.log({ evt, selection, properties });
                 if (this.selectors) {
                     this.selectors.forEach(s => s({ editor: this, properties, selection }));
                 }
@@ -1293,7 +1293,7 @@
                 return;
             }
             this.moveCursorTo(this.history.cursor[this.history.cursorIndex]);
-            console.log(this.history.cursor[this.history.cursorIndex]);
+            //console.log(this.history.cursor[this.history.cursorIndex]);
         };
         Editor.prototype.forwardCursor = function () {
             this.history.cursorIndex++;
@@ -1301,7 +1301,7 @@
                 return;
             }
             this.moveCursorTo(this.history.cursor[this.history.cursorIndex]);
-            console.log(this.history.cursor[this.history.cursorIndex]);
+            //console.log(this.history.cursor[this.history.cursorIndex]);
         };
         Editor.prototype.moveCursorTo = function (span) {
             span.scrollIntoView();
@@ -1412,7 +1412,7 @@
             var _ = this;
             var previous = firstPreviousCharOrLineBreak(current);
             var next = firstNextCharOrLineBreak(current); // this.getNextCharacterNode(current);
-            console.log({ current, previous, next });
+            //console.log({ current, previous, next });
             if (!previous) {
                 return;
             }
@@ -1469,7 +1469,7 @@
                 return;
             }
             var previous = firstPreviousCharOrLineBreak(current);
-            console.log({ current, previous, next });
+            //console.log({ current, previous, next });
             var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
             if (outOfStream) {
                 next.startProperties[0].remove();
@@ -2017,7 +2017,7 @@
             var textNode = this.getTextNode(node);
             range.setStart(textNode, 1);
             range.collapse(true);
-            //console.log({ node, range });
+            // console.log('setCarotByNode:', { node, range });
             if (selection.setBaseAndExtent) {
                 var startOffset = 1;    // range.startOffset;
                 var endOffset = 1;      // range.endOffset;
@@ -2326,7 +2326,7 @@
                 text: text,
                 properties: this.toPropertyNodes()
             };
-            console.log({ unbind: result });
+            //console.log({ unbind: result });
             return result;
         };
         Editor.prototype.unbindText = function () {
@@ -2353,13 +2353,13 @@
             }
             this.data.properties = [];
             var len = this.data.text.length;
-            console.log("Text length", len);
+            //console.log("Text length", len);
             var properties = model.properties.filter(item => !item.isZeroPoint)
                 .sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
             var propertiesLength = properties.length;
             for (var i = 0; i < propertiesLength; i++) {
                 var p = properties[i];
-                console.log("Property", p);
+                //console.log("Property", p);
                 var type = this.propertyType[p.type];
                 if (!type) {
                     console.warn("Property type not found.", p);
@@ -2459,10 +2459,10 @@
             // Work backwards through the list of zero properties so we don't fetch a SPAN that hasn't been offset from a previous insertion.
             zeroProperties = zeroProperties.sort((a, b) => a.startIndex > b.startIndex ? -1 : a.startIndex < b.startIndex ? 1 : 0);
             var zeroPropertiesLength = zeroProperties.length;
-            console.log({ zeroProperties });
+            //console.log({ zeroProperties });
             for (var i = 0; i < zeroPropertiesLength; i++) {
                 var p = zeroProperties[i];
-                console.log("Zero-point property", p);
+                //console.log("Zero-point property", p);
                 var pt = this.propertyType[p.type];
                 if (!pt) {
                     console.warn("Property type not found.", p);
