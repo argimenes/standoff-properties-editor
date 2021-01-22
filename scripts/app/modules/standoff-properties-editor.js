@@ -1242,7 +1242,7 @@
         Editor.prototype.handleMouseClickEvent = function (evt) {
             this.updateCurrentRanges();
         };
-        Editor.prototype.updateSelectors = function (evt) {
+        Editor.prototype.updateSelectors = function () {
             var selection = this.getSelectionNodes();
             if (selection) {
                 this.mode.selection.start = selection.start;
@@ -1255,6 +1255,9 @@
             } else {
                 this.mode.selection.start = null;
                 this.mode.selection.end = null;
+                if (this.selectors) {
+                    this.selectors.forEach(s => s({ editor: this, selection }));
+                }
             }
         };
         Editor.prototype.handleMouseUpEvent = function (evt) {
@@ -1262,7 +1265,7 @@
                 return;
             }
             this.updateCurrentRanges(evt.target);
-            this.updateSelectors(evt);
+            this.updateSelectors();
             var props = this.getCurrentRanges(evt.target);
             if (props) {
                 props.forEach(p => {
