@@ -36,9 +36,9 @@
         DELETE = 46, HOME = 36, END = 35, INSERT = 45, PRINT_SCREEN = 44, PAUSE = 19, SELECT_KEY = 93, NUM_LOCK = 144,
         LEFT_ARROW = 37, RIGHT_ARROW = 39, UP_ARROW = 38, DOWN_ARROW = 40, SPACE = 32, ESCAPE = 27,
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, LINE_FEED = 10, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
-        RIGHT_WINDOW_KEY = 92, F1 = 112;
+        RIGHT_WINDOW_KEY = 92, F1 = 112, PROCESS = 229;
 
-    const PASSTHROUGH_CHARS = [CAPSLOCK, PAGE_UP, PAGE_DOWN, HOME, END, PRINT_SCREEN, PAUSE, SELECT_KEY, NUM_LOCK, SCROLL_LOCK, LEFT_WINDOW_KEY, RIGHT_WINDOW_KEY, UP_ARROW, DOWN_ARROW, SHIFT, ALT];
+    const PASSTHROUGH_CHARS = [CTRL, PROCESS, CAPSLOCK, PAGE_UP, PAGE_DOWN, HOME, END, PRINT_SCREEN, PAUSE, SELECT_KEY, NUM_LOCK, SCROLL_LOCK, LEFT_WINDOW_KEY, RIGHT_WINDOW_KEY, UP_ARROW, DOWN_ARROW, SHIFT, ALT];
 
     function hasProperties(obj) {
         if (!obj) {
@@ -980,6 +980,27 @@
                 contextMenuActivated: event.contextMenuActivated,
                 contextMenuDeactivated: event.contextMenuDeactivated,
             };
+            this.keyDownFilter = cons.keyDownFilter ||
+              function(key) {
+                // see http://cherrytree.at/misc/vk.htm
+                if(
+                  key === BACKSPACE ||
+                  key === ENTER ||
+                  key === ESCAPE ||
+                  key === SPACE ||
+                  key === DELETE ||
+                  (key >= 48 && key <= 90) || // alphanumeric
+                  (key >= 95 && key <= 111) || // numeric keypad and math functions
+                  (key >= 186 && key <= 222) // OEM windows specific
+                ) {
+                  // process the key down event
+                  return true;
+                } else {
+                  // ignore the event
+                  return false;
+                }
+              };
+
             this.unbinding = cons.unbinding || {};
             this.lockText = cons.lockText || false;
             this.lockProperties = cons.lockProperties || false;
@@ -1701,70 +1722,7 @@
                 this.setAnimationFrame();
             }
         };
-        Editor.prototype.processRightArrow = function (data) {
-            if (data.event.shiftKey) {
-                this.rightSelection(data.event, data.current);
-            }
-            else {
-                var node = this.mode.selection.end ? this.mode.selection.end : data.current;
-                var next = this.getNextCharacterNode(node);
-                this.clearSelectionMode();
-                this.setCarotByNode(next);
-                this.updateCurrentRanges();
-            }
-        };
-        Editor.prototype.processLeftArrow = function (data) {
-            if (data.event.shiftKey) {
-                this.leftSelection(data.event, data.current);
-            }
-            else {
-                var node = this.mode.selection.start ? this.mode.selection.start : data.current;
-                var previous = this.getPreviousCharacterNode(node);
-                this.clearSelectionMode();
-                this.setCarotByNode(previous);
-                this.updateCurrentRanges();
-            }
-        };
-        Editor.prototype.processArrows = function (data) {
-            if (data.key == RIGHT_ARROW) {
-                this.processRightArrow(data);
-            }
-            if (data.key == LEFT_ARROW) {
-                this.processLeftArrow(data);
-            }
-            if (data.key == UP_ARROW) {
-                //var rect = current.getBoundingClientRect();
-                //var x = rect.left;
-                //var lineHeight = parseFloat(document.defaultView.getComputedStyle(current, null).getPropertyValue("line-height").replace("px", ""));
-                //var y = rect.top - lineHeight;
-                //var nodes = document.elementsFromPoint(x, y);
-                //var container = this.container;
-                //var node = nodes.find(n => container.contains(n));
-                //console.log({ current, node, nodes, x, y });
-                //if (node) {
-                //    this.setCarotByNode(node);
-                //    this.updateCurrentRanges();
-                //}
-                //evt.preventDefault();
-                //return;
-            }
-            if (data.key == DOWN_ARROW) {
-                //var rect = current.getBoundingClientRect();
-                //var x = rect.left;
-                //var lineHeight = parseFloat(document.defaultView.getComputedStyle(current, null).getPropertyValue("line-height").replace("px", ""));
-                //var y = rect.top + lineHeight;
-                //var nodes = document.elementsFromPoint(x, y);
-                //var container = this.container;
-                //var node = nodes.find(n => container.contains(n));
-                //console.log({ current, node, nodes, x, y });
-                //if (node && this.container.contains(node) && this.container != node) {
-                //    this.setCarotByNode(node);
-                //    this.updateCurrentRanges();
-                //}
-                //evt.preventDefault();
-                //return;
-            }
-        };
+
         Editor.prototype.processControlOrMeta = function (data) {
             var canAnnotate = !!!this.lockProperties;
             var propsAtCaret = this.getCurrentRanges(data.current);
@@ -1870,15 +1828,12 @@
             var key = (evt.which || evt.keyCode);               // get the inputted key
             var range = this.getSelectionNodes();               // get the mouse selection range, if any
             var hasSelection = !!range;
-            if (PASSTHROUGH_CHARS.indexOf(key) >= 0) {
-                this.updateCurrentRanges();
-                return true;
+
+            if( !this.keyDownFilter(key) ) {
+              this.updateCurrentRanges();
+              return true;
             }
-            if (key == RIGHT_ARROW || key == LEFT_ARROW/*|| key == DOWN_ARROW || key == UP_ARROW*/) {
-                this.processArrows({ key, event: evt, current });
-                evt.preventDefault();
-                return;
-            }
+
             if (evt.ctrlKey || evt.metaKey || evt.keyCode == ESCAPE) {
                 var processed = this.processControlOrMeta({ event: evt, current });
                 if (processed) {
