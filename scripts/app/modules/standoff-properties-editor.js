@@ -1421,47 +1421,49 @@
             if (!previous) {
                 return;
             }
-            var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
-            if (outOfStream) {
-                current.startProperties[0].remove();
-                current.style.display = "none";
-                if (updateCarot && previous) {
-                    this.setCarotByNode(previous);
-                }
-                return;
+            if(current) {
+              var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
+              if (outOfStream) {
+                  current.startProperties[0].remove();
+                  current.style.display = "none";
+                  if (updateCarot && previous) {
+                      this.setCarotByNode(previous);
+                  }
+                  return;
+              }
+              if (current) {
+                  if (current.startProperties.length) {
+                      current.startProperties.forEach(function (prop) {
+                          prop.startNode = next;
+                          if (next) {
+                              next.startProperties.push(prop);
+                          }
+                      });
+                      current.startProperties.length = 0;
+                  }
+                  if (current.endProperties.length) {
+                      current.endProperties.forEach(function (prop) {
+                          prop.endNode = previous;
+                          if (previous) {
+                              previous.endProperties.push(prop);
+                          }
+                      });
+                      current.endProperties.length = 0;
+                  }
+              }
+              if (previous) {
+                  if (previous.endProperties.length) {
+                      previous.endProperties
+                          .filter(function (ep) { return ep.startNode == next && ep.endNode == previous; })
+                          .forEach(function (single) { remove(_.data.properties, single); });
+                  }
+              }
+              current.remove();
+              //var leftOfPrevious = firstPreviousCharOrLineBreak(previous);
+              //if (previous) {
+              //    previous.remove();
+              //}
             }
-            if (current) {
-                if (current.startProperties.length) {
-                    current.startProperties.forEach(function (prop) {
-                        prop.startNode = next;
-                        if (next) {
-                            next.startProperties.push(prop);
-                        }
-                    });
-                    current.startProperties.length = 0;
-                }
-                if (current.endProperties.length) {
-                    current.endProperties.forEach(function (prop) {
-                        prop.endNode = previous;
-                        if (previous) {
-                            previous.endProperties.push(prop);
-                        }
-                    });
-                    current.endProperties.length = 0;
-                }
-            }
-            if (previous) {
-                if (previous.endProperties.length) {
-                    previous.endProperties
-                        .filter(function (ep) { return ep.startNode == next && ep.endNode == previous; })
-                        .forEach(function (single) { remove(_.data.properties, single); });
-                }
-            }
-            current.remove();
-            //var leftOfPrevious = firstPreviousCharOrLineBreak(previous);
-            //if (previous) {
-            //    previous.remove();
-            //}
             if (updateCarot) {
                 if (previous) {
                     this.setCarotByNode(previous);
@@ -1473,6 +1475,8 @@
             if (!next) {
                 return;
             }
+            if(current) {
+
             var previous = firstPreviousCharOrLineBreak(current);
             //console.log({ current, previous, next });
             var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
@@ -1503,12 +1507,14 @@
                 .filter(function (sp) { return sp.endNode == current && sp.startNode == next; })
                 .forEach(function (single) { remove(_.data.properties, single); });
             next.remove();
+          }
+
             this.setCarotByNode(current);
         };
         Editor.prototype.getCurrent = function () {
             var sel = window.getSelection();
             var current = sel.anchorNode.parentElement;
-            if (sel.anchorOffset == 0) {
+            if (sel.anchorOffset == 0 && current.previousElementSibling) {
                 current = current.previousElementSibling;
             }
             return current;
@@ -1516,14 +1522,19 @@
         Editor.prototype.getCurrentTEST = function () {
             var sel = window.getSelection();
             // var current = sel.anchorNode.parentElement;
+            if(this.container.children.length === 0) {
+              return { node: null };
+            }
 
             var current = this.getParentSpan(sel.anchorNode);
-            if (sel.anchorOffset == 0) {
+            if (sel.anchorOffset == 0 && !current.previousElementSibling) {
+              return { node: null };
+            }
+            if (sel.anchorOffset == 0 && current.previousElementSibling)  {
                 current = current.previousElementSibling;
             }
             return {
-                node: current,
-                offset: sel.anchorOffset
+                node: current
             };
         };
         Editor.prototype.deleteRange = function (range) {
