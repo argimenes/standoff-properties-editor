@@ -57,7 +57,6 @@
             this.monitorButton = cons.monitorButton;
             this.layerAdded = cons.layerAdded; // Hack: currently copied from the Editor
             this.commentManager = cons.commentManager;
-            this.updateCurrentRanges = cons.updateCurrentRanges; // Hack: currently copied from the Editor
             this.css = cons.css;
             this.monitor = cons.monitor; // HTMLElement
             this.propertyType = cons.propertyType; // Hack: property types editor accepts
@@ -139,13 +138,13 @@
                             if (guid) {
                                 p.value = guid;
                                 p.name = name;
-                                _.updateCurrentRanges(p.startNode);
+                                p.editor.updateCurrentRanges(p.startNode);
                                 if (_.onPropertyChanged) {
                                     _.onPropertyChanged(p);
                                 }
                             }
                         });
-                        _.updateCurrentRanges(p.startNode);
+                        p.editor.updateCurrentRanges(p.startNode);
                     });
                 }
                 var layer = this.newSpan(this.monitorButton.layer || "[=]");
@@ -242,7 +241,7 @@
                         p.expand();
                     } else {
                         p.shiftLeft();
-                    }         
+                    }
                 });
                 var shiftRight = this.newSpan(this.monitorButton.shiftRight || "->");
                 shiftRight.property = prop;
@@ -275,7 +274,7 @@
                         p.contract();
                     } else {
                         p.shiftRight();
-                    }            
+                    }
                 });
                 var expand = this.newSpan(this.monitorButton.expand || "[+]");
                 expand.property = prop;

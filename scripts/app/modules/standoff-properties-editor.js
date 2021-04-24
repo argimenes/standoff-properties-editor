@@ -36,9 +36,9 @@
         DELETE = 46, HOME = 36, END = 35, INSERT = 45, PRINT_SCREEN = 44, PAUSE = 19, SELECT_KEY = 93, NUM_LOCK = 144,
         LEFT_ARROW = 37, RIGHT_ARROW = 39, UP_ARROW = 38, DOWN_ARROW = 40, SPACE = 32, ESCAPE = 27,
         SHIFT = 16, CTRL = 17, ALT = 18, ENTER = 13, LINE_FEED = 10, TAB = 9, LEFT_WINDOW_KEY = 91, SCROLL_LOCK = 145,
-        RIGHT_WINDOW_KEY = 92, F1 = 112;
+        RIGHT_WINDOW_KEY = 92, F1 = 112, PROCESS = 229;
 
-    const PASSTHROUGH_CHARS = [CAPSLOCK, PAGE_UP, PAGE_DOWN, HOME, END, PRINT_SCREEN, PAUSE, SELECT_KEY, NUM_LOCK, SCROLL_LOCK, LEFT_WINDOW_KEY, RIGHT_WINDOW_KEY, UP_ARROW, DOWN_ARROW, SHIFT, ALT];
+    const PASSTHROUGH_CHARS = [CTRL, PROCESS, CAPSLOCK, PAGE_UP, PAGE_DOWN, HOME, END, PRINT_SCREEN, PAUSE, SELECT_KEY, NUM_LOCK, SCROLL_LOCK, LEFT_WINDOW_KEY, RIGHT_WINDOW_KEY, UP_ARROW, DOWN_ARROW, SHIFT, ALT];
 
     function hasProperties(obj) {
         if (!obj) {
@@ -68,7 +68,7 @@
         var s = startNode, loop = true;
         var c = 0;
         while (loop) {
-            console.log({ c, s });
+            //console.log({ c, s });
             if (func(s)) {
                 return s;
             }
@@ -482,7 +482,9 @@
         var i = indexOf(arr, function (x) { return x == item; });
         if (i > -1) {
             arr.splice(i, 1);
+            return true;
         }
+        return false;
     }
 
     function unsetSpanRange(span, className) {
@@ -978,6 +980,39 @@
                 contextMenuActivated: event.contextMenuActivated,
                 contextMenuDeactivated: event.contextMenuDeactivated,
             };
+            this.keyDownFilter = cons.keyDownFilter ||
+              function(key) {
+                // see http://cherrytree.at/misc/vk.htm
+                if(
+                  key === BACKSPACE ||
+                  key === ENTER ||
+                  key === ESCAPE ||
+                  key === SPACE ||
+                  key === DELETE ||
+                  (key >= 48 && key <= 90) || // alphanumeric
+                  (key >= 95 && key <= 111) || // numeric keypad and math functions
+                  (key >= 186 && key <= 222) // OEM windows specific
+                ) {
+                  // process the key down event
+                  return true;
+                } else {
+                  // ignore the event
+                  return false;
+                }
+              };
+            this.handleSpecialChars = cons.handleSpecialChars ||
+              function (span, charCode) {
+                if (charCode == ENTER) {
+                    //span.speedy.role = ELEMENT_ROLE.CHAR;
+                    span.textContent = String.fromCharCode(13);
+                    span.classList.add("line-break");
+                    span.speedy.isLineBreak = true;
+                }
+                if (charCode == TAB) {
+                    span.textContent = String.fromCharCode(TAB);
+                    span.classList.add("tab");
+                }
+              };
             this.unbinding = cons.unbinding || {};
             this.lockText = cons.lockText || false;
             this.lockProperties = cons.lockProperties || false;
@@ -1073,25 +1108,23 @@
             this.container.addEventListener("keydown", this.handleKeyDownEvent.bind(this));
             this.container.addEventListener("mouseup", this.handleMouseUpEvent.bind(this));
             this.container.addEventListener("paste", this.handleOnPasteEvent.bind(this));
-            this.container.addEventListener("contextmenu", e => {
+            if(this.event.contextMenuActivated && this.event.contextMenuDeactivated) {
+              this.container.addEventListener("contextmenu", e => {
                 e.preventDefault();
                 const origin = {
-                    left: e.pageX,
-                    top: e.pageY
+                  left: e.pageX,
+                  top: e.pageY
                 };
-                if (_this.event.contextMenuActivated) {
-                    var range = this.getSelectionNodes();
-                    _this.event.contextMenuActivated({ editor: _this, e, range });
-                }
+                var range = this.getSelectionNodes();
+                _this.event.contextMenuActivated({ editor: _this, e, range });
                 return false;
-            });
-            window.addEventListener("click", e => {
+              });
+              window.addEventListener("click", e => {
                 if (_this.mode.contextMenu.active) {
-                    if (_this.event.contextMenuDeactivated) {
-                        _this.event.contextMenuDeactivated({ editor: _this, e });
-                    }
+                  _this.event.contextMenuDeactivated({ editor: _this, e });
                 }
-            });
+              });
+            }
         };
         Editor.prototype.setAnimationFrame = function () {
             var _this = this;
@@ -1100,7 +1133,7 @@
                 if (!properties.length) {
                     return;
                 }
-                console.log({ method: "requestAnimationFrame", properties })
+                //console.log({ method: "requestAnimationFrame", properties })
                 properties.forEach(p => _this.propertyType[p.type].onRequestAnimationFrame(p, _this.propertyType[p.type], _this));
             });
         };
@@ -1198,30 +1231,27 @@
         };
         Editor.prototype.updateCurrentRanges = function (span) {
             var _this = this;
-            window.setTimeout(function () {
-                if (!span) {
-                    span = _this.getCurrent();
-                }
-                _this.setMonitor([]);
-                if (!_this.marked) {
-                    markNodesWithIndexes(_this.container.firstChild);
-                    _this.data.properties.sort((a, b) => a.startIndex() > b.endIndex() ? 1 : a.startIndex() == b.startIndex() ? -1 : 0);
-                    _this.marked = true;
-                }
-                var props = this.getCurrentRanges(span);
-                props.sort((a, b) => {
-                    const asi = a.startIndex();
-                    const bsi = b.startIndex();
-                    if (asi > bsi) return 1;
-                    if (asi < bsi) return -1;
-                    const aei = a.endIndex();
-                    const bei = b.endIndex();
-                    if (aei > bei) return 1;
-                    if (aei < bei) return -1;
-                    return 0;
-                });
-                _this.setMonitor(props || []);
-            }.bind(this), 1);
+            if (!span) {
+                span = _this.getCurrent();
+            }
+            if (!_this.marked) {
+                markNodesWithIndexes(_this.container.firstChild);
+                _this.data.properties.sort((a, b) => a.startIndex() > b.endIndex() ? 1 : a.startIndex() == b.startIndex() ? -1 : 0);
+                _this.marked = true;
+            }
+            var props = this.getCurrentRanges(span);
+            props.sort((a, b) => {
+                const asi = a.startIndex();
+                const bsi = b.startIndex();
+                if (asi > bsi) return 1;
+                if (asi < bsi) return -1;
+                const aei = a.endIndex();
+                const bei = b.endIndex();
+                if (aei > bei) return 1;
+                if (aei < bei) return -1;
+                return 0;
+            });
+            _this.setMonitor(props || []);
         };
         Editor.prototype.deleteAnnotation = function (type) {
             var current = this.getCurrent();
@@ -1235,26 +1265,27 @@
         };
         Editor.prototype.setMonitor = function (props) {
             var _this = this;
-            window.setTimeout(function () {
-                _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount, editor: _this }));
-            }, 1);
+            _this.monitors.forEach(x => x.update({ properties: props, characterCount: _this.characterCount, editor: _this }));
         };
         Editor.prototype.handleMouseClickEvent = function (evt) {
             this.updateCurrentRanges();
         };
-        Editor.prototype.updateSelectors = function (evt) {
+        Editor.prototype.updateSelectors = function () {
             var selection = this.getSelectionNodes();
             if (selection) {
                 this.mode.selection.start = selection.start;
                 this.mode.selection.end = selection.end;
                 var properties = this.getPropertiesWithin(selection.start, selection.end);
-                console.log({ evt, selection, properties });
+                //console.log({ evt, selection, properties });
                 if (this.selectors) {
                     this.selectors.forEach(s => s({ editor: this, properties, selection }));
                 }
             } else {
                 this.mode.selection.start = null;
                 this.mode.selection.end = null;
+                if (this.selectors) {
+                    this.selectors.forEach(s => s({ editor: this, selection }));
+                }
             }
         };
         Editor.prototype.handleMouseUpEvent = function (evt) {
@@ -1262,7 +1293,7 @@
                 return;
             }
             this.updateCurrentRanges(evt.target);
-            this.updateSelectors(evt);
+            this.updateSelectors();
             var props = this.getCurrentRanges(evt.target);
             if (props) {
                 props.forEach(p => {
@@ -1293,7 +1324,7 @@
                 return;
             }
             this.moveCursorTo(this.history.cursor[this.history.cursorIndex]);
-            console.log(this.history.cursor[this.history.cursorIndex]);
+            //console.log(this.history.cursor[this.history.cursorIndex]);
         };
         Editor.prototype.forwardCursor = function () {
             this.history.cursorIndex++;
@@ -1301,7 +1332,7 @@
                 return;
             }
             this.moveCursorTo(this.history.cursor[this.history.cursorIndex]);
-            console.log(this.history.cursor[this.history.cursorIndex]);
+            //console.log(this.history.cursor[this.history.cursorIndex]);
         };
         Editor.prototype.moveCursorTo = function (span) {
             span.scrollIntoView();
@@ -1309,6 +1340,7 @@
         };
         // https://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser
         Editor.prototype.handleOnPasteEvent = function (e) {
+            var caretSpan = this.getCurrent();
             var _this = this;
             e.stopPropagation();
             e.preventDefault();
@@ -1316,14 +1348,15 @@
             var text = clipboardData.getData('text');
             var len = text.length;
             var frag = this.textToDocumentFragment(text);
+            var lastInsertedSpan = frag.lastChild;
             if (this.container.children.length) {
-                this.container.insertBefore(frag, e.target.nextElementSibling);
+                this.container.insertBefore(frag, caretSpan.nextElementSibling);
             } else {
                 this.container.appendChild(frag);
             }
             if (this.onCharacterAdded) {
-                var start = e.target;
-                var end = e.target;
+                var start = caretSpan;
+                var end = caretSpan;
                 while (len--) {
                     end = this.getNextCharacterNode(end);
                 }
@@ -1332,7 +1365,7 @@
                 });
             }
             this.marked = false;
-            this.setCarotByNode(e.target);
+            this.setCarotByNode(lastInsertedSpan);
             this.updateCurrentRanges();
         };
         Editor.prototype.insertCharacterAtCarot = function (c) {
@@ -1412,115 +1445,126 @@
             var _ = this;
             var previous = firstPreviousCharOrLineBreak(current);
             var next = firstNextCharOrLineBreak(current); // this.getNextCharacterNode(current);
-            console.log({ current, previous, next });
+            //console.log({ current, previous, next });
             if (!previous) {
                 return;
             }
-            var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
-            if (outOfStream) {
-                current.startProperties[0].remove();
-                current.style.display = "none";
-                if (updateCarot && previous) {
-                    this.setCarotByNode(previous);
-                }
-                return;
+            if(current) {
+              var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
+              if (outOfStream) {
+                  current.startProperties[0].remove();
+                  current.style.display = "none";
+                  if (updateCarot && previous) {
+                      this.setCarotByNode(previous);
+                  }
+                  return;
+              }
+              if (current) {
+                  if (current.startProperties.length) {
+                      current.startProperties.forEach(function (prop) {
+                          prop.startNode = next;
+                          if (next) {
+                              next.startProperties.push(prop);
+                          }
+                      });
+                      current.startProperties.length = 0;
+                  }
+                  if (current !== previous && current.endProperties.length) {
+                      current.endProperties.forEach(function (prop) {
+                          prop.endNode = previous;
+                          if (previous) {
+                              previous.endProperties.push(prop);
+                          }
+                      });
+                      current.endProperties.length = 0;
+                  }
+              }
+              if (previous) {
+                  if (previous.endProperties.length) {
+                      previous.endProperties
+                          .filter(function (ep) { return ep.startNode == next && ep.endNode == previous; })
+                          .forEach(function (single) {
+                              const removed = remove(_.data.properties, single);
+                              if(removed && single.editor.onPropertyDeleted) {
+                                  single.isDeleted = true;
+                                  single.editor.onPropertyDeleted(single);
+                              }
+                            });
+                  }
+              }
+              current.remove();
+              //var leftOfPrevious = firstPreviousCharOrLineBreak(previous);
+              //if (previous) {
+              //    previous.remove();
+              //}
             }
-            if (current) {
-                if (current.startProperties.length) {
-                    current.startProperties.forEach(function (prop) {
-                        prop.startNode = next;
-                        if (next) {
-                            next.startProperties.push(prop);
-                        }
-                    });
-                    current.startProperties.length = 0;
-                }
-                if (current.endProperties.length) {
-                    current.endProperties.forEach(function (prop) {
-                        prop.endNode = previous;
-                        if (previous) {
-                            previous.endProperties.push(prop);
-                        }
-                    });
-                    current.endProperties.length = 0;
-                }
-            }
-            if (previous) {
-                if (previous.endProperties.length) {
-                    previous.endProperties
-                        .filter(function (ep) { return ep.startNode == next && ep.endNode == previous; })
-                        .forEach(function (single) { remove(_.data.properties, single); });
-                }
-            }
-            current.remove();
-            //var leftOfPrevious = firstPreviousCharOrLineBreak(previous);
-            //if (previous) {
-            //    previous.remove();
-            //}
             if (updateCarot) {
                 if (previous) {
                     this.setCarotByNode(previous);
                 }
             }
         };
-        Editor.prototype.handleDelete = function (current) {
-            var next = firstNextCharOrLineBreak(current);
-            if (!next) {
-                return;
-            }
-            var previous = firstPreviousCharOrLineBreak(current);
-            console.log({ current, previous, next });
-            var outOfStream = (current.speedy.stream == TEXT_STREAM.OUT);
-            if (outOfStream) {
-                next.startProperties[0].remove();
-                next.style.display = "none";
-                if (current) {
-                    this.setCarotByNode(current);
-                }
-                return;
-            }
-            if (next.startProperties.length) {
-                var forward = this.getNextCharacterNode(next);
-                next.startProperties.forEach(function (prop) {
-                    prop.startNode = forward;
-                    forward.startProperties.push(prop);
-                });
-                next.startProperties.length = 0;
-            }
-            if (next.endProperties.length) {
-                next.endProperties.forEach(function (prop) {
-                    prop.endNode = current;
-                    current.endProperties.push(prop);
-                });
-                next.endProperties.length = 0;
-            }
-            next.startProperties
-                .filter(function (sp) { return sp.endNode == current && sp.startNode == next; })
-                .forEach(function (single) { remove(_.data.properties, single); });
-            next.remove();
-            this.setCarotByNode(current);
-        };
+
         Editor.prototype.getCurrent = function () {
             var sel = window.getSelection();
             var current = sel.anchorNode.parentElement;
-            if (sel.anchorOffset == 0) {
+            if (sel.anchorOffset == 0 && current.previousElementSibling) {
                 current = current.previousElementSibling;
             }
             return current;
         };
+
+        Editor.prototype.getCurrentNEW = function () {
+            var sel = window.getSelection();
+            if(this.container.children.length === 0) {
+              return null;
+            }
+            var current = sel.anchorNode === this.container ? this.container.firstChild : this.getParentSpan(sel.anchorNode);
+            if (sel.anchorOffset == 0 && !current.previousElementSibling) {
+              return null;
+            }
+            if (sel.anchorOffset == 0 && current.previousElementSibling)  {
+                current = current.previousElementSibling;
+            }
+            return current;
+        };
+
+        Editor.prototype.getNextNEW = function () {
+            var sel = window.getSelection();
+            if(this.container.children.length === 0) {
+              return null;
+            }
+            var current = sel.anchorNode === this.container ? this.container.firstChild : this.getParentSpan(sel.anchorNode);
+
+            if (sel.anchorOffset == 1 && !current.nextElementSibling) {
+              return null;
+            }
+            if (sel.anchorOffset == 1 && current.nextElementSibling)  {
+                current = current.nextElementSibling;
+            }
+
+            return current;
+        };
+
         Editor.prototype.getCurrentTEST = function () {
             var sel = window.getSelection();
             // var current = sel.anchorNode.parentElement;
+            if(this.container.children.length === 0) {
+              return { node: null };
+            }
 
             var current = this.getParentSpan(sel.anchorNode);
-            if (sel.anchorOffset == 0) {
+            if (sel.anchorOffset == 0 && !current.previousElementSibling) {
+              return { node: null };
+            }
+            if (sel.anchorOffset == 0 && current.previousElementSibling)  {
                 current = current.previousElementSibling;
             }
             return {
-                node: current,
-                offset: sel.anchorOffset
+                node: current
             };
         };
+
         Editor.prototype.deleteRange = function (range) {
             var c = 0;
             var node = range.end;
@@ -1636,9 +1680,11 @@
             var sub = this.subscriber;
             var range = data.range;
             var current = data.current;
-            var offset = data.selectionOffset;
+            var next = data.next;
+
             var _range = null;
             var _current = null;
+            var _next = null;
             if (sub) {
                 if (range) {
                     _range = {
@@ -1647,6 +1693,7 @@
                     };
                 }
                 _current = indexNode(sub.container.firstChild, nodeIndex(current));
+                _next = indexNode(sub.container.firstChild, nodeIndex(next));
             }
             if (data.key == BACKSPACE) {
                 if (canEdit) {
@@ -1673,17 +1720,11 @@
                             this.deleteRange(_range);
                         }
                     }
-                    else {
-                        if (offset == 1) {
-                            var offsetNode = firstNextCharOrLineBreak(current);
-                            if (offsetNode == current) {
-                                return;
-                            }
-                        }
-                        this.handleDelete(current);
-                        if (sub) {
-                            this.handleDelete(_current);
-                        }
+                    else if(next !== current) {
+                      this.handleBackspace(next, true);
+                      if (sub) {
+                          this.handleBackspace(_next);
+                      }
                     }
                     this.marked = false;
                     this.updateCurrentRanges();
@@ -1691,70 +1732,7 @@
                 this.setAnimationFrame();
             }
         };
-        Editor.prototype.processRightArrow = function (data) {
-            if (data.event.shiftKey) {
-                this.rightSelection(data.event, data.current);
-            }
-            else {
-                var node = this.mode.selection.end ? this.mode.selection.end : data.current;
-                var next = this.getNextCharacterNode(node);
-                this.clearSelectionMode();
-                this.setCarotByNode(next);
-                this.updateCurrentRanges();
-            }
-        };
-        Editor.prototype.processLeftArrow = function (data) {
-            if (data.event.shiftKey) {
-                this.leftSelection(data.event, data.current);
-            }
-            else {
-                var node = this.mode.selection.start ? this.mode.selection.start : data.current;
-                var previous = this.getPreviousCharacterNode(node);
-                this.clearSelectionMode();
-                this.setCarotByNode(previous);
-                this.updateCurrentRanges();
-            }
-        };
-        Editor.prototype.processArrows = function (data) {
-            if (data.key == RIGHT_ARROW) {
-                this.processRightArrow(data);
-            }
-            if (data.key == LEFT_ARROW) {
-                this.processLeftArrow(data);
-            }
-            if (data.key == UP_ARROW) {
-                //var rect = current.getBoundingClientRect();
-                //var x = rect.left;
-                //var lineHeight = parseFloat(document.defaultView.getComputedStyle(current, null).getPropertyValue("line-height").replace("px", ""));
-                //var y = rect.top - lineHeight;
-                //var nodes = document.elementsFromPoint(x, y);
-                //var container = this.container;
-                //var node = nodes.find(n => container.contains(n));
-                //console.log({ current, node, nodes, x, y });
-                //if (node) {
-                //    this.setCarotByNode(node);
-                //    this.updateCurrentRanges();
-                //}
-                //evt.preventDefault();
-                //return;
-            }
-            if (data.key == DOWN_ARROW) {
-                //var rect = current.getBoundingClientRect();
-                //var x = rect.left;
-                //var lineHeight = parseFloat(document.defaultView.getComputedStyle(current, null).getPropertyValue("line-height").replace("px", ""));
-                //var y = rect.top + lineHeight;
-                //var nodes = document.elementsFromPoint(x, y);
-                //var container = this.container;
-                //var node = nodes.find(n => container.contains(n));
-                //console.log({ current, node, nodes, x, y });
-                //if (node && this.container.contains(node) && this.container != node) {
-                //    this.setCarotByNode(node);
-                //    this.updateCurrentRanges();
-                //}                
-                //evt.preventDefault();
-                //return;
-            }
-        };
+
         Editor.prototype.processControlOrMeta = function (data) {
             var canAnnotate = !!!this.lockProperties;
             var propsAtCaret = this.getCurrentRanges(data.current);
@@ -1816,7 +1794,7 @@
                     this.createProperty(propertyTypeName);
                     processed = true;
                 }
-            }            
+            }
             return processed;
         };
         Editor.prototype.processSelectionOverwrite = function (data) {
@@ -1854,25 +1832,23 @@
         Editor.prototype.handleKeyDownEvent = function (evt) {
             var _ = this;
             var canEdit = !!!this.lockText;
-            var tmp = this.getCurrentTEST();                    // get the currently selected SPAN for the cursor
-            var current = tmp.node;
+
+            var current = this.getCurrentNEW();                 // get the SPAN before the cursor
+            var next = this.getNextNEW();                       // get the SPAN after the cursor
             var key = (evt.which || evt.keyCode);               // get the inputted key
             var range = this.getSelectionNodes();               // get the mouse selection range, if any
             var hasSelection = !!range;
-            if (PASSTHROUGH_CHARS.indexOf(key) >= 0) {
-                this.updateCurrentRanges();
-                return true;
+
+            if( !this.keyDownFilter(key) ) {
+              this.updateCurrentRanges();
+              return true;
             }
-            if (key == RIGHT_ARROW || key == LEFT_ARROW/*|| key == DOWN_ARROW || key == UP_ARROW*/) {
-                this.processArrows({ key, event: evt, current });
-                evt.preventDefault();
-                return;
-            }
+
             if (evt.ctrlKey || evt.metaKey || evt.keyCode == ESCAPE) {
                 var processed = this.processControlOrMeta({ event: evt, current });
                 if (processed) {
                     evt.preventDefault();
-                }   
+                }
                 return;
             }
             if (false == canEdit) {
@@ -1880,7 +1856,7 @@
                 return;
             }
             if (key == BACKSPACE || key == DELETE) {
-                this.processDelete({ key, current, range, selectionOffset: tmp.offset });
+                this.processDelete({ key, current, next, range });
                 this.setAnimationFrame();
                 evt.preventDefault();
                 return;
@@ -1982,18 +1958,7 @@
             }
             return null;
         };
-        Editor.prototype.handleSpecialChars = function (span, charCode) {
-            if (charCode == ENTER) {
-                //span.speedy.role = ELEMENT_ROLE.CHAR;
-                span.textContent = String.fromCharCode(13);
-                span.classList.add("line-break");
-                span.speedy.isLineBreak = true;
-            }
-            if (charCode == TAB) {
-                span.textContent = String.fromCharCode(TAB);
-                span.classList.add("tab");
-            }
-        };
+
         Editor.prototype.createSelection = function (start, end) {
             var selection = document.getSelection();
             var range = document.createRange();
@@ -2009,18 +1974,24 @@
             }
         };
         Editor.prototype.setCarotByNode = function (node) {
+            let offset = 0;
             if (!node) {
                 return;
+            }
+            if(node.nextElementSibling) {
+              node = node.nextElementSibling;
+            } else {
+              offset = 1;
             }
             var selection = document.getSelection();
             var range = document.createRange();
             var textNode = this.getTextNode(node);
-            range.setStart(textNode, 1);
+            range.setStart(textNode, offset);
             range.collapse(true);
-            //console.log({ node, range });
+            // console.log('setCarotByNode:', { node, range });
             if (selection.setBaseAndExtent) {
-                var startOffset = 1;    // range.startOffset;
-                var endOffset = 1;      // range.endOffset;
+                var startOffset = offset;    // range.startOffset;
+                var endOffset = offset;      // range.endOffset;
                 selection.setBaseAndExtent(range.startContainer, startOffset, range.endContainer, endOffset);
             } else {
                 selection.removeAllRanges();
@@ -2241,7 +2212,8 @@
                 }
             }
             var range = propertyRange || this.getSelectionNodes();
-            var prop = new Property({
+            if(range) {
+              var prop = new Property({
                 editor: this,
                 guid: null,
                 layer: null,
@@ -2249,44 +2221,47 @@
                 type: propertyTypeName,
                 startNode: range.start,
                 endNode: range.end
-            });
-            prop.schema = type;
-            if (type.bracket) {
+              });
+              prop.schema = type;
+              if (type.bracket) {
                 if (type.bracket.left) {
-                    var left = this.createBracketNode(prop, type.bracket.left, range.start.parentElement, range.start);
-                    prop.addLeftBracket(left);
+                  var left = this.createBracketNode(prop, type.bracket.left, range.start.parentElement, range.start);
+                  prop.addLeftBracket(left);
                 }
                 if (type.bracket.right) {
-                    var right = this.createBracketNode(prop, type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
-                    prop.addRightBracket(right);
+                  var right = this.createBracketNode(prop, type.bracket.right, range.end.parentElement, range.end.nextElementSibling);
+                  prop.addRightBracket(right);
                 }
-            }
-            prop.text = getRangeText(range);
-            if (value) {
+              }
+              prop.text = getRangeText(range);
+              if (value) {
                 prop.value = value;
-            }
-            var process = function (p) {
+              }
+              var process = function (p) {
                 p.startNode.startProperties.push(p);
                 p.endNode.endProperties.push(p);
                 _this.data.properties.push(p);
                 p.setSpanRange();
                 if (_this.onPropertyCreated) {
-                    _this.onPropertyCreated(p);
+                  _this.onPropertyCreated(p);
                 }
-            }
-            if (type.propertyValueSelector) {
+              }
+              if (type.propertyValueSelector) {
                 type.propertyValueSelector(prop, function (value, name) {
-                    if (value) {
-                        prop.value = value;
-                        prop.name = name;
-                        process(prop);
-                    }
+                  if (value) {
+                    prop.value = value;
+                    prop.name = name;
+                    process(prop);
+                  }
                 });
-            }
-            else {
+              }
+              else {
                 process(prop);
+              }
+              return prop;
+            } else {
+              return null;
             }
-            return prop;
         };
         Editor.prototype.paint = function (s, i) {
             var _ = this;
@@ -2326,7 +2301,7 @@
                 text: text,
                 properties: this.toPropertyNodes()
             };
-            console.log({ unbind: result });
+            //console.log({ unbind: result });
             return result;
         };
         Editor.prototype.unbindText = function () {
@@ -2353,13 +2328,13 @@
             }
             this.data.properties = [];
             var len = this.data.text.length;
-            console.log("Text length", len);
+            //console.log("Text length", len);
             var properties = model.properties.filter(item => !item.isZeroPoint)
                 .sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
             var propertiesLength = properties.length;
             for (var i = 0; i < propertiesLength; i++) {
                 var p = properties[i];
-                console.log("Property", p);
+                //console.log("Property", p);
                 var type = this.propertyType[p.type];
                 if (!type) {
                     console.warn("Property type not found.", p);
@@ -2459,10 +2434,10 @@
             // Work backwards through the list of zero properties so we don't fetch a SPAN that hasn't been offset from a previous insertion.
             zeroProperties = zeroProperties.sort((a, b) => a.startIndex > b.startIndex ? -1 : a.startIndex < b.startIndex ? 1 : 0);
             var zeroPropertiesLength = zeroProperties.length;
-            console.log({ zeroProperties });
+            //console.log({ zeroProperties });
             for (var i = 0; i < zeroPropertiesLength; i++) {
                 var p = zeroProperties[i];
-                console.log("Zero-point property", p);
+                //console.log("Zero-point property", p);
                 var pt = this.propertyType[p.type];
                 if (!pt) {
                     console.warn("Property type not found.", p);
