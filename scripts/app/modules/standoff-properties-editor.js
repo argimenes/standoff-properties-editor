@@ -980,6 +980,14 @@
                 contextMenuActivated: event.contextMenuActivated,
                 contextMenuDeactivated: event.contextMenuDeactivated,
             };
+            // this filter function will be called for every character processed either when binding a text
+            // or when text gets pasted into the editor container
+            // return true to process the character or false to ignore it
+            this.characterFilter = cons.characterFilter ||
+              function(charCode) {
+                // in the default configuration ignore the LINE_FEED characters
+                return charCode !== LINE_FEED;
+              };
             this.keyDownFilter = cons.keyDownFilter ||
               function(key) {
                 // see http://cherrytree.at/misc/vk.htm
@@ -2486,24 +2494,18 @@
         Editor.prototype.populateContainer = function (text) {
             var frag = this.textToDocumentFragment(text);
             this.container.appendChild(frag);
+            // TODO: fire onCharacterAdded events here, so that this is consistent with handleOnPasteEvent
         };
         Editor.prototype.textToDocumentFragment = function (text) {
             var len = text.length, i = 0;
-            var skip = [LINE_FEED];
             var frag = document.createDocumentFragment();
             while (len--) {
                 var c = text[i++];
                 var code = c.charCodeAt();
-                if (skip.indexOf(code) >= 0) {
+                if (!this.characterFilter(code)) {
                     continue;
                 }
                 var span = this.newSpan(c);
-                //if (this.onCharacterAdded) {
-                //    this.onCharactedAdded(span, this);
-                //}
-                if (code == SPACE) {
-                    // span.textContent = String.fromCharCode(160);
-                }
                 this.handleSpecialChars(span, code);
                 frag.appendChild(span);
             }
